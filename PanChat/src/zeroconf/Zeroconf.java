@@ -79,21 +79,65 @@ public class Zeroconf {
 
 	public static void main(String[] args) {
 
-		Zeroconf zeroconf = new Zeroconf();
-		Zeroconf zeroconf2 = new Zeroconf();
+		final Zeroconf zeroconf = new Zeroconf();
+		final Zeroconf zeroconfArray[] = new Zeroconf[4];
+		Thread threadPool[] = new Thread[4];
 
 		System.out.println(zeroconf.addr);
 		System.out.print(zeroconf.name);
 
 		/*
-		 * Ahora hay que aprender a crear un paquete, mandarlo y recibirlo :-P
+		 * Creamos un hilo que manda un mensaje.
 		 */
+		Thread thread = new Thread(new Runnable(){
 
-		// DatagramPacket packet = new DatagramPacket();
-		// packet.setData("hola");
-		//		
-		// zeroconf.socket.send(new DatagramPacket());
+			@Override
+			public void run() {
+				String msg = "Hello";
+				DatagramPacket hi = new DatagramPacket(msg.getBytes(), msg.length(),
+						zeroconf.group, Zeroconf.MDNS_PORT);
 
+				try {
+					zeroconf.socket.send(hi);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+		});
+		
+		/*
+		 * Creamos una serie de hilos que leen.
+		 */
+		for (int i =0; i< 4; i++){
+			zeroconfArray[i] = new Zeroconf();
+			final int ii = i;
+			threadPool[i] = new Thread(new Runnable(){
+
+				@Override
+				public void run() {
+					byte[] buf = new byte[1000];
+					DatagramPacket recv = new DatagramPacket(buf, buf.length);
+					try {
+						zeroconfArray[ii].socket.receive(recv);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					System.out.println(buf);
+				}
+			});
+		}
+		
+		try {
+			thread.join();
+			zeroconf.close();
+			for (int i =0; i< 4; i++){
+				threadPool[i].join();
+				zeroconfArray[i].close();
+			}
+			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
-
 }
