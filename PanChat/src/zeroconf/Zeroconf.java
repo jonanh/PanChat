@@ -84,19 +84,19 @@ public class Zeroconf {
 		Thread threadPool[] = new Thread[4];
 
 		System.out.println(zeroconf.addr);
-		System.out.print(zeroconf.name);
+		System.out.println(zeroconf.name);
 
 		/*
 		 * Creamos un hilo que manda un mensaje.
 		 */
-		Thread thread = new Thread(new Runnable(){
+		Thread thread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-				System.out.println("enviando!!!");
+				System.out.println("enviando Hello!!!");
 				String msg = "Hello";
-				DatagramPacket hi = new DatagramPacket(msg.getBytes(), msg.length(),
-						zeroconf.group, Zeroconf.MDNS_PORT);
+				DatagramPacket hi = new DatagramPacket(msg.getBytes(), msg
+						.length(), zeroconf.group, Zeroconf.MDNS_PORT);
 				try {
 					zeroconf.socket.send(hi);
 				} catch (IOException e) {
@@ -104,16 +104,16 @@ public class Zeroconf {
 				}
 				System.out.println("enviado!!");
 			}
-			
+
 		});
-		
+
 		/*
 		 * Creamos una serie de hilos que leen.
 		 */
-		for (int i =0; i< 4; i++){
+		for (int i = 0; i < 4; i++) {
 			zeroconfArray[i] = new Zeroconf();
 			final int ii = i;
-			threadPool[i] = new Thread(new Runnable(){
+			threadPool[i] = new Thread(new Runnable() {
 
 				@Override
 				public void run() {
@@ -125,28 +125,30 @@ public class Zeroconf {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					System.out.println(ii + " recibido!!! : -> [" + recv.getData() + "]");
+					System.out.println(ii + " recibido!!! : -> ["
+							+ new String(recv.getData(), 0, recv.getLength())
+							+ "]");
 				}
 			});
 			threadPool[i].start();
 		}
-		
+
 		try {
 			Thread.sleep(1);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-		
+
 		thread.start();
-		
+
 		try {
 			thread.join();
 			zeroconf.close();
-			for (int i =0; i< 4; i++){
+			for (int i = 0; i < 4; i++) {
 				threadPool[i].join();
 				zeroconfArray[i].close();
 			}
-			
+
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
