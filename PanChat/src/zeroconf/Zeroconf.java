@@ -93,15 +93,16 @@ public class Zeroconf {
 
 			@Override
 			public void run() {
+				System.out.println("enviando!!!");
 				String msg = "Hello";
 				DatagramPacket hi = new DatagramPacket(msg.getBytes(), msg.length(),
 						zeroconf.group, Zeroconf.MDNS_PORT);
-
 				try {
 					zeroconf.socket.send(hi);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				System.out.println("enviado!!");
 			}
 			
 		});
@@ -116,6 +117,7 @@ public class Zeroconf {
 
 				@Override
 				public void run() {
+					System.out.println(ii + " recibiendo!!!");
 					byte[] buf = new byte[1000];
 					DatagramPacket recv = new DatagramPacket(buf, buf.length);
 					try {
@@ -123,10 +125,19 @@ public class Zeroconf {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					System.out.println(buf);
+					System.out.println(ii + " recibido!!! : -> [" + recv.getData() + "]");
 				}
 			});
+			threadPool[i].start();
 		}
+		
+		try {
+			Thread.sleep(1);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		
+		thread.start();
 		
 		try {
 			thread.join();
