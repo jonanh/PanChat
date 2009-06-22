@@ -6,6 +6,16 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
+/**
+ * 
+ * 
+ * MulticastSocketTest.java:
+ * 
+ * Test de comunicación con varios clientes a través de un socket Multicast.
+ * 
+ * @author Jon Ander Hernández & Javier Mediavilla
+ * 
+ */
 public class MulticastSocketTest {
 
 	/**
@@ -99,7 +109,8 @@ public class MulticastSocketTest {
 				System.out.println("enviando Hello!!!");
 				String msg = "Hello";
 				DatagramPacket hi = new DatagramPacket(msg.getBytes(), msg
-						.length(), zeroconf.group, MulticastSocketTest.MDNS_PORT);
+						.length(), zeroconf.group,
+						MulticastSocketTest.MDNS_PORT);
 				try {
 					zeroconf.socket.send(hi);
 				} catch (IOException e) {

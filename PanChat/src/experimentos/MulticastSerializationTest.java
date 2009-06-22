@@ -11,6 +11,18 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
+/**
+ * 
+ * 
+ * MulticastSerializationTest.java:
+ * 
+ * Test de envio y recepci—n de objetos serializables a traves de un socket
+ * Multicast.
+ * 
+ * @author Jon Ander Hern‡ndez & Javier Mediavilla
+ * 
+ */
+
 public class MulticastSerializationTest {
 
 	public class Paquete implements Serializable {
@@ -168,7 +180,7 @@ public class MulticastSerializationTest {
 
 						System.out.println(ii + " recibido!!! : -> ["
 								+ paquete.contenido + "]");
-						
+
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					} catch (ClassNotFoundException e) {
