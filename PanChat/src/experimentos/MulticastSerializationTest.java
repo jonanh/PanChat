@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -24,11 +23,6 @@ import java.net.UnknownHostException;
  */
 
 public class MulticastSerializationTest {
-
-	public class Paquete implements Serializable {
-		private static final long serialVersionUID = 1L;
-		String contenido = "Hello!";
-	}
 
 	/**
 	 * This is the multicast group, we are listening to for multicast DNS
@@ -119,7 +113,7 @@ public class MulticastSerializationTest {
 			@Override
 			public void run() {
 				System.out.println("enviando Hello!!!");
-				Paquete msg = zeroconf.new Paquete();
+				Paquete msg = new Paquete();
 
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				ObjectOutputStream oos;
