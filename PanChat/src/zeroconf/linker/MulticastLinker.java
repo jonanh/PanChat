@@ -50,6 +50,6 @@ public class MulticastLinker {
 	}
 
 	public void close() {
-		connector.closeSockets();
+		//connector.closeSockets();
 	}
 }
