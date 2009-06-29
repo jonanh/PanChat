@@ -1,22 +1,65 @@
 package interfaz;
 
-import javax.swing.JFrame;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class Inicio extends JFrame{
+import javax.swing.JButton;
+
+public class Inicio extends VentanaBase implements ActionListener {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
+	MiPanel panel;
+	Datos nombre;
+	JButton boton=new JButton("Conectar");;
+	
 	public Inicio(){
-		this.setVisible(true);
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setSize(400,400);
+		super();
+		construir();
+		
+	}
 	
+	public Inicio(String name){
+		
+		super(name);
+		construir();
+		
+	}
+	
+	private void construir(){
+		panel=new MiPanel("init.jpg");
+		//para el nombre que quiere el usuario
+		nombre=new Datos("anónimo");
+		//panel que contiene los elementos
+		
+		
+		panel.add(nombre);
+		panel.add(boton);
+		this.add(panel);
+		
+		añadirEscuchas();
+		nombre.cambiarColor(Color.red);
+		nombre.cambiarTamañoLabel(27);
+	}
+	
+	
+	public void añadirEscuchas(){
+		boton.addActionListener(this);
+	}
+	
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		//lo que haya que hacer al conectar
+		this.dispose();
+		
 	}
 	
 	public static void main(String[] args){
-		new Inicio();
+		new Inicio("Bienvenido a Panchat");
 	}
+
+	
 }
