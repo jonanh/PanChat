@@ -50,6 +50,8 @@ public class Datos extends JPanel implements MouseListener,KeyListener,FocusList
 		
 		texto.setColumns(tamaño);
 		texto.setVisible(false);
+		texto.setText(defecto);
+		
 		label.setText(defecto);
 	}
 	

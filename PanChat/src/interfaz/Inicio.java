@@ -53,12 +53,14 @@ public class Inicio extends VentanaBase implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		//lo que haya que hacer al conectar
-		this.dispose();
+		VentanaBase ventana=new VentanaBase("Bienvenido "+nombre.obtenerTexto());
+		PanelCentral panel=new PanelCentral(nombre.obtenerTexto());
+		ventana.add(panel);
 		
 	}
 	
 	public static void main(String[] args){
-		new Inicio("Bienvenido a Panchat");
+		new Inicio("Bienvenido a Panchat").setVisible(true);
 	}
 
 	

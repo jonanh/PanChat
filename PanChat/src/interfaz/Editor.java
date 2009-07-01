@@ -109,19 +109,26 @@ public class Editor extends JTextPane implements KeyListener,DocumentListener{
 		
 	}
 	
-	public void escribirVector(Vector<Character> mensaje){
-		
+	public String vectorAString(Vector<Character> mensaje){
 		char mensajeCar[]=new char[mensaje.size()];
 		String mensajeString;
-		StringTokenizer token;
-		String elemento;
 		
 		for(int i=0;i<mensaje.size();i++){
 			mensajeCar[i]=mensaje.elementAt(i);
 		}
 		
 		mensajeString=new String(mensajeCar);
-		token=new StringTokenizer(mensajeString,"~");
+		return mensajeString;
+	}
+	
+	public String obtenerMensaje(){
+		return vectorAString(contenido);
+	}
+	
+	public void escribirVector(Vector<Character> mensaje){
+		String elemento;
+		String mensajeString=vectorAString(mensaje);
+		StringTokenizer token=new StringTokenizer(mensajeString,"~");
 		
 		try {
 			documento.insertString(getCaretPosition(), "\n", null);

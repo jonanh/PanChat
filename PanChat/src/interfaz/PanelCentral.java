@@ -8,6 +8,9 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
 import java.util.HashMap;
 
 import javax.swing.DefaultListModel;
@@ -15,7 +18,10 @@ import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
-public class PanelCentral extends MiPanel{
+
+
+
+public class PanelCentral extends MiPanel implements MouseListener{
 	
 	//tabla hash con las rutas de los emoticonos
 	static HashMap<String,String> emoticonos=new HashMap<String,String>();
@@ -56,7 +62,13 @@ public class PanelCentral extends MiPanel{
 		int i=0;
 		for(;i<10;i++){
 			modelo.add(i, new String("usuario"+i));
+			
 		}
+		
+		
+
+			
+		listaUsuarios.addMouseListener(this);
 		
 		usuarios.add(listaUsuarios);
 		
@@ -139,6 +151,44 @@ public class PanelCentral extends MiPanel{
 		in.setVisible(true);
 		
 	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		
+		if(arg0.getClickCount()==2){
+		System.out.println(( modelo.getElementAt(listaUsuarios.getSelectedIndex())));
+		new VentanaBase().add(new Conversacion(emoticonos));
+		}
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	
 	
 
 }
