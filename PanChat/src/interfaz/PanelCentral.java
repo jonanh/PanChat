@@ -132,9 +132,11 @@ public class PanelCentral extends MiPanel implements MouseListener{
 	}
 	
 	public void cargarEmoticonos(){
-		String f="xd";
-		emoticonos.put(f,"xd.png");
-		System.out.println(estaEmoticon(f));
+		
+		emoticonos.put("xd","xd.gif");
+		emoticonos.put("pizarra","pizarra.png");
+		emoticonos.put("nubes","nubes.jpg");
+		
 	}
 	
 	public void paint(Graphics g){
