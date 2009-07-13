@@ -3,5 +3,8 @@ package panchat.adressing;
 import java.io.Serializable;
 import java.util.LinkedList;
 
-public class Multicastdomain extends LinkedList<Address> implements Serializable {
+public class MulticastDomain extends LinkedList<Address> implements
+		Serializable {
+
+	private static final long serialVersionUID = 1L;
 }
