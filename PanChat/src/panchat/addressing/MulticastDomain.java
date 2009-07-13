@@ -1,4 +1,4 @@
-package panchat.adressing;
+package panchat.addressing;
 
 import java.io.Serializable;
 import java.util.LinkedList;
