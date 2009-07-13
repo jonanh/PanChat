@@ -1,0 +1,43 @@
+1¼ Pantalla
+
+	Hola bienvenido a Panchat:
+	
+	Introduce tu nombre de usuario :
+	
+	Acciones por debajo : 
+		Crea los sockets (mediante llamada a la clase connector)
+			- Busca un puerto abierto en la maquina
+			- Crea un address con su informaci—n
+			
+		Se registra al resto de clientes
+			- La magia del zeroconf
+			
+2¼ Pantalla
+
+	Muestra 2 tabs : 
+		1¼ Tab :
+		
+			Un listado de clientes conectado
+			Un boton debajo para abrir un privado
+			
+			Dependencia clase Conexiones.java
+			
+		2¼ Tab :
+			Listado de conferencias abiertas
+			Dos botones debajo :
+				Entrar en conferencia abierta
+				Crear conferencia abierta
+				
+			Dependencia clase Chats.java
+			
+3¼ Pantalla
+
+	Muestra el texto de la conversaci—n con el cliente
+	Muestra un cuadro donde escribir la respuesta
+	Un boton para enviar la respuesta
+	Si es una conversaci—n mostrar un bot—n adicional para enviar ficheros (elegir un fichero con un componente JFileChooser, y hacer algo para mandarlo (que aœn no he pensado :-P))
+			
+		
+		
+		
+		
