@@ -24,8 +24,8 @@ public class Fichero implements Serializable, Comparable<Fichero> {
 	private transient File file;
 
 	/**
-	 * Construccion del Fichero, a partir de un path indicado a trav�s de un
-	 * String pasado por par�metro.
+	 * Construccion del Fichero, a partir de un path indicado a través de un
+	 * String pasado por parámetro.
 	 * 
 	 * Constructora orientada a ser usados por el Servidor.
 	 * 
@@ -84,7 +84,7 @@ public class Fichero implements Serializable, Comparable<Fichero> {
 	public String getNombre() {
 		return nombre;
 	}
-	
+
 	/**
 	 * Devuelve el path absoluto del fichero.
 	 * 
@@ -95,7 +95,7 @@ public class Fichero implements Serializable, Comparable<Fichero> {
 	}
 
 	/**
-	 * Devuelve el tama�o del fichero.
+	 * Devuelve el tamaño del fichero.
 	 * 
 	 * @return long
 	 */
@@ -114,7 +114,7 @@ public class Fichero implements Serializable, Comparable<Fichero> {
 
 	/**
 	 * Devuelve la instancia al objeto file, el atributo file no es
-	 * serializable, as� que atenci�n :-).
+	 * serializable, así que atención :-).
 	 * 
 	 * @return File
 	 */
