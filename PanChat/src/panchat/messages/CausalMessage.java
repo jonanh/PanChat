@@ -1,6 +1,6 @@
 package panchat.messages;
 
-import panchat.addressing.Address;
+import panchat.addressing.Usuario;
 import panchat.clocks.MatrixClock;
 
 /**
@@ -23,7 +23,7 @@ public class CausalMessage<T> extends SimpleMessage<T> {
 	 * @param pAddress
 	 *            La Dirección del destinatario
 	 */
-	public CausalMessage(T pMessage, Address pAddress, MatrixClock pMatrixClock) {
+	public CausalMessage(T pMessage, Usuario pAddress, MatrixClock pMatrixClock) {
 		super(pMessage, pAddress);
 		matrixClock = pMatrixClock;
 	}
