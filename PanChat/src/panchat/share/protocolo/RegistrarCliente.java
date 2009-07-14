@@ -14,7 +14,7 @@ import panchat.addressing.Usuario;
 public class RegistrarCliente implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	private Usuario address;
+	private Usuario usuario;
 	private boolean registrar;
 
 	/**
@@ -24,12 +24,12 @@ public class RegistrarCliente implements Serializable {
 	 * @param registrar
 	 */
 	public RegistrarCliente(Usuario address, boolean registrar) {
-		this.address = address;
+		this.usuario = address;
 		this.registrar = registrar;
 	}
 
-	public Usuario getAddress() {
-		return address;
+	public Usuario getUsuario() {
+		return usuario;
 	}
 
 	public boolean isRegistrar() {
