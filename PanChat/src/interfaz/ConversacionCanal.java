@@ -4,16 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Vector;
@@ -155,6 +149,9 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ItemListen
 		e.put("nubes", "nubes.jpg");
 		e.put("pizarra", "pizarra.png");
 		
+		// Obtenemos referencias a las clases Singleton
+		ListaUsuarios usuarios = new ListaUsuarios();
+		
 		// Creamos un listado de usuarios
 		LinkedList<Usuario> listaUsuarios = new LinkedList<Usuario>();
 		listaUsuarios.add(new Usuario("127.0.0.1", 50000, "JonAn"));
@@ -162,15 +159,23 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ItemListen
 		listaUsuarios.add(new Usuario("127.0.0.1", 50002, "Dennis"));
 		listaUsuarios.add(new Usuario("127.0.0.1", 50003, "Imanol"));
 		listaUsuarios.add(new Usuario("127.0.0.1", 50004, "Nagore"));
-
+		listaUsuarios.add(new Usuario("127.0.0.1", 50008, "Paco"));
+		listaUsuarios.add(new Usuario("127.0.0.1", 50004, "Loles"));
+		listaUsuarios.add(new Usuario("127.0.0.1", 50005, "Luis mari"));
+		listaUsuarios.add(new Usuario("127.0.0.1", 50006, "G"));
+		listaUsuarios.add(new Usuario("127.0.0.1", 50007, "JonAn"));
 		
-		Canal canal=new Canal("cacas",listaUsuarios);
+		// Registramos el listado de usuarios en la clase Singleton Conexiones
+		for (Usuario address : listaUsuarios)
+			usuarios.añadirUsuario(address);
 		
-		canal.AnyadirUsuario(new Usuario("127.0.0.1", 50008, "Paco"));
-		canal.AnyadirUsuario(new Usuario("127.0.0.1", 50004, "Loles"));
-		canal.AnyadirUsuario(new Usuario("127.0.0.1", 50005, "Luis mari"));
-		canal.AnyadirUsuario(new Usuario("127.0.0.1", 50006, "G"));
-		canal.AnyadirUsuario(new Usuario("127.0.0.1", 50007, "JonAn"));
+		Canal canal=new Canal("cacas",usuarios);
+		
+		// Añadimos los usuarios al canal
+		for (Usuario usuario : listaUsuarios.subList(0, 5))
+			canal.anyadirUsuarioConectado(usuario);
+		
+		
 
 		ConversacionCanal edit = new ConversacionCanal(e,canal);
 		in.add(edit);
