@@ -15,13 +15,13 @@ public class TablaCanales extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	public TablaCanales() {
+	public TablaCanales(ListaCanales listaCanales) {
 
 		/*
 		 * Creamos la tabla con el modelo de datos proporcionado por
 		 * DatosTablaFicheros.
 		 */
-		JTable table = new JTable(ListaCanales.getInstanceOf());
+		JTable table = new JTable(listaCanales);
 
 		/*
 		 * Establecemos algunos parametros de la tabla.

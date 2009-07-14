@@ -15,8 +15,8 @@ public class Test {
 	public static void main(String[] args) {
 
 		// Obtenemos referencias a las clases Singleton
-		ListaUsuarios conexiones = ListaUsuarios.getInstanceOf();
-		ListaCanales canales = ListaCanales.getInstanceOf();
+		ListaUsuarios usuarios = new ListaUsuarios();
+		ListaCanales canales = new ListaCanales();
 
 		// Creamos un listado de usuarios
 		LinkedList<Usuario> listaUsuarios = new LinkedList<Usuario>();
@@ -35,7 +35,7 @@ public class Test {
 
 		// Registramos el listado de usuarios en la clase Singleton Conexiones
 		for (Usuario address : listaUsuarios)
-			conexiones.añadirUsuario(address);
+			usuarios.añadirUsuario(address);
 
 		// Registramos el listado de usuarios en la clase Singleton Canales
 		for (Canal canal : listaCanales)
@@ -49,12 +49,12 @@ public class Test {
 		/*
 		 * Añadimos el panel TablaFicheros.
 		 */
-		pane.addTab("Usuarios", new TablaUsuarios());
+		pane.addTab("Usuarios", new TablaUsuarios(usuarios));
 
 		/*
 		 * Añadimos el panel2
 		 */
-		pane.addTab("Canales", new TablaCanales());
+		pane.addTab("Canales", new TablaCanales(canales));
 
 		jframe.getContentPane().add(pane);
 
