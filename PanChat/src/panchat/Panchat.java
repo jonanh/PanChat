@@ -17,6 +17,9 @@ public class Panchat {
 		this.listaUsuarios = new ListaUsuarios();
 		this.listaCanales = new ListaCanales();	
 		this.usuario = usuario;
+		
+		// Nos añadimos a nuestra propia lista de usuarios
+		this.listaUsuarios.añadirUsuario(usuario);
 	}
 
 	/**

@@ -20,6 +20,10 @@ public class Canal extends AbstractTableModel implements Comparable<Canal>,
 		this.nombreCanal = nombreCanal;
 		this.listadoUsuariosConectados = listadoUsuarios;
 	}
+	
+	public boolean contains(Usuario usuario) {
+		return listadoUsuariosConectados.contains(usuario);
+	}
 
 	/*
 	 * Getters

@@ -20,9 +20,13 @@ public class ListaUsuarios extends AbstractTableModel {
 		return listaUsuarios.iterator();
 	}
 
-	public void añadirUsuario(Usuario address) {
-		listaUsuarios.add(address);
+	public void añadirUsuario(Usuario usuario) {
+		listaUsuarios.add(usuario);
 		Collections.sort(listaUsuarios);
+	}
+
+	public boolean contains(Usuario usuario) {
+		return listaUsuarios.contains(usuario);
 	}
 
 	/*
@@ -72,6 +76,11 @@ public class ListaUsuarios extends AbstractTableModel {
 			return listaUsuarios.equals(((ListaUsuarios) obj).listaUsuarios);
 		else
 			return false;
+	}
+
+	@Override
+	public String toString() {
+		return listaUsuarios.toString();
 	}
 
 }

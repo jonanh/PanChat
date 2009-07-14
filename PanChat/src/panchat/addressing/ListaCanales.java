@@ -30,6 +30,10 @@ public class ListaCanales extends AbstractTableModel {
 			canal.AnyadirUsuario(address);
 		}
 	}
+	
+	public boolean contains(Canal canal) {
+		return listaCanales.contains(canal);
+	}
 
 	@Override
 	public boolean equals(Object obj) {

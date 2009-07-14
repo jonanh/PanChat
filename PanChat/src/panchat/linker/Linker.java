@@ -58,7 +58,7 @@ public class Linker {
 	 * 
 	 * @throws IOException
 	 */
-	public Message receiveMsg(Address fromId) throws IOException {
+	public Message receiveMsg(Usuario fromId) throws IOException {
 
 		String getline = dataIn[fromId].readLine();
 		Util.println(" received message " + getline);

@@ -4,83 +4,128 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 
+import experimentos.MulticastSocketTest;
+
+import panchat.Panchat;
+import panchat.addressing.Usuario;
+import panchat.listeners.MulticastListenerThread;
+import panchat.share.protocolo.RegistrarCliente;
+
 /**
  * Esta gestiona los sockets con el conjunto de clientes
  * 
- * @author Jon Ander Hernández
+ * @author Jon Ander Hernández & Javier Mediavilla
  * 
  */
 public class Connector {
 
-	private ServerSocket listener;
+	public static boolean DEBUG = true;
 
-	private Socket[] link;
+	/*
+	 * Constantes y variables para el socket multicast
+	 */
+	public final static String MDNS_GROUP = "224.0.0.251";
+	public final static int MDNS_PORT = 5454;
 
 	/**
-	 * @param basename
-	 * @param myId
-	 * @param numProc
-	 * @param dataIn
-	 * @param dataOut
+	 * This is the multicast group, we are listening to for multicast DNS
+	 * messages.
+	 */
+	private MulticastSocket socket;
+
+	private InetAddress group;
+
+	private ServerSocket listener;
+
+	private Hashtable<UUID, Socket> link;
+	private Hashtable<UUID, ObjectInputStream> hashOIS;
+	private Hashtable<UUID, ObjectOutputStream> hashOOS;
+
+	Usuario usuario;
+
+	/**
+	 * 
+	 * @param usuario
 	 * @throws Exception
 	 */
-	public void Connect(String basename, int myId, int numProc,
-			BufferedReader[] dataIn, PrintWriter[] dataOut) throws Exception {
+	public Connector(Panchat panchat) {
 
-		// El nombre del cliente
-		Name myNameclient = new Name();
-		
+		usuario = panchat.getUsuario();
+
 		// Inicializamos link
-		link = new Socket[numProc];
-		
-		// Definimos el puerto local
-		int localport = getLocalPort(myId);
-		
-		// Creamos un server a la escucha
-		listener = new ServerSocket(localport);
+		link = new Hashtable<UUID, Socket>();
 
-		
-		/* register in the name server */
-		myNameclient.insertName(basename + myId, (InetAddress.getLocalHost())
-				.getHostName(), localport);
+		// Inicializamos los sockets.
+		inicializarSockets();
 
-		/* accept connections from all the smaller processes */
-		for (int i = 0; i < myId; i++) {
-			Socket s = listener.accept();
-			BufferedReader dIn = new BufferedReader(new InputStreamReader(s
-					.getInputStream()));
-			String getline = dIn.readLine();
-			StringTokenizer st = new StringTokenizer(getline);
-			int hisId = Integer.parseInt(st.nextToken());
-			int destId = Integer.parseInt(st.nextToken());
-			String tag = st.nextToken();
-			if (tag.equals("hello")) {
-				link[hisId] = s;
-				dataIn[hisId] = dIn;
-				dataOut[hisId] = new PrintWriter(s.getOutputStream());
-			}
+		/*
+		 * Nos damos a conocer al mundo, como buenos ciudadanos 0:-)
+		 */
+		enviarSaludo();
+
+		/*
+		 * Creamos un MulticastListenerThread para escuchar los eventos
+		 * Multicast
+		 */
+		if (DEBUG)
+			System.out
+					.println("Connector.java: Creando el MulticastListenerThread 0:-)");
+
+		MulticastListenerThread thread = new MulticastListenerThread(socket,
+				panchat, this);
+		thread.start();
+	}
+
+	private void inicializarSockets() {
+		/*
+		 * Creamos un server Socket
+		 */
+		try {
+			if (DEBUG)
+				System.out.println("Connector.java: Creando ServerSocket");
+
+			listener = new ServerSocket(usuario.port);
+
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
-		
-		/* contact all the bigger processes */
-		for (int i = myId + 1; i < numProc; i++) {
-			PortAddr addr;
-			do {
-				addr = myNameclient.searchName(basename + i);
-				Thread.sleep(100);
-			} while (addr.getPort() == -1);
-			
-			// Creamos un socket para ese puerto
-			link[i] = new Socket(addr.getHostName(), addr.getPort());
-			
-			
-			// Creamos el BufferReader y el BufferWriter
-			dataOut[i] = new PrintWriter(link[i].getOutputStream());
-			dataIn[i] = new BufferedReader(new InputStreamReader(link[i]
-					.getInputStream()));
-			
-			// Saludamos al cliente. 0:-)
-			dataOut[i].println(myId + " " + i + " " + "hello" + " " + "null");
-			dataOut[i].flush();
+
+		/*
+		 * Creamos el Socket multicast
+		 */
+		try {
+			group = InetAddress.getByName(MDNS_GROUP);
+
+			socket = new MulticastSocket(MDNS_PORT);
+
+			socket.joinGroup(group);
+
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Enviamos un saludo Multicast
+	 */
+	public void enviarSaludo() {
+		RegistrarCliente msgRegistrar = new RegistrarCliente(usuario, true);
+		byte[] buffer = msgRegistrar.bytes();
+
+		DatagramPacket hi = new DatagramPacket(buffer, buffer.length, group,
+				MulticastSocketTest.MDNS_PORT);
+		try {
+
+			if (DEBUG)
+				System.out
+						.println("Connector.java: Dandonos a conocer al mundo 0:-)");
+
+			socket.send(hi);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -89,11 +134,70 @@ public class Connector {
 	 */
 	public void closeSockets() {
 		try {
+			// Cerramos el socket multicast
+			socket.close();
+
+			// Cerramos el ServerSocket
 			listener.close();
-			for (int i = 0; i < link.length; i++)
-				link[i].close();
+
+			// Cerramos los Socket con el resto de clientes.
+			link.entrySet().iterator().next().getValue().close();
+
 		} catch (Exception e) {
-			System.err.println(e);
+			System.err.println("Miellldaaa algo hemos cerrado mal 0:-) " + e);
 		}
 	}
+
+	public void connect(Usuario usuario) {
+		try {
+			// Creamos el socket
+			Socket socket = new Socket(usuario.ip, usuario.port);
+
+			// Creamos los object streams
+			ObjectInputStream ois = null;
+			ObjectOutputStream oos = null;
+
+			ois = new ObjectInputStream(socket.getInputStream());
+			oos = new ObjectOutputStream(socket.getOutputStream());
+
+			link.put(usuario.uuid, socket);
+			hashOIS.put(usuario.uuid, ois);
+			hashOOS.put(usuario.uuid, oos);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Obtener el Socket
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public Socket getSocket(UUID uuid) {
+		return link.get(uuid);
+	}
+
+	/**
+	 * Obtener el ObjectInputStream
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public ObjectInputStream getOIS(UUID uuid) {
+		return hashOIS.get(uuid);
+	}
+
+	/**
+	 * Obtener el ObjectOutputStream
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public ObjectOutputStream getOOS(UUID uuid) {
+		return hashOOS.get(uuid);
+	}
+
 }
