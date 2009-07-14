@@ -21,11 +21,10 @@ public class Canal extends AbstractTableModel implements Comparable<Canal>,
 		this.listadoUsuariosConectados = listadoUsuarios;
 	}
 
-	
 	/*
 	 * Getters
 	 */
-	
+
 	public String getNombreCanal() {
 		return nombreCanal;
 	}
@@ -33,8 +32,16 @@ public class Canal extends AbstractTableModel implements Comparable<Canal>,
 	public List<Usuario> getListadoUsuariosConectados() {
 		return listadoUsuariosConectados;
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Canal) {
+			Canal canal = (Canal) obj;
+			return nombreCanal.equals(canal.nombreCanal);
+		} else
+			return false;
+	}
+
 	/**
 	 * Método para añadir un usuario que ha sido recién registrado en la red.
 	 * 

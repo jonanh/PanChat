@@ -10,16 +10,10 @@ public class ListaCanales extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
-	private static ListaCanales canales = new ListaCanales();
-
 	private LinkedList<Canal> listaCanales;
 
-	private ListaCanales() {
+	public ListaCanales() {
 		listaCanales = new LinkedList<Canal>();
-	}
-
-	public static ListaCanales getInstanceOf() {
-		return canales;
 	}
 
 	public Iterator<Canal> getIterator() {
@@ -35,6 +29,14 @@ public class ListaCanales extends AbstractTableModel {
 		for (Canal canal : listaCanales) {
 			canal.AnyadirUsuario(address);
 		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ListaCanales)
+			return listaCanales.equals(((ListaCanales) obj).listaCanales);
+		else
+			return false;
 	}
 
 	/*

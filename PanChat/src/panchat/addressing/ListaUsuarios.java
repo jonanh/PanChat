@@ -10,25 +10,19 @@ public class ListaUsuarios extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
-	private static ListaUsuarios conexiones = new ListaUsuarios();
+	private LinkedList<Usuario> listaUsuarios;
 
-	private LinkedList<Usuario> listaConexiones;
-
-	private ListaUsuarios() {
-		listaConexiones = new LinkedList<Usuario>();
-	}
-
-	public static ListaUsuarios getInstanceOf() {
-		return conexiones;
+	public ListaUsuarios() {
+		listaUsuarios = new LinkedList<Usuario>();
 	}
 
 	public Iterator<Usuario> getIterator() {
-		return listaConexiones.iterator();
+		return listaUsuarios.iterator();
 	}
 
 	public void añadirUsuario(Usuario address) {
-		listaConexiones.add(address);
-		Collections.sort(listaConexiones);
+		listaUsuarios.add(address);
+		Collections.sort(listaUsuarios);
 	}
 
 	/*
@@ -55,21 +49,29 @@ public class ListaUsuarios extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return listaConexiones.size();
+		return listaUsuarios.size();
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		switch (columnIndex) {
 		case 0:
-			return listaConexiones.get(rowIndex).nickName;
+			return listaUsuarios.get(rowIndex).nickName;
 		case 1:
-			return listaConexiones.get(rowIndex).ip;
+			return listaUsuarios.get(rowIndex).ip;
 		case 2:
-			return listaConexiones.get(rowIndex).port;
+			return listaUsuarios.get(rowIndex).port;
 		default:
-			return listaConexiones.get(rowIndex).uuid;
+			return listaUsuarios.get(rowIndex).uuid;
 		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ListaUsuarios)
+			return listaUsuarios.equals(((ListaUsuarios) obj).listaUsuarios);
+		else
+			return false;
 	}
 
 }
