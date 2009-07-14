@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
@@ -21,7 +23,7 @@ import panchat.addressing.Canal;
 import panchat.addressing.ListaUsuarios;
 import panchat.addressing.Usuario;
 
-public class ConversacionCanal extends MiPanel implements KeyListener,ItemListener{
+public class ConversacionCanal extends MiPanel implements KeyListener,ActionListener{
 	private static final long serialVersionUID = 1L;
 	
 	
@@ -85,7 +87,7 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ItemListen
 		
 		c.gridheight = GridBagConstraints.RELATIVE;
 		c.gridwidth = GridBagConstraints.REMAINDER;
-		c.weightx = 0.1;
+		c.weightx = 0.05;
 		c.weighty = 0.1;
 		this.add(informacion,c);
 
@@ -112,7 +114,7 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ItemListen
 
 	private void añadirEscuchas() {
 		escritura.addKeyListener(this);
-		usuariosNoConectados.addItemListener(this);
+		usuariosNoConectados.addActionListener(this);
 	}
 
 	
@@ -184,12 +186,14 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ItemListen
 
 	}
 
+
 	@Override
-	public void itemStateChanged(ItemEvent arg0) {
-		
-		System.out.println(arg0.getItemSelectable().toString());
-		
+	public void actionPerformed(ActionEvent arg0) {
+		System.out.println(arg0.getSource());
+		System.out.println(usuariosNoConectados.getSelectedItem());
+		System.out.println(usuariosNoConectados.getSelectedIndex());
 	}
+
 
 
 
