@@ -6,11 +6,11 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 
-import panchat.share.Configuracion;
-
 public class Bloque implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
+	public final static int Bloque_TAMANYO = 8 << 10;
 
 	private byte[] data;
 	private long numBloque;
@@ -62,8 +62,8 @@ public class Bloque implements Serializable {
 	public void leer() throws IOException {
 
 		InputStream is = new FileInputStream(fichero.getFile());
-		byte[] buffer = new byte[Configuracion.Bloque_TAMANYO];
-		is.skip(numBloque * Configuracion.Bloque_TAMANYO);
+		byte[] buffer = new byte[Bloque_TAMANYO];
+		is.skip(numBloque * Bloque_TAMANYO);
 		is.read(buffer);
 		is.close();
 
@@ -86,20 +86,12 @@ public class Bloque implements Serializable {
 		 */
 
 		int bytesAEscribir;
-		if ((numBloque + 1) * Configuracion.Bloque_TAMANYO > fichero
-				.getTamanyo())
-			bytesAEscribir = (int) fichero.getTamanyo()
-					% Configuracion.Bloque_TAMANYO;
+		if ((numBloque + 1) * Bloque_TAMANYO > fichero.getTamanyo())
+			bytesAEscribir = (int) fichero.getTamanyo() % Bloque_TAMANYO;
 		else
-			bytesAEscribir = Configuracion.Bloque_TAMANYO;
+			bytesAEscribir = Bloque_TAMANYO;
 
-		if (Configuracion.Bloque_DEBUG) {
-			String mensaje = bytesAEscribir + "B en la posicion " + numBloque
-					* Configuracion.Bloque_TAMANYO;
-			System.out.println(mensaje);
-		}
-
-		os.seek(numBloque * Configuracion.Bloque_TAMANYO);
+		os.seek(numBloque * Bloque_TAMANYO);
 		os.write(data, 0, bytesAEscribir);
 		os.close();
 	}
