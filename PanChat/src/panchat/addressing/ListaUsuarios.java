@@ -83,4 +83,16 @@ public class ListaUsuarios extends AbstractTableModel {
 		return listaUsuarios.toString();
 	}
 
+	public int getLenght() {
+		return listaUsuarios.size();
+	}
+
+	@SuppressWarnings("unchecked")
+	public LinkedList<Usuario> diferenciaUsuarios(
+			LinkedList<Usuario> listaUsuarios) {
+		LinkedList<Usuario> lista = (LinkedList<Usuario>) listaUsuarios.clone();
+		lista.retainAll(listaUsuarios);
+		return lista;
+	}
+
 }

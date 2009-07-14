@@ -94,16 +94,6 @@ public class MulticastListenerThread extends Thread {
 					panchat.getListaUsuarios().añadirUsuario(
 							msgCliente.getUsuario());
 
-					/*
-					 * Añadir en cada canal el nuevo usuario
-					 */
-					if (DEBUG)
-						System.out.println("MulticastListenerThread.java: "
-								+ "Añadimos el usuario a la ListaCanales");
-
-					panchat.getListaCanales().añadirUsuario(
-							msgCliente.getUsuario());
-
 					// Creamos el ListenerThread para escuchar al socket
 
 				} else {

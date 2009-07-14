@@ -1,5 +1,6 @@
 package panchat.addressing;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.ComboBoxModel;
@@ -13,14 +14,15 @@ public class Canal extends AbstractTableModel implements Comparable<Canal>,
 
 	private String nombreCanal;
 
-	private List<Usuario> listadoUsuariosConectados;
-	private List<Usuario> listadoUsuariosSinConectar;
+	private LinkedList<Usuario> listadoUsuariosConectados;
+	private ListaUsuarios listadoUsuarios;
 
-	public Canal(String nombreCanal, List<Usuario> listadoUsuarios) {
+	public Canal(String nombreCanal, ListaUsuarios listadoUsuarios) {
 		this.nombreCanal = nombreCanal;
-		this.listadoUsuariosConectados = listadoUsuarios;
+		this.listadoUsuariosConectados = new LinkedList<Usuario>();
+		this.listadoUsuarios = listadoUsuarios;
 	}
-	
+
 	public boolean contains(Usuario usuario) {
 		return listadoUsuariosConectados.contains(usuario);
 	}
@@ -47,21 +49,11 @@ public class Canal extends AbstractTableModel implements Comparable<Canal>,
 	}
 
 	/**
-	 * Método para añadir un usuario que ha sido recién registrado en la red.
-	 * 
-	 * @param usuario
-	 */
-	public void AnyadirUsuario(Usuario usuario) {
-		listadoUsuariosSinConectar.add(usuario);
-	}
-
-	/**
 	 * Método para añadir un nuevo usuario a la conversación.
 	 * 
 	 * @param usuario
 	 */
-	public void AnyadirUsuarioConectado(Usuario usuario) {
-		listadoUsuariosSinConectar.remove(usuario);
+	public void anyadirUsuarioConectado(Usuario usuario) {
 		listadoUsuariosConectados.add(usuario);
 	}
 
@@ -72,7 +64,6 @@ public class Canal extends AbstractTableModel implements Comparable<Canal>,
 	 */
 	public void EliminarUsuario(Usuario usuario) {
 		listadoUsuariosConectados.remove(usuario);
-		listadoUsuariosSinConectar.remove(usuario);
 	}
 
 	// Métodos del AbstractTableModel
@@ -112,12 +103,14 @@ public class Canal extends AbstractTableModel implements Comparable<Canal>,
 
 	@Override
 	public Object getElementAt(int index) {
-		return listadoUsuariosSinConectar.get(index);
+		LinkedList<Usuario> usuariosSinConectar;
+		usuariosSinConectar = listadoUsuarios.diferenciaUsuarios(listadoUsuariosConectados);
+		return usuariosSinConectar.get(index);
 	}
 
 	@Override
 	public int getSize() {
-		return listadoUsuariosSinConectar.size();
+		return listadoUsuarios.getLenght() - listadoUsuariosConectados.size();
 	}
 
 	@Override
