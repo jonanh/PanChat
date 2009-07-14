@@ -21,7 +21,7 @@ public class ConnectorTest extends TestCase {
 
 		ConnectorTest.DEBUG = false;
 		Connector.DEBUG = false;
-		MulticastListenerThread.DEBUG = true;
+		MulticastListenerThread.DEBUG = false;
 
 		hostname = InetAddress.getLocalHost().getHostAddress();
 

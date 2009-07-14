@@ -8,7 +8,7 @@ import panchat.share.protocolo.RegistrarCliente;
 
 public class MulticastListenerThread extends Thread {
 
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 
 	private MulticastSocket socket;
 
@@ -48,12 +48,30 @@ public class MulticastListenerThread extends Thread {
 				if (msgCliente.isRegistrar()) {
 
 					/*
+					 * Respondemos el saludo al usuario como buenos ciudadanos
+					 * 0:-)
+					 */
+					if (DEBUG)
+						System.out.println("MulticastListenerThread.java: "
+								+ "Repondemos el saludo al usuario");
+
+					connector.enviarSaludo();
+					
+					/*
 					 * Crear el socket
 					 */
 					if (DEBUG)
 						System.out.println("MulticastListenerThread.java: "
 								+ "Creamos el socket");
-					connector.connect(msgCliente.getUsuario());
+
+					/*
+					 * Unos aceptan desde el ServerSocket y otros crean sockets.
+					 */
+					if (msgCliente.getUsuario().uuid.compareTo(panchat
+							.getUsuario().uuid) < 0)
+						connector.connect(msgCliente.getUsuario());
+					else
+						connector.acceptConnect();
 
 					// /*
 					// * Añadir elementos en matrix del CausalLinker
@@ -75,16 +93,6 @@ public class MulticastListenerThread extends Thread {
 
 					panchat.getListaUsuarios().añadirUsuario(
 							msgCliente.getUsuario());
-
-					/*
-					 * Respondemos el saludo al usuario como buenos ciudadanos
-					 * 0:-)
-					 */
-					if (DEBUG)
-						System.out.println("MulticastListenerThread.java: "
-								+ "Repondemos el saludo al usuario");
-
-					connector.enviarSaludo();
 
 					/*
 					 * Añadir en cada canal el nuevo usuario
