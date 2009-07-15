@@ -7,7 +7,7 @@ import panchat.addressing.Usuario;
  * 
  * @author Jon Ander Hernández
  */
-public class SimpleMessage<T> extends Message<T> {
+public class SimpleMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 
@@ -20,7 +20,7 @@ public class SimpleMessage<T> extends Message<T> {
 	 * @param pAddress
 	 *            La Dirección del destinatario.
 	 */
-	public SimpleMessage(T pMessage, Usuario pAddress) {
+	public SimpleMessage(Object pMessage, Usuario pAddress) {
 		super(pMessage);
 		this.address = pAddress;
 	}

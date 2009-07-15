@@ -1,7 +1,7 @@
 package panchat.messages;
 
 import panchat.addressing.Usuario;
-import panchat.clocks.MatrixClock;
+import panchat.linker.CausalMatrix;
 
 /**
  * Mensaje genérico causal.
@@ -9,29 +9,27 @@ import panchat.clocks.MatrixClock;
  * @author Jon Ander Hernández
  * 
  */
-public class CausalMessage<T> extends SimpleMessage<T> {
+public class CausalMessage extends SimpleMessage {
 
 	private static final long serialVersionUID = 1L;
 
-	private MatrixClock matrixClock;
+	private CausalMatrix causalMatrix;
 
 	/**
 	 * @param pMessage
 	 *            El contenido del mensaje
-	 * @param pMatrixClock
+	 * @param pCausalMatrix
 	 *            La MatrixClock asociada al mensaje.
-	 * @param pAddress
-	 *            La Dirección del destinatario
 	 */
-	public CausalMessage(T pMessage, Usuario pAddress, MatrixClock pMatrixClock) {
-		super(pMessage, pAddress);
-		matrixClock = pMatrixClock;
+	public CausalMessage(Object pMessage, Usuario pUsuario, CausalMatrix pCausalMatrix) {
+		super(pMessage, pUsuario);
+		causalMatrix = pCausalMatrix;
 	}
 
 	/**
 	 * @return La MatrixClock asociada al mensaje.
 	 */
-	public MatrixClock getMatrixClock() {
-		return matrixClock;
+	public CausalMatrix getMatrix() {
+		return causalMatrix;
 	}
 }
