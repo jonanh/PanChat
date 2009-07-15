@@ -3,7 +3,6 @@ package panchat.clocks;
 import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.UUID;
 
 import panchat.addressing.Usuario;
@@ -148,7 +147,7 @@ public class MatrixClock implements Serializable {
 	 * 
 	 * @param nuevaAddress
 	 */
-	public void AnyadirAddress(Usuario nuevaAddress) {
+	public void anyadirAddress(Usuario nuevaAddress) {
 
 		// Primero añadimos unas columnas que falten en las filas ya existentes.
 		Iterator<Usuario> iter1 = listaUsuarios.getIterator();
@@ -172,41 +171,7 @@ public class MatrixClock implements Serializable {
 			tabla.put(uuid2, 0);
 		}
 	}
-
-	/**
-	 * Autoincrementamos el valor M[myId][destId]++ de la matrix indicando que
-	 * hemos enviado un mensaje a myId.
-	 * 
-	 * @param usuario
-	 */
-	public void incrementarDestino(Usuario usuario) {
-		// M[myId][destId]++;
-
-		// Obtenemos la tabla referente a myId
-		Hashtable<UUID, Integer> tabla = HashMatrix.get(myId);
-
-		// Actualizamos el valor referente a destId
-		tabla.put(usuario.uuid, tabla.get(usuario.uuid) + 1);
-	}
-
-	/**
-	 * Autoincrementamos el valor M[myId][destId]++ de la matrix indicando que
-	 * hemos enviado un mensaje a myId.
-	 * 
-	 * @param usuario
-	 */
-	public void incrementarDestino(LinkedList<Usuario> listaUsuarios) {
-		// for (int i = 0; i < destIds.size(); i++)
-		// ....M[myId][destIds.getEntry(i)]++;
-
-		// Obtenemos la tabla referente a myId
-		Hashtable<UUID, Integer> tabla = HashMatrix.get(myId);
-
-		for (Usuario usuario : listaUsuarios)
-			// Actualizamos el valor referente a destId
-			tabla.put(usuario.uuid, tabla.get(usuario.uuid) + 1);
-	}
-
+	
 	/**
 	 * Devolvemos el valor de la matrix para las posiciones de i y j.
 	 * 
