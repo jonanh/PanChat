@@ -4,6 +4,7 @@ import panchat.addressing.ListaCanales;
 import panchat.addressing.ListaUsuarios;
 import panchat.addressing.Usuario;
 import panchat.linker.CausalLinker;
+import panchat.linker.Connector;
 import panchat.linker.Linker;
 
 public class Panchat {
@@ -12,18 +13,20 @@ public class Panchat {
 	private Usuario usuario;
 	private CausalLinker causalLinker;
 	private Linker linker;
+	private Connector connector;
 
 	/**
 	 * 
 	 * @param usuario
 	 */
 	public Panchat(Usuario usuario) {
+		this.usuario = usuario;
 		this.listaUsuarios = new ListaUsuarios();
 		this.listaCanales = new ListaCanales();
-		this.usuario = usuario;
-
 		// Nos añadimos a nuestra propia lista de usuarios
 		this.listaUsuarios.añadirUsuario(usuario);
+		
+		this.connector = new Connector(this);
 		this.causalLinker = new CausalLinker(this);
 		this.linker = new Linker(this);
 	}
@@ -72,4 +75,14 @@ public class Panchat {
 	public Linker getLinker() {
 		return linker;
 	}
+
+	/**
+	 * Devuelve la clase connector
+	 * 
+	 * @return
+	 */
+	public Connector getConnector() {
+		return connector;
+	}
+
 }

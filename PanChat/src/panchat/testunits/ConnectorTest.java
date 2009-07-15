@@ -13,8 +13,9 @@ import junit.framework.TestCase;
 public class ConnectorTest extends TestCase {
 
 	public static boolean DEBUG;
-	LinkedList<Usuario> listaUsuarios;
-	String hostname;
+	private LinkedList<Usuario> listaUsuarios;
+	private String hostname;
+	private LinkedList<ListaUsuarios> listaListaUsuarios;
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -32,14 +33,8 @@ public class ConnectorTest extends TestCase {
 		listaUsuarios.add(new Usuario(hostname, 50002, "Dennis"));
 		listaUsuarios.add(new Usuario(hostname, 50003, "Imanol"));
 		listaUsuarios.add(new Usuario(hostname, 50004, "Nagore"));
-	}
-
-	/**
-	 * Test para comprobar la correcta construcción de una clase Connector
-	 */
-	public void testConnector() {
-		Usuario usuario = new Usuario(hostname, 50100, "JonAn");
-		assertNotNull(new Connector(new Panchat(usuario)));
+		listaUsuarios.add(new Usuario(hostname, 50005, "Nerea"));
+		listaUsuarios.add(new Usuario(hostname, 50006, "Ainara"));
 	}
 
 	/**
@@ -47,15 +42,12 @@ public class ConnectorTest extends TestCase {
 	 */
 	public void testRegistroMulticastUsuarios() {
 
-		LinkedList<ListaUsuarios> listaListaUsuarios = new LinkedList<ListaUsuarios>();
+		listaListaUsuarios = new LinkedList<ListaUsuarios>();
 
-		for (Usuario usuario : listaUsuarios) {
+		for (Usuario usuario : listaUsuarios.subList(0, 4)) {
 
 			// Creamos una nueva clase Panchat
 			Panchat panchat = new Panchat(usuario);
-
-			// Creamos un nuevo conector
-			new Connector(panchat);
 
 			// Dejamos un tiempo para que salude
 			try {
@@ -81,5 +73,4 @@ public class ConnectorTest extends TestCase {
 			assertEquals(lista1, lista2);
 		}
 	}
-
 }

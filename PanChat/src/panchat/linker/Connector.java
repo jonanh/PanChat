@@ -6,6 +6,7 @@ import java.io.*;
 
 import panchat.Panchat;
 import panchat.addressing.Usuario;
+import panchat.listeners.ListenerThread;
 import panchat.listeners.MulticastListenerThread;
 import panchat.share.protocolo.RegistrarCliente;
 
@@ -39,7 +40,8 @@ public class Connector {
 	private Hashtable<UUID, ObjectInputStream> hashOIS;
 	private Hashtable<UUID, ObjectOutputStream> hashOOS;
 
-	Usuario usuario;
+	private Usuario usuario;
+	private Panchat panchat;
 
 	/**
 	 * 
@@ -48,7 +50,8 @@ public class Connector {
 	 */
 	public Connector(Panchat panchat) {
 
-		usuario = panchat.getUsuario();
+		this.panchat = panchat;
+		this.usuario = panchat.getUsuario();
 
 		// Inicializamos link
 		link = new Hashtable<UUID, Socket>();
@@ -177,6 +180,11 @@ public class Connector {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		// Creamos el ListenerThread para escuchar al socket
+		Thread thread = new ListenerThread(panchat, usuario.uuid,
+				getOIS(usuario.uuid));
+		thread.start();
 	}
 
 	public synchronized void acceptConnect() {
@@ -207,6 +215,11 @@ public class Connector {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		// Creamos el ListenerThread para escuchar al socket
+		Thread thread = new ListenerThread(panchat, usuario.uuid,
+				getOIS(usuario.uuid));
+		thread.start();
 	}
 
 	/**

@@ -1,6 +1,5 @@
 package panchat.listeners;
 
-import java.io.IOException;
 import java.net.MulticastSocket;
 
 import panchat.Panchat;
@@ -95,12 +94,6 @@ public class MulticastListenerThread extends Thread {
 
 					panchat.getListaUsuarios().añadirUsuario(
 							msgCliente.getUsuario());
-
-					// Creamos el ListenerThread para escuchar al socket
-					Thread thread = new ListenerThread(panchat, msgCliente
-							.getUsuario().uuid, connector.getOIS(msgCliente
-							.getUsuario().uuid));
-					thread.start();
 				}
 			}
 			// else {
