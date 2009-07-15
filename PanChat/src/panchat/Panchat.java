@@ -92,14 +92,7 @@ public class Panchat {
 
 	public void desegistrarCliente() {
 		connector.enviarSaludo(false);
-		
-		/*
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}*/
-		
+
 		connector.closeSockets();
 	}
 

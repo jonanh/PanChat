@@ -28,7 +28,7 @@ public class VectorClock implements Serializable {
 	 * @param id
 	 *            Identificador de nuestro proceso
 	 */
-	public VectorClock(int numProc, Usuario id) {
+	public VectorClock(Usuario id) {
 
 		myId = id;
 
