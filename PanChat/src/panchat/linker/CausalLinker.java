@@ -1,15 +1,17 @@
 package panchat.linker;
 
 import java.util.*;
-import java.net.*;
 import java.io.*;
 
+import panchat.Panchat;
+import panchat.addressing.Usuario;
 import panchat.messages.CausalMessage;
-import panchat.messages.Message;
 
 public class CausalLinker extends Linker {
 
-	int M[][];
+	private CausalMatrix matrix;
+	private Panchat panchat;
+	private UUID myId;
 
 	/*
 	 * Cola de mensajes de entrega.
@@ -23,37 +25,32 @@ public class CausalLinker extends Linker {
 
 	/**
 	 * 
-	 * @param basename
-	 * @param id
-	 * @param numProc
+	 * @param panchat
 	 * @throws Exception
 	 */
-	public CausalLinker(String basename, int id, int numProc) throws Exception {
-		super(basename, id, numProc);
-		M = new int[N][N];
-		Matrix.setZero(M);
+	public CausalLinker(Panchat panchat) throws Exception {
+		super(panchat);
+
+		this.panchat = panchat;
+		this.myId = panchat.getUsuario().uuid;
+
+		matrix = new CausalMatrix(panchat.getUsuario().uuid, panchat
+				.getListaUsuarios());
 	}
 
-	/**
-	 * 
-	 */
-	public synchronized void sendMsg(int destId, String tag, String msg) {
+	public synchronized void sendMsg(Usuario destId, Object msg) {
 
-		M[myId][destId]++;
+		matrix.incrementarDestino(destId);
 
-		super.sendMsg(destId, "matrix", Matrix.write(M));
-		super.sendMsg(destId, tag, msg);
+		super.sendMsg(destId, new CausalMessage(msg, destId, matrix));
 	}
 
-	public synchronized void multicast(LinkedList destIds, String tag,
-			String msg) {
-		for (int i = 0; i < destIds.size(); i++)
-			M[myId][destIds.getEntry(i)]++;
-		for (int i = 0; i < destIds.size(); i++) {
-			int destId = destIds.getEntry(i);
-			super.sendMsg(destId, "matrix", Matrix.write(M));
-			super.sendMsg(destId, tag, msg);
-		}
+	public synchronized void multicast(LinkedList<Usuario> destIds, Object msg) {
+
+		matrix.incrementarDestino(destIds);
+
+		for (Usuario usuario : destIds)
+			super.sendMsg(usuario, new CausalMessage(msg, usuario, matrix));
 	}
 
 	/**
@@ -63,12 +60,27 @@ public class CausalLinker extends Linker {
 	 * @param srcId
 	 * @return
 	 */
-	private boolean okayToRecv(int W[][], int srcId) {
-		if (W[srcId][myId] > M[srcId][myId] + 1)
+	private boolean okayToRecv(CausalMatrix W, UUID srcId) {
+		// if (W[srcId][myId] > M[srcId][myId] + 1)
+		// ....return false;
+		// for (int k = 0; k < N; k++)
+		// ........if ((k != srcId) && (W[k][myId] > M[k][myId]))
+		// ........return false;
+		// return true;
+
+		if (W.getValue(srcId, myId) > matrix.getValue(srcId, myId) + 1)
 			return false;
-		for (int k = 0; k < N; k++)
-			if ((k != srcId) && (W[k][myId] > M[k][myId]))
+
+		Iterator<Usuario> iter = panchat.getListaUsuarios().getIterator();
+
+		while (iter.hasNext()) {
+			UUID k = iter.next().uuid;
+
+			if ((k != srcId)
+					&& (W.getValue(k, myId) > matrix.getValue(k, myId)))
 				return false;
+		}
+
 		return true;
 	}
 
@@ -77,11 +89,13 @@ public class CausalLinker extends Linker {
 	 * cambiamos a la cola de entrega.
 	 */
 	private synchronized void checkPendingQ() {
+
 		Iterator<CausalMessage> iter = pendingQ.iterator();
+
 		while (iter.hasNext()) {
 			CausalMessage cm = iter.next();
 
-			if (okayToRecv(cm.getMatrix(), cm.getMessage().getSrcId())) {
+			if (okayToRecv(cm.getMatrix(), cm.getAddress().uuid)) {
 				iter.remove();
 				deliveryQ.add(cm);
 			}
@@ -89,18 +103,39 @@ public class CausalLinker extends Linker {
 	}
 
 	// polls the channel given by fromId to add to the pendingQ
-	public Message receiveMsg(int fromId) throws IOException {
+	public Object receiveMsg(Usuario fromId) throws IOException {
+
 		checkPendingQ();
+
+		/*
+		 * Mientras no haya mensajes que podamos entregar
+		 */
 		while (deliveryQ.isEmpty()) {
-			Msg matrix = super.receiveMsg(fromId);// matrix
-			int[][] W = new int[N][N];
-			Matrix.read(matrix.getMessage(), W);
-			Msg m1 = super.receiveMsg(fromId);// app message
-			pendingQ.add(new CausalMessage(m1, N, W));
+
+			CausalMessage cm = (CausalMessage) super.receiveMsg(fromId);
+
+			/*
+			 * Añadimos a pendientes
+			 */
+			pendingQ.add(cm);
+
+			/*
+			 * Comprobamos la cola de pendientes, para cambiar los mensajes que
+			 * podamos a la cola de entrega
+			 */
 			checkPendingQ();
 		}
+
+		/*
+		 * Obtenemos el primer elemento de pendientes.
+		 */
 		CausalMessage cm = (CausalMessage) deliveryQ.removeFirst();
-		Matrix.setMax(M, cm.getMatrix());
-		return cm.getMessage();
+
+		/*
+		 * Actualizamos la matrix
+		 */
+		matrix.maxMatrix(cm.getMatrix());
+
+		return cm.getContent();
 	}
 }
