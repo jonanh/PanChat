@@ -4,8 +4,6 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 
-import experimentos.MulticastSocketTest;
-
 import panchat.Panchat;
 import panchat.addressing.Usuario;
 import panchat.listeners.MulticastListenerThread;
@@ -56,7 +54,7 @@ public class Connector {
 		link = new Hashtable<UUID, Socket>();
 		hashOIS = new Hashtable<UUID, ObjectInputStream>();
 		hashOOS = new Hashtable<UUID, ObjectOutputStream>();
-		
+
 		// Inicializamos los sockets.
 		inicializarSockets();
 
@@ -118,7 +116,7 @@ public class Connector {
 		byte[] buffer = msgRegistrar.bytes();
 
 		DatagramPacket hi = new DatagramPacket(buffer, buffer.length, group,
-				MulticastSocketTest.MDNS_PORT);
+				MDNS_PORT);
 		try {
 
 			if (DEBUG)
@@ -161,9 +159,11 @@ public class Connector {
 			Socket socket = new Socket(usuario.ip, usuario.port);
 
 			// Creamos los object streams
-			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-			
+			ObjectOutputStream oos = new ObjectOutputStream(socket
+					.getOutputStream());
+			ObjectInputStream ois = new ObjectInputStream(socket
+					.getInputStream());
+
 			oos.writeObject(usuario);
 
 			link.put(usuario.uuid, socket);
@@ -175,26 +175,27 @@ public class Connector {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	public synchronized void acceptConnect() {
 		try {
 			// Creamos el socket
 			Socket socket = listener.accept();
 
 			// Creamos los object streams
-			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-			
+			ObjectInputStream ois = new ObjectInputStream(socket
+					.getInputStream());
+			ObjectOutputStream oos = new ObjectOutputStream(socket
+					.getOutputStream());
+
 			Usuario usuario = null;
-			
+
 			try {
 				usuario = (Usuario) ois.readObject();
 			} catch (ClassNotFoundException e) {
 				System.out.println("Connector.java: Objeto no recibido");
 				e.printStackTrace();
 			}
-			
+
 			link.put(usuario.uuid, socket);
 			hashOIS.put(usuario.uuid, ois);
 			hashOOS.put(usuario.uuid, oos);
@@ -204,7 +205,6 @@ public class Connector {
 			e.printStackTrace();
 		}
 	}
-	
 
 	/**
 	 * Obtener el Socket
