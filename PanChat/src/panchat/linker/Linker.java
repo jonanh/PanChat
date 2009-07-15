@@ -5,9 +5,15 @@ import java.io.*;
 
 import panchat.Panchat;
 import panchat.addressing.Usuario;
+import panchat.messages.CausalMessage;
 
 public class Linker {
+
 	private Connector connector;
+
+	private Object mutex = new Object();
+
+	private Hashtable<UUID, LinkedList<CausalMessage>> ObjectTable = new Hashtable<UUID, LinkedList<CausalMessage>>();
 
 	public Linker(Panchat panchat) throws Exception {
 		connector = new Connector(panchat);
@@ -51,12 +57,23 @@ public class Linker {
 	 */
 	public Object receiveMsg(Usuario fromId) throws IOException {
 
+		/*
+		 * Esperamos mientras no hayamos recibido ningún elemento
+		 */
 		try {
-			return connector.getOIS(fromId.uuid).readObject();
-		} catch (ClassNotFoundException e) {
+			while (ObjectTable.get(fromId.uuid) == null)
+				ObjectTable.wait();
+
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return null;
+
+		/*
+		 * Hacemos riguroso el acceso a la lista
+		 */
+		synchronized (mutex) {
+			return ObjectTable.get(fromId.uuid).poll();
+		}
 	}
 
 	/**
@@ -64,5 +81,22 @@ public class Linker {
 	 */
 	public void close() {
 		connector.closeSockets();
+	}
+
+	/**
+	 * Añadimos nuevo usuario en el causal linker
+	 * 
+	 * @param usuario
+	 */
+	public void anyadirUsuario(Usuario usuario) {
+		ObjectTable.put(usuario.uuid, new LinkedList<CausalMessage>());
+	}
+
+	/**
+	 * Añadimos un nuevo mensaje a la cola de mensajes
+	 */
+	public synchronized void anyadirMensaje(UUID uuid, CausalMessage msg) {
+		ObjectTable.get(uuid).add(msg);
+		ObjectTable.notify();
 	}
 }

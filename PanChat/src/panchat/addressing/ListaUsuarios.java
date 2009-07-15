@@ -24,6 +24,10 @@ public class ListaUsuarios extends AbstractTableModel {
 		listaUsuarios.add(usuario);
 		Collections.sort(listaUsuarios);
 	}
+	
+	public void eliminarUsuario(Usuario usuario) {
+		listaUsuarios.remove(usuario);
+	}
 
 	public boolean contains(Usuario usuario) {
 		return listaUsuarios.contains(usuario);

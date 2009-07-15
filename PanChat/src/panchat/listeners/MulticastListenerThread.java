@@ -1,5 +1,6 @@
 package panchat.listeners;
 
+import java.io.IOException;
 import java.net.MulticastSocket;
 
 import panchat.Panchat;
@@ -73,16 +74,17 @@ public class MulticastListenerThread extends Thread {
 					else
 						connector.acceptConnect();
 
-					// /*
-					// * Añadir elementos en matrix del CausalLinker
-					// */
-					// if (DEBUG)
-					// System.out.println("MulticastListenerThread.java: "
-					// + "Añadimos elementos en la matrix del CausalLinker");
-					//					
-					// // TODO
-					//					
-					//
+					/*
+					 * Añadir elementos en el CausalLinker y el Linker
+					 */
+					if (DEBUG)
+						System.out
+								.println("MulticastListenerThread.java: "
+										+ "Añadimos elementos en el CausalLinker y el Linker");
+
+					panchat.getCausalLinker().anyadirUsuario(msgCliente.getUsuario());
+					panchat.getLinker().anyadirUsuario(msgCliente.getUsuario());
+					
 
 					/*
 					 * Añadir a la ListaUsuarios el usuario
@@ -95,10 +97,17 @@ public class MulticastListenerThread extends Thread {
 							msgCliente.getUsuario());
 
 					// Creamos el ListenerThread para escuchar al socket
-
+					
 				} else {
 
-					// TODO
+					// Cerramos su socket
+					try {
+						connector.getSocket(msgCliente.getUsuario().uuid).close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					
+					panchat.getListaUsuarios().eliminarUsuario(msgCliente.getUsuario());
 				}
 		}
 	}

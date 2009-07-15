@@ -24,7 +24,12 @@ public class ListaCanales extends AbstractTableModel {
 		listaCanales.add(canal);
 		Collections.sort(listaCanales);
 	}
-	
+
+	public void eliminarUsuario(Usuario usuario) {
+		for (Canal canal : listaCanales)
+			canal.eliminarUsuario(usuario);
+	}
+
 	public boolean contains(Canal canal) {
 		return listaCanales.contains(canal);
 	}

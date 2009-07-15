@@ -62,7 +62,7 @@ public class Canal extends AbstractTableModel implements Comparable<Canal>,
 	 * 
 	 * @param usuario
 	 */
-	public void EliminarUsuario(Usuario usuario) {
+	public void eliminarUsuario(Usuario usuario) {
 		listadoUsuariosConectados.remove(usuario);
 	}
 

@@ -12,6 +12,8 @@ public class CausalLinker extends Linker {
 	private CausalMatrix matrix;
 	private Panchat panchat;
 	private UUID myId;
+	private Object mutex = new Object();
+	private Hashtable<UUID, LinkedList<CausalMessage>> ObjectTable = new Hashtable<UUID, LinkedList<CausalMessage>>();
 
 	/*
 	 * Cola de mensajes de entrega.
@@ -104,38 +106,73 @@ public class CausalLinker extends Linker {
 
 	// polls the channel given by fromId to add to the pendingQ
 	public Object receiveMsg(Usuario fromId) throws IOException {
-
-		checkPendingQ();
+		synchronized (mutex) {
+			checkPendingQ();
+		}
 
 		/*
 		 * Mientras no haya mensajes que podamos entregar
 		 */
 		while (deliveryQ.isEmpty()) {
 
-			CausalMessage cm = (CausalMessage) super.receiveMsg(fromId);
-
 			/*
-			 * Añadimos a pendientes
+			 * Esperamos mientras no hayamos recibido ningún elemento
 			 */
-			pendingQ.add(cm);
+			try {
+				while (ObjectTable.get(fromId.uuid) == null)
+					ObjectTable.wait();
 
-			/*
-			 * Comprobamos la cola de pendientes, para cambiar los mensajes que
-			 * podamos a la cola de entrega
-			 */
-			checkPendingQ();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			CausalMessage cm;
+
+			synchronized (mutex) {
+				cm = ObjectTable.get(fromId.uuid).poll();
+
+				/*
+				 * Añadimos a pendientes
+				 */
+				pendingQ.add(cm);
+
+				/*
+				 * Comprobamos la cola de pendientes, para cambiar los mensajes
+				 * que podamos a la cola de entrega
+				 */
+				checkPendingQ();
+			}
 		}
 
-		/*
-		 * Obtenemos el primer elemento de pendientes.
-		 */
-		CausalMessage cm = (CausalMessage) deliveryQ.removeFirst();
+		synchronized (mutex) {
+			/*
+			 * Obtenemos el primer elemento de pendientes.
+			 */
+			CausalMessage cm = (CausalMessage) deliveryQ.removeFirst();
 
-		/*
-		 * Actualizamos la matrix
-		 */
-		matrix.maxMatrix(cm.getMatrix());
+			/*
+			 * Actualizamos la matrix
+			 */
+			matrix.maxMatrix(cm.getMatrix());
 
-		return cm.getContent();
+			return cm.getContent();
+		}
+	}
+
+	/**
+	 * Añadimos nuevo usuario en el causal linker
+	 * 
+	 * @param usuario
+	 */
+	public void anyadirUsuario(Usuario usuario) {
+		ObjectTable.put(usuario.uuid, new LinkedList<CausalMessage>());
+	}
+
+	/**
+	 * Añadimos un nuevo mensaje a la cola de mensajes
+	 */
+	public synchronized void anyadirMensaje(UUID uuid, CausalMessage msg) {
+		ObjectTable.get(uuid).add(msg);
+		ObjectTable.notify();
 	}
 }
