@@ -1,5 +1,6 @@
 package panchat.testunits;
 
+import java.util.Collections;
 import java.util.LinkedList;
 
 import panchat.addressing.Canal;
@@ -23,6 +24,8 @@ public class ListaCanalesTest extends TestCase {
 		listaUsuarios.add(new Usuario("127.0.0.1", 50002, "Javier"));
 		listaUsuarios.add(new Usuario("127.0.0.1", 50003, "JonAn"));
 		listaUsuarios.add(new Usuario("127.0.0.1", 50004, "Nagore"));
+		
+		Collections.sort(listaUsuarios);
 	}
 
 	public void testAñadirCanal() {

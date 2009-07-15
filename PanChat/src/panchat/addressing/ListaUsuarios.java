@@ -20,7 +20,7 @@ public class ListaUsuarios extends AbstractTableModel {
 		return listaUsuarios.iterator();
 	}
 
-	public void añadirUsuario(Usuario usuario) {
+	public synchronized void añadirUsuario(Usuario usuario) {
 		listaUsuarios.add(usuario);
 		Collections.sort(listaUsuarios);
 	}

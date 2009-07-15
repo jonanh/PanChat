@@ -1,5 +1,6 @@
 package panchat.testunits;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -24,6 +25,8 @@ public class ListaUsuariosTest extends TestCase {
 		lista.add(new Usuario("127.0.0.1", 50002, "Javier"));
 		lista.add(new Usuario("127.0.0.1", 50003, "JonAn"));
 		lista.add(new Usuario("127.0.0.1", 50004, "Nagore"));
+		
+		Collections.sort(lista);
 
 		listaUsuarios = new ListaUsuarios();
 	}
@@ -90,7 +93,7 @@ public class ListaUsuariosTest extends TestCase {
 
 		LinkedList<Usuario> lista2 = (LinkedList<Usuario>) lista.clone();
 		lista2.removeAll(lista.subList(2, 5));
-		
+
 		assertEquals(lista.subList(2, 5), lista1.diferenciaUsuarios(lista2));
 	}
 }
