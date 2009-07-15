@@ -61,7 +61,7 @@ public class Connector {
 		/*
 		 * Nos damos a conocer al mundo, como buenos ciudadanos 0:-)
 		 */
-		enviarSaludo();
+		enviarSaludo(true);
 
 		/*
 		 * Creamos un MulticastListenerThread para escuchar los eventos
@@ -109,10 +109,13 @@ public class Connector {
 	}
 
 	/**
+	 * 
 	 * Enviamos un saludo Multicast
+	 * 
+	 * @param Registrar
 	 */
-	public void enviarSaludo() {
-		RegistrarCliente msgRegistrar = new RegistrarCliente(usuario, true);
+	public void enviarSaludo(boolean Registrar) {
+		RegistrarCliente msgRegistrar = new RegistrarCliente(usuario, Registrar);
 		byte[] buffer = msgRegistrar.bytes();
 
 		DatagramPacket hi = new DatagramPacket(buffer, buffer.length, group,

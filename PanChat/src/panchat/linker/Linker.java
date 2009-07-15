@@ -15,7 +15,7 @@ public class Linker {
 
 	private Hashtable<UUID, LinkedList<CausalMessage>> ObjectTable = new Hashtable<UUID, LinkedList<CausalMessage>>();
 
-	public Linker(Panchat panchat) throws Exception {
+	public Linker(Panchat panchat) {
 		connector = new Connector(panchat);
 	}
 

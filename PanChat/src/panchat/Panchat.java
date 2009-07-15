@@ -24,6 +24,8 @@ public class Panchat {
 
 		// Nos añadimos a nuestra propia lista de usuarios
 		this.listaUsuarios.añadirUsuario(usuario);
+		this.causalLinker = new CausalLinker(this);
+		this.linker = new Linker(this);
 	}
 
 	/**

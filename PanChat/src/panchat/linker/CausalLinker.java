@@ -30,7 +30,7 @@ public class CausalLinker extends Linker {
 	 * @param panchat
 	 * @throws Exception
 	 */
-	public CausalLinker(Panchat panchat) throws Exception {
+	public CausalLinker(Panchat panchat) {
 		super(panchat);
 
 		this.panchat = panchat;

@@ -41,7 +41,7 @@ public class MulticastListenerThread extends Thread {
 			}
 
 			// Si no contenemos a este usuario lo añadimos
-			if (!panchat.getListaUsuarios().contains(msgCliente.getUsuario()))
+			if (!panchat.getListaUsuarios().contains(msgCliente.getUsuario())) {
 
 				/*
 				 * Si es una acción de registrar lo registramos
@@ -56,8 +56,8 @@ public class MulticastListenerThread extends Thread {
 						System.out.println("MulticastListenerThread.java: "
 								+ "Repondemos el saludo al usuario");
 
-					connector.enviarSaludo();
-					
+					connector.enviarSaludo(true);
+
 					/*
 					 * Crear el socket
 					 */
@@ -82,9 +82,9 @@ public class MulticastListenerThread extends Thread {
 								.println("MulticastListenerThread.java: "
 										+ "Añadimos elementos en el CausalLinker y el Linker");
 
-					panchat.getCausalLinker().anyadirUsuario(msgCliente.getUsuario());
+					panchat.getCausalLinker().anyadirUsuario(
+							msgCliente.getUsuario());
 					panchat.getLinker().anyadirUsuario(msgCliente.getUsuario());
-					
 
 					/*
 					 * Añadir a la ListaUsuarios el usuario
@@ -97,18 +97,24 @@ public class MulticastListenerThread extends Thread {
 							msgCliente.getUsuario());
 
 					// Creamos el ListenerThread para escuchar al socket
-					
-				} else {
-
-					// Cerramos su socket
-					try {
-						connector.getSocket(msgCliente.getUsuario().uuid).close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					
-					panchat.getListaUsuarios().eliminarUsuario(msgCliente.getUsuario());
+					Thread thread = new ListenerThread(panchat, msgCliente
+							.getUsuario().uuid, connector.getOIS(msgCliente
+							.getUsuario().uuid));
+					thread.start();
 				}
+			}
+			// else {
+			//
+			// // Cerramos su socket
+			// try {
+			// connector.getSocket(msgCliente.getUsuario().uuid).close();
+			// } catch (IOException e) {
+			// e.printStackTrace();
+			// }
+			//
+			// panchat.getListaUsuarios().eliminarUsuario(
+			// msgCliente.getUsuario());
+			// }
 		}
 	}
 }
