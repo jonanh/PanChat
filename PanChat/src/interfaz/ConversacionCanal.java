@@ -181,7 +181,7 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ActionList
 
 		ConversacionCanal edit = new ConversacionCanal(e,canal);
 		in.add(edit);
-		in.setTitle("conversaci�n con el jonan");
+		in.setTitle("conversación con el jonan");
 		in.setVisible(true);
 
 	}
