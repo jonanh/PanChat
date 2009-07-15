@@ -21,7 +21,7 @@ public class Usuario implements Serializable, Comparable<Usuario> {
 
 	@Override
 	public int compareTo(Usuario o) {
-		return uuid.compareTo(o.uuid);
+		return nickName.compareTo(o.nickName);
 	}
 
 	@Override

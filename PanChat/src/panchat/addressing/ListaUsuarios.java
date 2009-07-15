@@ -89,9 +89,9 @@ public class ListaUsuarios extends AbstractTableModel {
 
 	@SuppressWarnings("unchecked")
 	public LinkedList<Usuario> diferenciaUsuarios(
-			LinkedList<Usuario> listaUsuarios) {
+			LinkedList<Usuario> pListaUsuarios) {
 		LinkedList<Usuario> lista = (LinkedList<Usuario>) listaUsuarios.clone();
-		lista.retainAll(listaUsuarios);
+		lista.removeAll(pListaUsuarios);
 		return lista;
 	}
 

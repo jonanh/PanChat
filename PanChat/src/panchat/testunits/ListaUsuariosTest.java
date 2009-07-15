@@ -19,16 +19,16 @@ public class ListaUsuariosTest extends TestCase {
 
 		// Creamos un listado de usuarios
 		lista = new LinkedList<Usuario>();
-		lista.add(new Usuario("127.0.0.1", 50000, "JonAn"));
-		lista.add(new Usuario("127.0.0.1", 50001, "Javier"));
-		lista.add(new Usuario("127.0.0.1", 50002, "Dennis"));
-		lista.add(new Usuario("127.0.0.1", 50003, "Imanol"));
+		lista.add(new Usuario("127.0.0.1", 50000, "Dennis"));
+		lista.add(new Usuario("127.0.0.1", 50001, "Imanol"));
+		lista.add(new Usuario("127.0.0.1", 50002, "Javier"));
+		lista.add(new Usuario("127.0.0.1", 50003, "JonAn"));
 		lista.add(new Usuario("127.0.0.1", 50004, "Nagore"));
 
 		listaUsuarios = new ListaUsuarios();
 	}
 
-	/*
+	/**
 	 * Verificamos el funcionamiento de registrar y el iterador
 	 */
 	public void testAñadirUsuarioAndGetIterator() {
@@ -44,7 +44,7 @@ public class ListaUsuariosTest extends TestCase {
 		assertEquals(i, 2);
 	}
 
-	/*
+	/**
 	 * Comprobamos que dos listas de usuarios con 0 elementos son iguales
 	 */
 	public void testEqualsObject() {
@@ -53,7 +53,7 @@ public class ListaUsuariosTest extends TestCase {
 		assertEquals(lista1, lista2);
 	}
 
-	/*
+	/**
 	 * Comprobamos que dos listas de usuarios con el mismo elemento son
 	 * equivalentes
 	 */
@@ -65,7 +65,7 @@ public class ListaUsuariosTest extends TestCase {
 		assertEquals(lista1, lista2);
 	}
 
-	/*
+	/**
 	 * Comprobamos que dos listas de usuarios con distintos elementos son
 	 * distintas
 	 */
@@ -75,5 +75,22 @@ public class ListaUsuariosTest extends TestCase {
 		lista1.añadirUsuario(lista.get(0));
 		lista2.añadirUsuario(lista.get(1));
 		assertFalse(lista1.equals(lista2));
+	}
+
+	/**
+	 * Comprobamos que dos listas de usuarios con distintos elementos son
+	 * distintas
+	 */
+	@SuppressWarnings("unchecked")
+	public void testDiferenciaUsuarios() {
+		ListaUsuarios lista1 = new ListaUsuarios();
+
+		for (Usuario usuario : lista)
+			lista1.añadirUsuario(usuario);
+
+		LinkedList<Usuario> lista2 = (LinkedList<Usuario>) lista.clone();
+		lista2.removeAll(lista.subList(2, 5));
+		
+		assertEquals(lista.subList(2, 5), lista1.diferenciaUsuarios(lista2));
 	}
 }

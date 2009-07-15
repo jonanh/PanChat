@@ -84,7 +84,7 @@ public class Canal extends AbstractTableModel implements Comparable<Canal>,
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		return rowIndex;
+		return listadoUsuariosConectados.get(rowIndex).nickName;
 	}
 
 	// Métodos del ComboBoxModel
@@ -105,7 +105,7 @@ public class Canal extends AbstractTableModel implements Comparable<Canal>,
 	public Object getElementAt(int index) {
 		LinkedList<Usuario> usuariosSinConectar;
 		usuariosSinConectar = listadoUsuarios.diferenciaUsuarios(listadoUsuariosConectados);
-		return usuariosSinConectar.get(index);
+		return usuariosSinConectar.get(index).nickName;
 	}
 
 	@Override
