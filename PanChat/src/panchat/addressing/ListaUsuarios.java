@@ -24,8 +24,8 @@ public class ListaUsuarios extends AbstractTableModel {
 		listaUsuarios.add(usuario);
 		Collections.sort(listaUsuarios);
 	}
-	
-	public void eliminarUsuario(Usuario usuario) {
+
+	public synchronized void eliminarUsuario(Usuario usuario) {
 		listaUsuarios.remove(usuario);
 	}
 

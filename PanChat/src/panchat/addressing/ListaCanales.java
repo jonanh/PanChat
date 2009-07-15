@@ -20,12 +20,12 @@ public class ListaCanales extends AbstractTableModel {
 		return listaCanales.iterator();
 	}
 
-	public void añadirCanal(Canal canal) {
+	public synchronized void añadirCanal(Canal canal) {
 		listaCanales.add(canal);
 		Collections.sort(listaCanales);
 	}
 
-	public void eliminarUsuario(Usuario usuario) {
+	public synchronized void eliminarUsuario(Usuario usuario) {
 		for (Canal canal : listaCanales)
 			canal.eliminarUsuario(usuario);
 	}

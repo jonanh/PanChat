@@ -56,14 +56,15 @@ public class RegistrarCliente implements Serializable {
 		}
 		return baos.toByteArray();
 	}
-	
+
 	/**
 	 * Nos devuelve una clase RegistrarCliente desde un Socket Multicast
 	 * 
 	 * @param socket
 	 * @return
 	 */
-	public static RegistrarCliente leerRegistrarCliente(MulticastSocket socket) {
+	public static RegistrarCliente leerRegistrarCliente(MulticastSocket socket)
+			throws IOException {
 
 		// Creamos un buffer donde guardar lo leído
 		byte[] buf = new byte[1000];
@@ -71,11 +72,7 @@ public class RegistrarCliente implements Serializable {
 		DatagramPacket recv = new DatagramPacket(buf, buf.length);
 
 		// Leemos del Socket
-		try {
-			socket.receive(recv);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		socket.receive(recv);
 
 		// Creamos un ByteArrayInputStream desde donde serializar el objeto
 		ByteArrayInputStream bais = new ByteArrayInputStream(recv.getData(), 0,

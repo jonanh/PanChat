@@ -25,10 +25,15 @@ public class Panchat {
 		this.listaCanales = new ListaCanales();
 		// Nos añadimos a nuestra propia lista de usuarios
 		this.listaUsuarios.añadirUsuario(usuario);
-		
+
 		this.connector = new Connector(this);
 		this.causalLinker = new CausalLinker(this);
 		this.linker = new Linker(this);
+
+		// Como el hilo MulticastListenerThread depende de causalLinker, lo
+		// arrancamos después para evitar una condicción de carrera al
+		// instanciar las clases.
+		this.connector.arrancarMulticastListenerThread();
 	}
 
 	/**
@@ -83,6 +88,19 @@ public class Panchat {
 	 */
 	public Connector getConnector() {
 		return connector;
+	}
+
+	public void desegistrarCliente() {
+		connector.enviarSaludo(false);
+		
+		/*
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}*/
+		
+		connector.closeSockets();
 	}
 
 }

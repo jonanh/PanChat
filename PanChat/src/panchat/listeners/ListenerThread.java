@@ -1,36 +1,44 @@
 package panchat.listeners;
 
 import java.io.*;
-import java.util.UUID;
+import java.net.Socket;
 
 import panchat.Panchat;
+import panchat.addressing.Usuario;
 import panchat.messages.CausalMessage;
 import panchat.messages.SimpleMessage;
 import panchat.share.protocolo.Bloque;
 import panchat.share.protocolo.Fichero;
 
 public class ListenerThread extends Thread {
-	private boolean terminar;
+
+	public final static boolean DEBUG = false;
+
 	private Panchat panchat;
 	private ObjectInputStream ois;
-	private UUID uuid;
+	private Socket socket;
+	private Usuario usuario;
 
-	public ListenerThread(Panchat panchat, UUID uuid, ObjectInputStream ois) {
+	public ListenerThread(Panchat panchat, Usuario usuario, Socket socket,
+			ObjectInputStream ois) {
 		this.panchat = panchat;
 		this.ois = ois;
-		this.uuid = uuid;
+		this.usuario = usuario;
+		this.socket = socket;
 	}
 
 	public void run() {
 
-		while (!terminar) {
+		printDebug("Creado hilo para escuchar a : " + usuario.nickName);
+
+		while (!socket.isClosed()) {
 			try {
 				Object msg = ois.readObject();
 				if (msg instanceof CausalMessage) {
-					panchat.getCausalLinker().anyadirMensaje(uuid,
+					panchat.getCausalLinker().anyadirMensaje(usuario.uuid,
 							(CausalMessage) msg);
 				} else if (msg instanceof SimpleMessage) {
-					panchat.getCausalLinker().anyadirMensaje(uuid,
+					panchat.getCausalLinker().anyadirMensaje(usuario.uuid,
 							(CausalMessage) msg);
 				} else if (msg instanceof Fichero) {
 
@@ -62,12 +70,36 @@ public class ListenerThread extends Thread {
 					// TODO
 				}
 			} catch (IOException e) {
-				terminar = true;
-				System.err.println(e);
+				// El socket se ha cerrado
+				try {
+
+					printDebug("Se ha cerrado el socket");
+
+					// Lo eliminamos del listado de usuarios
+
+					printDebug("Borramos a " + usuario.nickName
+							+ " de la lista de usuarios");
+					panchat.getListaUsuarios().eliminarUsuario(usuario);
+
+					// Lo eliminamos del listado de canales
+
+					// printDebug("Borramos a " + usuario.nickName
+					// + " de la lista de canales");
+					panchat.getListaCanales().eliminarUsuario(usuario);
+
+					socket.close();
+				} catch (IOException e1) {
+				}
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 		}
+		printDebug("Hilo terminado");
+	}
 
+	private void printDebug(String string) {
+		String msgClase = "ListenerThread.java: ";
+		if (DEBUG)
+			System.out.println(msgClase + string);
 	}
 }

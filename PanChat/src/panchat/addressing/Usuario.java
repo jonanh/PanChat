@@ -34,9 +34,9 @@ public class Usuario implements Serializable, Comparable<Usuario> {
 	public boolean equals(Object obj) {
 		if (obj instanceof Usuario) {
 			Usuario usuario = (Usuario) obj;
-			return uuid.equals(usuario.uuid) && ip.equals(usuario.ip)
-					&& (port == usuario.port)
-					&& nickName.equals(usuario.nickName);
+			return uuid.equals(usuario.uuid);// && ip.equals(usuario.ip)
+					//&& (port == usuario.port)
+					//&& nickName.equals(usuario.nickName);
 		} else
 			return false;
 	}

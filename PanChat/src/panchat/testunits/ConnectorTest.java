@@ -1,40 +1,30 @@
 package panchat.testunits;
 
-import java.net.InetAddress;
 import java.util.LinkedList;
 
 import panchat.Panchat;
 import panchat.addressing.ListaUsuarios;
 import panchat.addressing.Usuario;
-import panchat.linker.Connector;
-import panchat.listeners.MulticastListenerThread;
 import junit.framework.TestCase;
 
 public class ConnectorTest extends TestCase {
 
-	public static boolean DEBUG;
+	public final static boolean DEBUG = false;
+
 	private LinkedList<Usuario> listaUsuarios;
-	private String hostname;
-	private LinkedList<ListaUsuarios> listaListaUsuarios;
 
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		ConnectorTest.DEBUG = false;
-		Connector.DEBUG = false;
-		MulticastListenerThread.DEBUG = false;
-
-		hostname = InetAddress.getLocalHost().getHostAddress();
-
 		// Creamos un listado de usuarios
 		listaUsuarios = new LinkedList<Usuario>();
-		listaUsuarios.add(new Usuario(hostname, 50000, "JonAn"));
-		listaUsuarios.add(new Usuario(hostname, 50001, "Javier"));
-		listaUsuarios.add(new Usuario(hostname, 50002, "Dennis"));
-		listaUsuarios.add(new Usuario(hostname, 50003, "Imanol"));
-		listaUsuarios.add(new Usuario(hostname, 50004, "Nagore"));
-		listaUsuarios.add(new Usuario(hostname, 50005, "Nerea"));
-		listaUsuarios.add(new Usuario(hostname, 50006, "Ainara"));
+		listaUsuarios.add(new Usuario("localhost", 50000, "JonAn"));
+		listaUsuarios.add(new Usuario("localhost", 50001, "Javier"));
+		listaUsuarios.add(new Usuario("localhost", 50002, "Dennis"));
+		listaUsuarios.add(new Usuario("localhost", 50003, "Imanol"));
+		listaUsuarios.add(new Usuario("localhost", 50004, "Nagore"));
+		listaUsuarios.add(new Usuario("localhost", 50005, "Nerea"));
+		listaUsuarios.add(new Usuario("localhost", 50006, "Ainara"));
 	}
 
 	/**
@@ -42,9 +32,13 @@ public class ConnectorTest extends TestCase {
 	 */
 	public void testRegistroMulticastUsuarios() {
 
-		listaListaUsuarios = new LinkedList<ListaUsuarios>();
+		LinkedList<ListaUsuarios> listaListaUsuarios;
+		LinkedList<Panchat> listaListaPanchat;
 
-		for (Usuario usuario : listaUsuarios.subList(0, 4)) {
+		listaListaUsuarios = new LinkedList<ListaUsuarios>();
+		listaListaPanchat = new LinkedList<Panchat>();
+
+		for (Usuario usuario : listaUsuarios.subList(0, 5)) {
 
 			// Creamos una nueva clase Panchat
 			Panchat panchat = new Panchat(usuario);
@@ -59,6 +53,7 @@ public class ConnectorTest extends TestCase {
 			// Añadimos las listas de usuarios de cada instancia de Panchat a
 			// una lista
 			listaListaUsuarios.add(panchat.getListaUsuarios());
+			listaListaPanchat.add(panchat);
 		}
 
 		if (DEBUG)
@@ -72,5 +67,28 @@ public class ConnectorTest extends TestCase {
 
 			assertEquals(lista1, lista2);
 		}
+
+		// Ordenamos terminar la aplicación
+		for (Panchat panchat : listaListaPanchat.subList(0, 3))
+			panchat.desegistrarCliente();
+
+		// Dejamos un tiempo para que termine todo
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		// Comprobamos que finalmente se han quedado desregistrados 3 clientes
+		// (solo se tienen registrados a si mismos)
+		assertEquals(listaListaUsuarios.get(0).getLenght(), 1);
+		assertEquals(listaListaUsuarios.get(1).getLenght(), 1);
+		assertEquals(listaListaUsuarios.get(2).getLenght(), 1);
+
+		// Comprobamos que los otros dos clientes se tienen registrados
+		// mutuamente
+		assertEquals(listaListaUsuarios.get(3).getLenght(), 2);
+		assertEquals(listaListaUsuarios.get(4).getLenght(), 2);
+
 	}
 }
