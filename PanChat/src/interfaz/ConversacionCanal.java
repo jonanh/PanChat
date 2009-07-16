@@ -19,9 +19,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import panchat.addressing.Canal;
-import panchat.addressing.ListaUsuarios;
-import panchat.addressing.Usuario;
+import panchat.addressing.channels.Canal;
+import panchat.addressing.users.ListaUsuarios;
+import panchat.addressing.users.Usuario;
 
 public class ConversacionCanal extends MiPanel implements KeyListener,ActionListener{
 	private static final long serialVersionUID = 1L;

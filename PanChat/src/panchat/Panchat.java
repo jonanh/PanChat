@@ -1,8 +1,8 @@
 package panchat;
 
-import panchat.addressing.ListaCanales;
-import panchat.addressing.ListaUsuarios;
-import panchat.addressing.Usuario;
+import panchat.addressing.channels.ListaCanales;
+import panchat.addressing.users.ListaUsuarios;
+import panchat.addressing.users.Usuario;
 import panchat.linker.CausalLinker;
 import panchat.linker.Connector;
 import panchat.linker.Linker;

@@ -1,4 +1,4 @@
-package panchat.addressing;
+package panchat.addressing.channels;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -6,6 +6,9 @@ import java.util.List;
 import javax.swing.ComboBoxModel;
 import javax.swing.event.ListDataListener;
 import javax.swing.table.AbstractTableModel;
+
+import panchat.addressing.users.ListaUsuarios;
+import panchat.addressing.users.Usuario;
 
 public class Canal extends AbstractTableModel implements Comparable<Canal>,
 		ComboBoxModel {

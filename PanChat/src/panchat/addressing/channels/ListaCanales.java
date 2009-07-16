@@ -1,10 +1,12 @@
-package panchat.addressing;
+package panchat.addressing.channels;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.swing.table.AbstractTableModel;
+
+import panchat.addressing.users.Usuario;
 
 public class ListaCanales extends AbstractTableModel {
 

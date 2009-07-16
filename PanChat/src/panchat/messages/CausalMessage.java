@@ -1,6 +1,6 @@
 package panchat.messages;
 
-import panchat.addressing.Usuario;
+import panchat.addressing.users.Usuario;
 import panchat.linker.CausalMatrix;
 
 /**

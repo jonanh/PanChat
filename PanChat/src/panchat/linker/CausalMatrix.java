@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.UUID;
 
-import panchat.addressing.Usuario;
-import panchat.addressing.ListaUsuarios;
+import panchat.addressing.users.ListaUsuarios;
+import panchat.addressing.users.Usuario;
 
 public class CausalMatrix implements Serializable {
 

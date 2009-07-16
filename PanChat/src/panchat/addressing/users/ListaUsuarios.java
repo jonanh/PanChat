@@ -1,4 +1,4 @@
-package panchat.addressing;
+package panchat.addressing.users;
 
 import java.util.Collections;
 import java.util.Iterator;

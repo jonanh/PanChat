@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import panchat.addressing.Usuario;
+import panchat.addressing.users.Usuario;
 
 /**
  * Implementación de un vector de relojes lógicos de Lamport.

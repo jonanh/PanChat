@@ -1,6 +1,6 @@
 package panchat.messages;
 
-import panchat.addressing.Usuario;
+import panchat.addressing.users.Usuario;
 
 /**
  * Mensaje simple (sin ordenación) p2p.

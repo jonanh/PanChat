@@ -4,7 +4,7 @@ import java.util.*;
 import java.io.*;
 
 import panchat.Panchat;
-import panchat.addressing.Usuario;
+import panchat.addressing.users.Usuario;
 import panchat.messages.CausalMessage;
 
 public class Linker {

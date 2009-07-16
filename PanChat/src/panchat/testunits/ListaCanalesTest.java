@@ -3,10 +3,10 @@ package panchat.testunits;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import panchat.addressing.Canal;
-import panchat.addressing.ListaCanales;
-import panchat.addressing.ListaUsuarios;
-import panchat.addressing.Usuario;
+import panchat.addressing.channels.Canal;
+import panchat.addressing.channels.ListaCanales;
+import panchat.addressing.users.ListaUsuarios;
+import panchat.addressing.users.Usuario;
 
 import junit.framework.TestCase;
 

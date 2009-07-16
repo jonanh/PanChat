@@ -9,7 +9,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
-import panchat.addressing.ListaCanales;
+import panchat.addressing.channels.ListaCanales;
 
 public class TablaCanales extends JPanel {
 

@@ -7,7 +7,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import panchat.addressing.ListaUsuarios;
+
+import panchat.addressing.users.ListaUsuarios;
 
 public class TablaUsuarios extends JPanel {
 

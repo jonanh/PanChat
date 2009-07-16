@@ -6,7 +6,7 @@ import java.net.*;
 import java.io.*;
 
 import panchat.Panchat;
-import panchat.addressing.Usuario;
+import panchat.addressing.users.Usuario;
 import panchat.listeners.ListenerThread;
 import panchat.listeners.MulticastListenerThread;
 import panchat.share.protocolo.RegistrarCliente;

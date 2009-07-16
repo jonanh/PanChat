@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 
-import panchat.addressing.Usuario;
+import panchat.addressing.users.Usuario;
 
 public class RegistrarCliente implements Serializable {
 	private static final long serialVersionUID = 1L;

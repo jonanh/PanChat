@@ -1,4 +1,4 @@
-package panchat.addressing;
+package panchat.addressing.users;
 
 import java.io.Serializable;
 import java.util.UUID;
