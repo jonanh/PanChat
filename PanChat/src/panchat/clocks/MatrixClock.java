@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.UUID;
+import java.util.Map.Entry;
 
-import panchat.addressing.users.ListaUsuarios;
 import panchat.addressing.users.Usuario;
 
 public class MatrixClock implements Serializable {
@@ -13,7 +13,6 @@ public class MatrixClock implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private UUID myId;
-	private ListaUsuarios listaUsuarios;
 
 	/*
 	 * Vamos a utilizar tablas hash en vez de matrices, para minimizar la
@@ -22,36 +21,13 @@ public class MatrixClock implements Serializable {
 	 */
 	private Hashtable<UUID, Hashtable<UUID, Integer>> HashMatrix;
 
-	public MatrixClock(UUID id, ListaUsuarios listaUsuarios) {
+	public MatrixClock(UUID id) {
 
 		this.myId = id;
-		this.listaUsuarios = listaUsuarios;
 
 		// Lo mismo inicializar M = new int[N][N]; pero con Tablas Hash de
 		// Tablash Hash.
 		HashMatrix = new Hashtable<UUID, Hashtable<UUID, Integer>>();
-
-		// Es lo equivalente en tablas hash a :
-		//
-		// for (int i = 0; i < N; i++)
-		// ....for (int j = 0; j < N; j++)
-		// ........M[i][j] = 0;
-		// 
-		Iterator<Usuario> iter1 = listaUsuarios.getIterator();
-		while (iter1.hasNext()) {
-			UUID uuid1 = iter1.next().uuid;
-
-			Hashtable<UUID, Integer> tabla = new Hashtable<UUID, Integer>();
-			HashMatrix.put(uuid1, tabla);
-
-			Iterator<Usuario> iter2 = listaUsuarios.getIterator();
-			while (iter2.hasNext()) {
-				UUID uuid2 = iter2.next().uuid;
-
-				// Inicializamos todos los valores a 0
-				tabla.put(uuid2, 0);
-			}
-		}
 
 		/*
 		 * Inicializacion a 1 del reloj lógico del vector principal
@@ -89,18 +65,20 @@ public class MatrixClock implements Serializable {
 		// ......for (int j = 0; j < N; j++)
 		// .........if (W[i][j] > M[i][j])
 		// ............M[i][j] = W[i][j];
-		//
-		Iterator<Usuario> iter1 = listaUsuarios.getIterator();
-		while (iter1.hasNext()) {
-			UUID uuid1 = iter1.next().uuid;
+		// 
+		Iterator<Entry<UUID, Hashtable<UUID, Integer>>> iter = HashMatrix
+				.entrySet().iterator();
+		while (iter.hasNext()) {
+			UUID uuid1 = iter.next().getKey();
 
 			/*
 			 * Hacemos una actualización por columnas.
 			 */
 			if (uuid1 != myId) {
-				Iterator<Usuario> iter2 = listaUsuarios.getIterator();
+				Iterator<Entry<UUID, Hashtable<UUID, Integer>>> iter2 = HashMatrix
+						.entrySet().iterator();
 				while (iter2.hasNext()) {
-					UUID uuid2 = iter2.next().uuid;
+					UUID uuid2 = iter2.next().getKey();
 
 					/*
 					 * Obtenemos los valores de ambas matrices, los comparamos y
@@ -108,6 +86,7 @@ public class MatrixClock implements Serializable {
 					 */
 					Integer valor1 = HashMatrix.get(uuid1).get(uuid2);
 					Integer valor2 = nuevaHashMatrix.get(uuid1).get(uuid2);
+
 					// Solo actualizamos si hay que actualizar
 					if (valor2 > valor1)
 						HashMatrix.get(uuid1).put(uuid2, valor2);
@@ -124,9 +103,9 @@ public class MatrixClock implements Serializable {
 		// ....if (M[myId][j] < W[srcId][j])
 		// ........M[myId][j] = W[srcId][j];
 		//
-		Iterator<Usuario> iter = listaUsuarios.getIterator();
+		iter = HashMatrix.entrySet().iterator();
 		while (iter.hasNext()) {
-			UUID uuid = iter.next().uuid;
+			UUID uuid = iter.next().getKey();
 
 			/*
 			 * Obtenemos las filas de ambas matrices, los comparamos y
@@ -143,35 +122,34 @@ public class MatrixClock implements Serializable {
 	}
 
 	/**
-	 * Añade una nueva address a la MatrixClock
+	 * Añade un nuevo usuario a la MatrixClock
 	 * 
-	 * @param nuevaAddress
+	 * @param nuevoUsuario
 	 */
-	public void anyadirAddress(Usuario nuevaAddress) {
+	public void anyadirUsuario(Usuario nuevoUsuario) {
 
 		// Primero añadimos unas columnas que falten en las filas ya existentes.
-		Iterator<Usuario> iter1 = listaUsuarios.getIterator();
-		while (iter1.hasNext()) {
-			UUID uuid1 = iter1.next().uuid;
+		Iterator<Entry<UUID, Hashtable<UUID, Integer>>> iter = HashMatrix
+				.entrySet().iterator();
+		while (iter.hasNext()) {
+			UUID uuid = iter.next().getKey();
 
-			if (uuid1 != nuevaAddress.uuid) {
-				HashMatrix.get(uuid1).put(nuevaAddress.uuid, 0);
-			}
+			HashMatrix.get(uuid).put(nuevoUsuario.uuid, 0);
 		}
 
 		// Añadimos la fila entera.
 		Hashtable<UUID, Integer> tabla = new Hashtable<UUID, Integer>();
-		HashMatrix.put(nuevaAddress.uuid, tabla);
+		HashMatrix.put(nuevoUsuario.uuid, tabla);
 
-		Iterator<Usuario> iter2 = listaUsuarios.getIterator();
-		while (iter2.hasNext()) {
-			UUID uuid2 = iter2.next().uuid;
+		iter = HashMatrix.entrySet().iterator();
+		while (iter.hasNext()) {
+			UUID uuid = iter.next().getKey();
 
 			// Inicializamos todos los valores a 0
-			tabla.put(uuid2, 0);
+			tabla.put(uuid, 0);
 		}
 	}
-	
+
 	/**
 	 * Devolvemos el valor de la matrix para las posiciones de i y j.
 	 * 
