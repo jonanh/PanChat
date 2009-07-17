@@ -16,6 +16,11 @@ public class CanalTableModel extends AbstractTableModel implements Observer {
 	}
 
 	@Override
+	public String getColumnName(int col) {
+		return "Usuarios conectados";
+	}
+
+	@Override
 	public int getColumnCount() {
 		return 1;
 	}

@@ -3,22 +3,27 @@ package panchat.addressing.channels;
 import javax.swing.ComboBoxModel;
 import javax.swing.event.ListDataListener;
 
+import panchat.addressing.users.Usuario;
+
 public class CanalComboBoxModel implements ComboBoxModel {
 
 	private Canal canal;
-	
+
+	private Usuario usuario;
+
 	public CanalComboBoxModel(Canal canal) {
 		this.canal = canal;
+		this.usuario = canal.getUsuarioDesconectado(0);
 	}
 
 	@Override
 	public Object getSelectedItem() {
-		return null;
+		return usuario;
 	}
 
 	@Override
 	public void setSelectedItem(Object anItem) {
-		System.out.println(anItem);
+		usuario = (Usuario) anItem;
 	}
 
 	@Override

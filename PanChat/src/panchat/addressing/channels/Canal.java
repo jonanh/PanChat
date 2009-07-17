@@ -1,21 +1,22 @@
 package panchat.addressing.channels;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Observable;
 
 import panchat.addressing.users.ListaUsuarios;
 import panchat.addressing.users.Usuario;
 
-public class Canal extends Observable implements Comparable<Canal> {
+public class Canal extends Observable implements Comparable<Canal>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	private String nombreCanal;
-	private LinkedList<Usuario> listadoUsuariosConectados;
-	private LinkedList<Usuario> listadoUsuariosDesconectados;
-	private ListaUsuarios listadoUsuarios;
+	private transient LinkedList<Usuario> listadoUsuariosConectados;
+	private transient LinkedList<Usuario> listadoUsuariosDesconectados;
+	private transient ListaUsuarios listadoUsuarios;
 
-	private Object mutex = new Object();
+	private transient Object mutex = new Object();
 
 	public Canal(String nombreCanal, ListaUsuarios listadoUsuarios) {
 		this.nombreCanal = nombreCanal;
