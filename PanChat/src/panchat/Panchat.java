@@ -3,8 +3,8 @@ package panchat;
 import panchat.addressing.channels.ListaCanales;
 import panchat.addressing.users.ListaUsuarios;
 import panchat.addressing.users.Usuario;
+import panchat.connector.Connector;
 import panchat.linker.CausalLinker;
-import panchat.linker.Connector;
 import panchat.linker.Linker;
 
 public class Panchat {

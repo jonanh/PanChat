@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.MulticastSocket;
 
 import panchat.Panchat;
-import panchat.linker.Connector;
+import panchat.connector.Connector;
 import panchat.share.protocolo.RegistrarCliente;
 
 public class MulticastListenerThread extends Thread {

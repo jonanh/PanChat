@@ -1,4 +1,4 @@
-package panchat.linker;
+package panchat.connector;
 
 import java.util.*;
 import java.util.Map.Entry;
