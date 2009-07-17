@@ -36,8 +36,7 @@ public class CausalLinker extends Linker {
 		this.panchat = panchat;
 		this.myId = panchat.getUsuario().uuid;
 
-		matrix = new CausalMatrix(panchat.getUsuario().uuid, panchat
-				.getListaUsuarios());
+		matrix = new CausalMatrix(panchat.getUsuario().uuid);
 	}
 
 	public synchronized void sendMsg(Usuario destId, Object msg) {
@@ -63,23 +62,26 @@ public class CausalLinker extends Linker {
 	 * @return
 	 */
 	private boolean okayToRecv(CausalMatrix W, UUID srcId) {
+		// Algoritmo original
+		//
 		// if (W[srcId][myId] > M[srcId][myId] + 1)
 		// ....return false;
+		//
 		// for (int k = 0; k < N; k++)
 		// ........if ((k != srcId) && (W[k][myId] > M[k][myId]))
 		// ........return false;
+		//
 		// return true;
 
 		if (W.getValue(srcId, myId) > matrix.getValue(srcId, myId) + 1)
 			return false;
 
-		Iterator<Usuario> iter = panchat.getListaUsuarios().getIterator();
+		for (int k = 0; k < panchat.getListaUsuarios().getNumUsuarios(); k++) {
 
-		while (iter.hasNext()) {
-			UUID k = iter.next().uuid;
+			UUID kId = panchat.getListaUsuarios().getUsuario(k).uuid;
 
-			if ((k != srcId)
-					&& (W.getValue(k, myId) > matrix.getValue(k, myId)))
+			if ((kId != srcId)
+					&& (W.getValue(kId, myId) > matrix.getValue(kId, myId)))
 				return false;
 		}
 
