@@ -81,14 +81,14 @@ public class ConnectorTest extends TestCase {
 
 		// Comprobamos que finalmente se han quedado desregistrados 3 clientes
 		// (solo se tienen registrados a si mismos)
-		assertEquals(listaListaUsuarios.get(0).getLenght(), 1);
-		assertEquals(listaListaUsuarios.get(1).getLenght(), 1);
-		assertEquals(listaListaUsuarios.get(2).getLenght(), 1);
+		assertEquals(listaListaUsuarios.get(0).getNumUsuarios(), 1);
+		assertEquals(listaListaUsuarios.get(1).getNumUsuarios(), 1);
+		assertEquals(listaListaUsuarios.get(2).getNumUsuarios(), 1);
 
 		// Comprobamos que los otros dos clientes se tienen registrados
 		// mutuamente
-		assertEquals(listaListaUsuarios.get(3).getLenght(), 2);
-		assertEquals(listaListaUsuarios.get(4).getLenght(), 2);
+		assertEquals(listaListaUsuarios.get(3).getNumUsuarios(), 2);
+		assertEquals(listaListaUsuarios.get(4).getNumUsuarios(), 2);
 
 	}
 }
