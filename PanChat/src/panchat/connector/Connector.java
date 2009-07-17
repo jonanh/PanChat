@@ -6,11 +6,10 @@ import java.net.*;
 import java.io.*;
 
 import panchat.Panchat;
-import panchat.addressing.users.Usuario;
 import panchat.listeners.ListenerThread;
 import panchat.listeners.MulticastListenerThread;
-import panchat.listeners.MulticastUtils;
 import panchat.share.protocolo.SaludoUsuario;
+import panchat.users.Usuario;
 
 /**
  * Esta gestiona los sockets con el conjunto de clientes
@@ -27,6 +26,8 @@ public class Connector {
 	 */
 	public final static String MDNS_GROUP = "224.0.0.251";
 	public final static int MDNS_PORT = 5454;
+	public final static int LOCALPORT = 50000;
+	public final static int PORTMAX = LOCALPORT + 100;
 
 	/**
 	 * This is the multicast group, we are listening to for multicast DNS
@@ -90,13 +91,35 @@ public class Connector {
 		/*
 		 * Creamos un server Socket
 		 */
-		try {
-			printDebug("Creando ServerSocket");
+		printDebug("Creando ServerSocket");
 
-			listener = new ServerSocket(usuario.port);
+		int port;
+		for (port = LOCALPORT; port < PORTMAX && listener == null; port++) {
+			try {
+				// Probamos a ver si el socket está disponible
+				listener = new ServerSocket(port);
+			} catch (IOException e) {
+				// Si se libera una excepción es que estaba ocupado
+				printDebug("Puerto [" + port + "] Ocupado");
+			}
+		}
 
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		if (listener != null) {
+			// Intentamos conseguir la IP del equipo local
+			try {
+				usuario.ip = InetAddress.getLocalHost().getHostAddress();
+				usuario.port = port - 1;
+			} catch (UnknownHostException e) {
+				// No se ha podido, luego soltamos una excepcion de tiempo de
+				// ejecución
+				System.out
+						.println("Su ordenación no tiene configurada una conexion de internet, y terminará");
+				System.exit(0);
+			}
+		} else {
+			System.out
+					.println("No hemos conseguido encontrar un puerto disponible para su equipo, y la aplicación terminará");
+			System.exit(0);
 		}
 
 		/*
@@ -125,23 +148,15 @@ public class Connector {
 	 */
 	public void enviarSaludo(boolean Registrar) {
 		SaludoUsuario msgRegistrar = new SaludoUsuario(usuario, Registrar);
-		byte[] buffer = MulticastUtils.objetoABytes(msgRegistrar);
 
-		DatagramPacket hi = new DatagramPacket(buffer, buffer.length, group,
-				MDNS_PORT);
-		try {
-
-			if (Registrar)
-				printDebug("Dandonos a conocer al mundo 0:-)");
-			else {
-				printDebug("Despidiendonos del mundo 0:-)");
-				printDebug("num procesos activos : "
-						+ String.valueOf(threadPool.size()));
-			}
-			socket.send(hi);
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (Registrar)
+			printDebug("Dandonos a conocer al mundo 0:-)");
+		else {
+			printDebug("Despidiendonos del mundo 0:-)");
+			printDebug("num procesos activos : "
+					+ String.valueOf(threadPool.size()));
 		}
+		this.escribirMultiCastSocket(msgRegistrar);
 	}
 
 	/**
@@ -334,6 +349,80 @@ public class Connector {
 
 		printDebug("Parado el multicastThread");
 
+	}
+
+	/**
+	 * Lee un objeto de un socket multicast
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public void escribirMultiCastSocket(Object objeto) {
+
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ObjectOutputStream oos;
+
+		try {
+
+			oos = new ObjectOutputStream(baos);
+			oos.writeObject(objeto);
+			oos.close();
+
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		byte[] buffer = baos.toByteArray();
+
+		DatagramPacket hi = new DatagramPacket(buffer, buffer.length, group,
+				MDNS_PORT);
+		try {
+			socket.send(hi);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Lee un objeto de un socket multicast
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public Object leerMultiCastSocket() throws IOException {
+
+		// Creamos un buffer donde guardar lo leído
+		byte[] buf = new byte[1000];
+
+		DatagramPacket recv = new DatagramPacket(buf, buf.length);
+
+		// Leemos del Socket
+		socket.receive(recv);
+
+		// Creamos un ByteArrayInputStream desde donde serializar el objeto
+		ByteArrayInputStream bais = new ByteArrayInputStream(recv.getData(), 0,
+				recv.getData().length);
+		ObjectInputStream ois;
+
+		Object objeto;
+
+		// Intentamos leer el objeto
+		try {
+
+			ois = new ObjectInputStream(bais);
+			objeto = ois.readObject();
+			ois.close();
+
+			return objeto;
+
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		// Si algo ha salido mal, devolvemos null
+		return null;
 	}
 
 	private void printDebug(String string) {

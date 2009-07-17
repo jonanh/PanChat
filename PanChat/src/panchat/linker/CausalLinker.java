@@ -4,8 +4,8 @@ import java.util.*;
 import java.io.*;
 
 import panchat.Panchat;
-import panchat.addressing.users.Usuario;
 import panchat.messages.CausalMessage;
+import panchat.users.Usuario;
 
 public class CausalLinker extends Linker {
 

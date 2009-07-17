@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.Map.Entry;
 
-import panchat.addressing.users.Usuario;
+import panchat.users.Usuario;
 
 public class MatrixClock implements Serializable {
 

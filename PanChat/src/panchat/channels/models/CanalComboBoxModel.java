@@ -1,9 +1,10 @@
-package panchat.addressing.channels;
+package panchat.channels.models;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.event.ListDataListener;
 
-import panchat.addressing.users.Usuario;
+import panchat.channels.Canal;
+import panchat.users.Usuario;
 
 public class CanalComboBoxModel implements ComboBoxModel {
 

@@ -6,13 +6,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
-import panchat.addressing.channels.ListaCanales;
-import panchat.addressing.channels.ListaCanalesAbstractTableModel;
+import panchat.Panchat;
+import panchat.channels.Canal;
+import panchat.channels.ListaCanales;
+import panchat.channels.models.ListaCanalesAbstractTableModel;
 
 public class TablaCanales extends JPanel {
 
@@ -22,6 +25,24 @@ public class TablaCanales extends JPanel {
 
 	private JTable table;
 
+	private Panchat panchat;
+
+	/**
+	 * Crea un JPanel con una tabla de usuarios
+	 * 
+	 * @param panchat
+	 */
+	public TablaCanales(Panchat panchat) {
+		this(panchat.getListaCanales());
+
+		this.panchat = panchat;
+	}
+
+	/**
+	 * Crea un JPanel con una tabla de usuarios
+	 * 
+	 * @param pListaCanales
+	 */
 	public TablaCanales(ListaCanales pListaCanales) {
 
 		this.listaCanales = pListaCanales;
@@ -67,12 +88,25 @@ public class TablaCanales extends JPanel {
 			}
 		});
 
+		final JPanel panel = this;
+
 		boton1.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println(listaCanales
-						.getCanal(table.getSelectedRow()));
+				/*
+				 * Pedimos mediante un mensaje el numero del juego al que
+				 * deseamos jugar
+				 */
+				String input = JOptionPane.showInputDialog(panel,
+						"Introduzca el nombre del nuevo canal", "Panchat",
+						JOptionPane.INFORMATION_MESSAGE);
+
+				// Si obtenemos un nombre decente :-P
+				if (input != null && input.length() > 0) {
+					Canal canal = new Canal(input);
+					panchat.getConnector().escribirMultiCastSocket(canal);
+				}
 			}
 		});
 	}

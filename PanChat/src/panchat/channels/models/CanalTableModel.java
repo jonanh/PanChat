@@ -1,9 +1,11 @@
-package panchat.addressing.channels;
+package panchat.channels.models;
 
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.table.AbstractTableModel;
+
+import panchat.channels.Canal;
 
 public class CanalTableModel extends AbstractTableModel implements Observer {
 

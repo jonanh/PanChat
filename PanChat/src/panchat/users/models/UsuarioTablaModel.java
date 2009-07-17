@@ -1,9 +1,11 @@
-package panchat.addressing.users;
+package panchat.users.models;
 
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.table.AbstractTableModel;
+
+import panchat.users.ListaUsuarios;
 
 public class UsuarioTablaModel extends AbstractTableModel implements Observer{
 

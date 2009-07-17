@@ -3,9 +3,9 @@ package panchat.testunits;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import panchat.addressing.channels.ListaCanales;
-import panchat.addressing.users.ListaUsuarios;
-import panchat.addressing.users.Usuario;
+import panchat.channels.ListaCanales;
+import panchat.users.ListaUsuarios;
+import panchat.users.Usuario;
 import junit.framework.TestCase;
 
 public class ListaUsuariosTest extends TestCase {

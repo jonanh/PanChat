@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.UUID;
 import java.util.Map.Entry;
 
-import panchat.addressing.users.Usuario;
+import panchat.users.Usuario;
 
 public class CausalMatrix implements Serializable {
 

@@ -1,4 +1,4 @@
-package panchat.addressing.users;
+package panchat.users;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -11,6 +11,13 @@ public class Usuario implements Serializable, Comparable<Usuario> {
 	public String ip;
 	public int port;
 	public String nickName;
+
+	public Usuario(String nickName) {
+		this.ip = null;
+		this.port = 0;
+		this.nickName = nickName;
+		this.uuid = UUID.randomUUID();
+	}
 
 	public Usuario(String ip, int port, String nickName) {
 		this.ip = ip;
@@ -29,6 +36,11 @@ public class Usuario implements Serializable, Comparable<Usuario> {
 		return nickName;
 	}
 
+	public String toStringComplete() {
+		return "[nick: " + nickName + ", Address : " + ip + ", Port : " + port
+				+ ", UUID :" + uuid + "]";
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Usuario) {
@@ -37,5 +49,4 @@ public class Usuario implements Serializable, Comparable<Usuario> {
 		} else
 			return false;
 	}
-
 }

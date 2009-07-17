@@ -12,8 +12,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
-import panchat.addressing.users.ListaUsuarios;
-import panchat.addressing.users.UsuarioTablaModel;
+import panchat.Panchat;
+import panchat.users.ListaUsuarios;
+import panchat.users.models.UsuarioTablaModel;
 
 public class TablaUsuarios extends JPanel {
 
@@ -25,6 +26,20 @@ public class TablaUsuarios extends JPanel {
 
 	private JButton boton;
 
+	/**
+	 * Crea un JPanel con una tabla de usuarios
+	 * 
+	 * @param panchat
+	 */
+	public TablaUsuarios(Panchat panchat) {
+		this(panchat.getListaUsuarios());
+	}
+
+	/**
+	 * Crea una JPanel con una tabla de usuarios
+	 * 
+	 * @param listaUsuarios
+	 */
 	public TablaUsuarios(ListaUsuarios listaUsuarios) {
 
 		this.listaUsuarios = listaUsuarios;

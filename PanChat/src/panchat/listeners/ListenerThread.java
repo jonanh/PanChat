@@ -4,11 +4,11 @@ import java.io.*;
 import java.net.Socket;
 
 import panchat.Panchat;
-import panchat.addressing.users.Usuario;
 import panchat.messages.CausalMessage;
 import panchat.messages.SimpleMessage;
 import panchat.share.protocolo.Bloque;
 import panchat.share.protocolo.Fichero;
+import panchat.users.Usuario;
 
 public class ListenerThread extends Thread {
 

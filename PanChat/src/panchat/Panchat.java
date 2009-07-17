@@ -1,11 +1,11 @@
 package panchat;
 
-import panchat.addressing.channels.ListaCanales;
-import panchat.addressing.users.ListaUsuarios;
-import panchat.addressing.users.Usuario;
+import panchat.channels.ListaCanales;
 import panchat.connector.Connector;
 import panchat.linker.CausalLinker;
 import panchat.linker.Linker;
+import panchat.users.ListaUsuarios;
+import panchat.users.Usuario;
 
 public class Panchat {
 	private ListaUsuarios listaUsuarios;
@@ -16,11 +16,23 @@ public class Panchat {
 	private Connector connector;
 
 	/**
+	 * Crea nueva instancia de panchat
 	 * 
-	 * @param usuario
+	 * @param nombreUsuario
 	 */
-	public Panchat(Usuario usuario) {
-		this.usuario = usuario;
+	public Panchat(String nombreUsuario) {
+		// Apartir de un String obtiene un usuario valido, buscano la IP del
+		// ordenador actual, y buscando un puerto disponible a partir del 5000
+		this(new Usuario(nombreUsuario));
+	}
+
+	/**
+	 * Crea nueva instancia de panchat
+	 * 
+	 * @param pUsuario
+	 */
+	public Panchat(Usuario pUsuario) {
+		this.usuario = pUsuario;
 		this.listaCanales = new ListaCanales();
 		this.listaUsuarios = new ListaUsuarios(listaCanales);
 		// Nos añadimos a nuestra propia lista de usuarios

@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.net.MulticastSocket;
 
 import panchat.Panchat;
-import panchat.addressing.channels.Canal;
+import panchat.channels.Canal;
 import panchat.connector.Connector;
 import panchat.share.protocolo.SaludoUsuario;
+import panchat.share.protocolo.UsuarioCanal;
 
 public class MulticastListenerThread extends Thread {
 
@@ -29,7 +30,7 @@ public class MulticastListenerThread extends Thread {
 		while (!socket.isClosed()) {
 
 			try {
-				Object objeto = MulticastUtils.leerMultiCastSocket(socket);
+				Object objeto = connector.leerMultiCastSocket();
 
 				// Registrar nuevo usuario
 				if (objeto instanceof SaludoUsuario) {
@@ -44,7 +45,9 @@ public class MulticastListenerThread extends Thread {
 
 				}
 				// Registrar usuario en canal
-				else if (objeto instanceof Canal) {
+				else if (objeto instanceof UsuarioCanal) {
+
+					tratarUsuarioCanal((UsuarioCanal) objeto);
 
 				}
 			} catch (IOException e1) {
@@ -124,6 +127,10 @@ public class MulticastListenerThread extends Thread {
 
 		// registrar
 		panchat.getListaCanales().añadirCanal(canal);
+	}
+
+	private void tratarUsuarioCanal(UsuarioCanal objeto) {
+
 	}
 
 	private void printDebug(String string) {

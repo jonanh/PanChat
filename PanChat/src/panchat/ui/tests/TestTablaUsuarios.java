@@ -4,10 +4,10 @@ import java.util.LinkedList;
 
 import javax.swing.JFrame;
 
-import panchat.addressing.channels.ListaCanales;
-import panchat.addressing.users.ListaUsuarios;
-import panchat.addressing.users.Usuario;
+import panchat.channels.ListaCanales;
 import panchat.ui.main.TablaUsuarios;
+import panchat.users.ListaUsuarios;
+import panchat.users.Usuario;
 
 public class TestTablaUsuarios {
 

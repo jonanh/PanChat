@@ -3,8 +3,8 @@ package panchat.testunits;
 import java.util.LinkedList;
 
 import panchat.Panchat;
-import panchat.addressing.users.ListaUsuarios;
-import panchat.addressing.users.Usuario;
+import panchat.users.ListaUsuarios;
+import panchat.users.Usuario;
 import junit.framework.TestCase;
 
 public class ConnectorTest extends TestCase {
@@ -18,13 +18,13 @@ public class ConnectorTest extends TestCase {
 
 		// Creamos un listado de usuarios
 		listaUsuarios = new LinkedList<Usuario>();
-		listaUsuarios.add(new Usuario("localhost", 50000, "JonAn"));
-		listaUsuarios.add(new Usuario("localhost", 50001, "Javier"));
-		listaUsuarios.add(new Usuario("localhost", 50002, "Dennis"));
-		listaUsuarios.add(new Usuario("localhost", 50003, "Imanol"));
-		listaUsuarios.add(new Usuario("localhost", 50004, "Nagore"));
-		listaUsuarios.add(new Usuario("localhost", 50005, "Nerea"));
-		listaUsuarios.add(new Usuario("localhost", 50006, "Ainara"));
+		listaUsuarios.add(new Usuario("JonAn"));
+		listaUsuarios.add(new Usuario("Javier"));
+		listaUsuarios.add(new Usuario("Dennis"));
+		listaUsuarios.add(new Usuario("Imanol"));
+		listaUsuarios.add(new Usuario("Nagore"));
+		listaUsuarios.add(new Usuario("Nerea"));
+		listaUsuarios.add(new Usuario("Ainara"));
 	}
 
 	/**

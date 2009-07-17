@@ -1,13 +1,14 @@
-package panchat.addressing.channels;
+package panchat.channels;
 
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Observable;
 
-import panchat.addressing.users.ListaUsuarios;
-import panchat.addressing.users.Usuario;
+import panchat.users.ListaUsuarios;
+import panchat.users.Usuario;
 
-public class Canal extends Observable implements Comparable<Canal>, Serializable {
+public class Canal extends Observable implements Comparable<Canal>,
+		Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -18,6 +19,24 @@ public class Canal extends Observable implements Comparable<Canal>, Serializable
 
 	private transient Object mutex = new Object();
 
+	/**
+	 * Crea un nuevo canal
+	 * 
+	 * Esta constructora solo debe usarse cuando se desea avisar a traves de un
+	 * socket de la existencia de un nuevo canal.
+	 * 
+	 * @param nombreCanal
+	 */
+	public Canal(String nombreCanal) {
+		this.nombreCanal = nombreCanal;
+	}
+
+	/**
+	 * Crea un nuevo canal
+	 * 
+	 * @param nombreCanal
+	 * @param listadoUsuarios
+	 */
 	public Canal(String nombreCanal, ListaUsuarios listadoUsuarios) {
 		this.nombreCanal = nombreCanal;
 		this.listadoUsuariosConectados = new LinkedList<Usuario>();
@@ -46,7 +65,7 @@ public class Canal extends Observable implements Comparable<Canal>, Serializable
 			super.notifyObservers();
 		}
 	}
-	
+
 	/**
 	 * Método para eleminiar un nuevo usuario a la conversación.
 	 * 
@@ -56,12 +75,12 @@ public class Canal extends Observable implements Comparable<Canal>, Serializable
 		synchronized (mutex) {
 			listadoUsuariosDesconectados.add(usuario);
 			listadoUsuariosConectados.remove(usuario);
-			
+
 			super.setChanged();
 			super.notifyObservers();
 		}
 	}
-	
+
 	/**
 	 * Método para añadir un nuevo usuario a la conversación.
 	 * 
@@ -71,12 +90,11 @@ public class Canal extends Observable implements Comparable<Canal>, Serializable
 		synchronized (mutex) {
 			listadoUsuariosConectados.add(usuario);
 			listadoUsuariosDesconectados.remove(usuario);
-			
+
 			super.setChanged();
 			super.notifyObservers();
 		}
 	}
-
 
 	/**
 	 * Devuelve el elemento conectados cuyo indice es index

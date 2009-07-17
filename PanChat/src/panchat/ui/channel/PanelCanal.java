@@ -1,6 +1,7 @@
 package panchat.ui.channel;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,9 +13,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
-import panchat.addressing.channels.Canal;
-import panchat.addressing.channels.CanalComboBoxModel;
-import panchat.addressing.channels.CanalTableModel;
+import panchat.Panchat;
+import panchat.channels.Canal;
+import panchat.channels.models.CanalComboBoxModel;
+import panchat.channels.models.CanalTableModel;
+import panchat.share.protocolo.UsuarioCanal;
 
 public class PanelCanal extends JPanel {
 
@@ -26,6 +29,24 @@ public class PanelCanal extends JPanel {
 
 	private Canal canal;
 
+	private Panchat panchat;
+
+	/**
+	 * Crea un nuevo panel canal
+	 * 
+	 * @param panchat
+	 * @param pCanal
+	 */
+	public PanelCanal(Panchat panchat, Canal pCanal) {
+		this(pCanal);
+		this.panchat = panchat;
+	}
+
+	/**
+	 * Crea un nuevo panel canal
+	 * 
+	 * @param pCanal
+	 */
 	public PanelCanal(Canal pCanal) {
 
 		canal = pCanal;
@@ -55,7 +76,9 @@ public class PanelCanal extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// canal.anyadirUsuario(usuario)
+				UsuarioCanal usuarioCanal = new UsuarioCanal(panchat
+						.getUsuario(), canal, true);
+				panchat.getConnector().escribirMultiCastSocket(usuarioCanal);
 			}
 		});
 
@@ -69,9 +92,9 @@ public class PanelCanal extends JPanel {
 		panelBotones.add(boton);
 
 		this.add(panelBotones, BorderLayout.SOUTH);
-		
-		System.out.println(this.getPreferredSize());
-		//this.setPreferredSize(preferredSize)
-		
+
+		// Configuramos el prefered size como 200 de ancho y máximo de altura
+		this.setPreferredSize(new Dimension(200, Short.MAX_VALUE));
+
 	}
 }

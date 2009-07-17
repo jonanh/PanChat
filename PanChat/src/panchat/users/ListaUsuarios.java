@@ -1,12 +1,12 @@
-package panchat.addressing.users;
+package panchat.users;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Observable;
 
-import panchat.addressing.channels.ListaCanales;
+import panchat.channels.ListaCanales;
 
-public class ListaUsuarios extends Observable{
+public class ListaUsuarios extends Observable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -32,11 +32,13 @@ public class ListaUsuarios extends Observable{
 	 */
 	public void añadirUsuario(Usuario usuario) {
 		synchronized (mutex) {
-			listaUsuarios.add(usuario);
-			Collections.sort(listaUsuarios);
-			listaCanales.anyadirUsuario(usuario);
-			super.setChanged();
-			super.notifyObservers();
+			if (!contains(usuario)) {
+				listaUsuarios.add(usuario);
+				Collections.sort(listaUsuarios);
+				listaCanales.anyadirUsuario(usuario);
+				super.setChanged();
+				super.notifyObservers();
+			}
 		}
 	}
 
@@ -93,6 +95,16 @@ public class ListaUsuarios extends Observable{
 	 */
 	public int getNumUsuarios() {
 		return listaUsuarios.size();
+	}
+
+	/**
+	 * Nos indica si somos el usuario con el UUID más bajo registrado
+	 * 
+	 * @param usuario
+	 * @return
+	 */
+	public boolean soyElPrimero(Usuario usuario) {
+		return listaUsuarios.get(0).equals(usuario);
 	}
 
 	/*
