@@ -1,7 +1,6 @@
 package panchat.addressing.channels;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Observable;
 
 import panchat.addressing.users.ListaUsuarios;
