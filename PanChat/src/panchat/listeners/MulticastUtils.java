@@ -1,54 +1,27 @@
-package panchat.share.protocolo;
+package panchat.listeners;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 
-import panchat.addressing.users.Usuario;
-
-public class RegistrarCliente implements Serializable {
-	private static final long serialVersionUID = 1L;
-
-	private Usuario usuario;
-	private boolean registrar;
-
-	/**
-	 * Crear un nuevo mensaje para registrar clientes
-	 * 
-	 * @param address
-	 * @param registrar
-	 */
-	public RegistrarCliente(Usuario address, boolean registrar) {
-		this.usuario = address;
-		this.registrar = registrar;
-	}
-
-	public Usuario getUsuario() {
-		return usuario;
-	}
-
-	public boolean isRegistrar() {
-		return registrar;
-	}
-
+public class MulticastUtils {
 	/**
 	 * Nos pasa el objeto a un buffer para enviarlo en socket Multicast.
 	 * 
 	 * @return
 	 */
-	public byte[] bytes() {
+	public static byte[] objetoABytes(Object objeto) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos;
 
 		try {
 
 			oos = new ObjectOutputStream(baos);
-			oos.writeObject(this);
+			oos.writeObject(objeto);
 			oos.close();
 
 		} catch (IOException e1) {
@@ -58,12 +31,12 @@ public class RegistrarCliente implements Serializable {
 	}
 
 	/**
-	 * Nos devuelve una clase RegistrarCliente desde un Socket Multicast
+	 * Lee un objeto de un socket multicast
 	 * 
-	 * @param socket
 	 * @return
+	 * @throws IOException
 	 */
-	public static RegistrarCliente leerRegistrarCliente(MulticastSocket socket)
+	public static Object leerMultiCastSocket(MulticastSocket socket)
 			throws IOException {
 
 		// Creamos un buffer donde guardar lo leído
@@ -79,16 +52,16 @@ public class RegistrarCliente implements Serializable {
 				recv.getData().length);
 		ObjectInputStream ois;
 
-		RegistrarCliente paquete;
+		Object objeto;
 
 		// Intentamos leer el objeto
 		try {
 
 			ois = new ObjectInputStream(bais);
-			paquete = (RegistrarCliente) ois.readObject();
+			objeto = ois.readObject();
 			ois.close();
 
-			return paquete;
+			return objeto;
 
 		} catch (IOException e1) {
 			e1.printStackTrace();

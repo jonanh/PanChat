@@ -9,7 +9,8 @@ import panchat.Panchat;
 import panchat.addressing.users.Usuario;
 import panchat.listeners.ListenerThread;
 import panchat.listeners.MulticastListenerThread;
-import panchat.share.protocolo.RegistrarCliente;
+import panchat.listeners.MulticastUtils;
+import panchat.share.protocolo.SaludoUsuario;
 
 /**
  * Esta gestiona los sockets con el conjunto de clientes
@@ -123,8 +124,8 @@ public class Connector {
 	 * @param Registrar
 	 */
 	public void enviarSaludo(boolean Registrar) {
-		RegistrarCliente msgRegistrar = new RegistrarCliente(usuario, Registrar);
-		byte[] buffer = msgRegistrar.bytes();
+		SaludoUsuario msgRegistrar = new SaludoUsuario(usuario, Registrar);
+		byte[] buffer = MulticastUtils.objetoABytes(msgRegistrar);
 
 		DatagramPacket hi = new DatagramPacket(buffer, buffer.length, group,
 				MDNS_PORT);
