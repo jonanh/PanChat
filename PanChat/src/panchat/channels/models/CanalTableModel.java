@@ -15,6 +15,7 @@ public class CanalTableModel extends AbstractTableModel implements Observer {
 
 	public CanalTableModel(Canal canal) {
 		this.canal = canal;
+		this.canal.addObserver(this);
 	}
 
 	@Override

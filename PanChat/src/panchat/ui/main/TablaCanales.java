@@ -90,13 +90,12 @@ public class TablaCanales extends JPanel {
 
 		final JPanel panel = this;
 
-		boton1.addActionListener(new ActionListener() {
+		boton2.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				/*
-				 * Pedimos mediante un mensaje el numero del juego al que
-				 * deseamos jugar
+				 * Preguntamos el nombre que deseamos dar al canal.
 				 */
 				String input = JOptionPane.showInputDialog(panel,
 						"Introduzca el nombre del nuevo canal", "Panchat",

@@ -7,16 +7,17 @@ import javax.swing.table.AbstractTableModel;
 
 import panchat.users.ListaUsuarios;
 
-public class UsuarioTablaModel extends AbstractTableModel implements Observer{
+public class UsuarioTablaModel extends AbstractTableModel implements Observer {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private ListaUsuarios listaUsuarios;
-	
-	public UsuarioTablaModel(ListaUsuarios listaUsuario){
+
+	public UsuarioTablaModel(ListaUsuarios listaUsuario) {
 		this.listaUsuarios = listaUsuario;
+		this.listaUsuarios.addObserver(this);
 	}
-	
+
 	@Override
 	public String getColumnName(int col) {
 		switch (col) {
@@ -58,5 +59,6 @@ public class UsuarioTablaModel extends AbstractTableModel implements Observer{
 	@Override
 	public void update(Observable o, Object arg) {
 		this.fireTableDataChanged();
+		System.out.println("actualizado");
 	}
 }

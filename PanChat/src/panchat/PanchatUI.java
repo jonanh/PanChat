@@ -4,6 +4,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import panchat.Panchat;
 import panchat.ui.main.TablaUsuarios;
@@ -14,10 +15,21 @@ public class PanchatUI extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	final Panchat panchat;
-	
+
 	public PanchatUI() {
 
-		Usuario user = new Usuario("127.0.0.1", 50003, "XXX");
+		String nombreUsuario = "";
+
+		final JFrame frame = this;
+
+		while (nombreUsuario == null || nombreUsuario.length() == 0) {
+			nombreUsuario = JOptionPane.showInputDialog(frame,
+					"Introduzca su nickName", "Panchat",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
+
+		Usuario user = new Usuario(nombreUsuario);
+
 		panchat = new Panchat(user);
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -28,7 +40,7 @@ public class PanchatUI extends JFrame {
 				System.exit(0);
 			}
 		});
-		
+
 		getContentPane().add(new TablaUsuarios(panchat));
 
 		pack();

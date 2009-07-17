@@ -7,7 +7,8 @@ import javax.swing.table.AbstractTableModel;
 
 import panchat.channels.ListaCanales;
 
-public class ListaCanalesAbstractTableModel extends AbstractTableModel implements Observer {
+public class ListaCanalesAbstractTableModel extends AbstractTableModel
+		implements Observer {
 
 	private static final long serialVersionUID = 1L;
 
@@ -20,6 +21,7 @@ public class ListaCanalesAbstractTableModel extends AbstractTableModel implement
 	 */
 	public ListaCanalesAbstractTableModel(ListaCanales listaCanales) {
 		this.listaCanales = listaCanales;
+		this.listaCanales.addObserver(this);
 	}
 
 	@Override
