@@ -1,78 +1,103 @@
 package panchat.addressing.users;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Observable;
 
-import javax.swing.table.AbstractTableModel;
+import panchat.addressing.channels.ListaCanales;
 
-public class ListaUsuarios extends AbstractTableModel {
+public class ListaUsuarios extends Observable{
 
 	private static final long serialVersionUID = 1L;
 
 	private LinkedList<Usuario> listaUsuarios;
+	private ListaCanales listaCanales;
 
-	public ListaUsuarios() {
-		listaUsuarios = new LinkedList<Usuario>();
+	private Object mutex = new Object();
+
+	/**
+	 * Crea una nueva lista de usuarios
+	 * 
+	 * @param listaCanales
+	 */
+	public ListaUsuarios(ListaCanales listaCanales) {
+		this.listaCanales = listaCanales;
+		this.listaUsuarios = new LinkedList<Usuario>();
 	}
 
-	public Iterator<Usuario> getIterator() {
-		return listaUsuarios.iterator();
+	/**
+	 * Añade un usuario a la lista de usuarios
+	 * 
+	 * @param usuario
+	 */
+	public void añadirUsuario(Usuario usuario) {
+		synchronized (mutex) {
+			listaUsuarios.add(usuario);
+			Collections.sort(listaUsuarios);
+			listaCanales.anyadirUsuario(usuario);
+			super.setChanged();
+			super.notifyObservers();
+		}
 	}
 
-	public synchronized void añadirUsuario(Usuario usuario) {
-		listaUsuarios.add(usuario);
-		Collections.sort(listaUsuarios);
+	/**
+	 * Elimina un usuario de la lista de usuarios
+	 * 
+	 * @param usuario
+	 */
+	public void eliminarUsuario(Usuario usuario) {
+		synchronized (mutex) {
+			listaUsuarios.remove(usuario);
+			listaCanales.eliminarUsuario(usuario);
+			super.setChanged();
+			super.notifyObservers();
+		}
 	}
 
-	public synchronized void eliminarUsuario(Usuario usuario) {
-		listaUsuarios.remove(usuario);
+	/**
+	 * Devuelve una copia de la lista de usuarios
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public LinkedList<Usuario> getClonedListaUsuarios() {
+		synchronized (mutex) {
+			return (LinkedList<Usuario>) listaUsuarios.clone();
+		}
 	}
 
+	/**
+	 * Devuelve el usuario pedido
+	 * 
+	 * @param Index
+	 * @return
+	 */
+	public Usuario getUsuario(int index) {
+		return listaUsuarios.get(index);
+	}
+
+	/**
+	 * Contiene el usuario en la lista de usuarios
+	 * 
+	 * @param usuario
+	 * @return
+	 */
 	public boolean contains(Usuario usuario) {
 		return listaUsuarios.contains(usuario);
 	}
 
-	/*
-	 * Métodos del AbstractTableModel
+	/**
+	 * Devuelve el número de usuarios
+	 * 
+	 * @return
 	 */
-	@Override
-	public String getColumnName(int col) {
-		switch (col) {
-		case 0:
-			return "Usuarios conectados";
-		case 1:
-			return "IP";
-		case 2:
-			return "Port";
-		default:
-			return "UUID";
-		}
-	}
-
-	@Override
-	public int getColumnCount() {
-		return 4;
-	}
-
-	@Override
-	public int getRowCount() {
+	public int getNumUsuarios() {
 		return listaUsuarios.size();
 	}
 
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
-		switch (columnIndex) {
-		case 0:
-			return listaUsuarios.get(rowIndex).nickName;
-		case 1:
-			return listaUsuarios.get(rowIndex).ip;
-		case 2:
-			return listaUsuarios.get(rowIndex).port;
-		default:
-			return listaUsuarios.get(rowIndex).uuid;
-		}
-	}
+	/*
+	 * compareTo, equals y toString
+	 */
 
 	@Override
 	public boolean equals(Object obj) {
@@ -86,17 +111,4 @@ public class ListaUsuarios extends AbstractTableModel {
 	public String toString() {
 		return listaUsuarios.toString();
 	}
-
-	public int getLenght() {
-		return listaUsuarios.size();
-	}
-
-	@SuppressWarnings("unchecked")
-	public LinkedList<Usuario> diferenciaUsuarios(
-			LinkedList<Usuario> pListaUsuarios) {
-		LinkedList<Usuario> lista = (LinkedList<Usuario>) listaUsuarios.clone();
-		lista.removeAll(pListaUsuarios);
-		return lista;
-	}
-
 }

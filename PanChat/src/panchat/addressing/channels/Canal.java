@@ -2,44 +2,140 @@ package panchat.addressing.channels;
 
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.ComboBoxModel;
-import javax.swing.event.ListDataListener;
-import javax.swing.table.AbstractTableModel;
+import java.util.Observable;
 
 import panchat.addressing.users.ListaUsuarios;
 import panchat.addressing.users.Usuario;
 
-public class Canal extends AbstractTableModel implements Comparable<Canal>,
-		ComboBoxModel {
+public class Canal extends Observable implements Comparable<Canal> {
 
 	private static final long serialVersionUID = 1L;
 
 	private String nombreCanal;
-
 	private LinkedList<Usuario> listadoUsuariosConectados;
+	private LinkedList<Usuario> listadoUsuariosDesconectados;
 	private ListaUsuarios listadoUsuarios;
+
+	private Object mutex = new Object();
 
 	public Canal(String nombreCanal, ListaUsuarios listadoUsuarios) {
 		this.nombreCanal = nombreCanal;
 		this.listadoUsuariosConectados = new LinkedList<Usuario>();
+		this.listadoUsuariosDesconectados = listadoUsuarios
+				.getClonedListaUsuarios();
 		this.listadoUsuarios = listadoUsuarios;
 	}
 
-	public boolean contains(Usuario usuario) {
-		return listadoUsuariosConectados.contains(usuario);
-	}
-
-	/*
-	 * Getters
+	/**
+	 * Devuelve el nombre del canal
 	 */
-
 	public String getNombreCanal() {
 		return nombreCanal;
 	}
 
-	public List<Usuario> getListadoUsuariosConectados() {
-		return listadoUsuariosConectados;
+	/**
+	 * Método para eleminiar un nuevo usuario a la conversación.
+	 * 
+	 * @param usuario
+	 */
+	public void anyadirUsuario(Usuario usuario) {
+		synchronized (mutex) {
+			listadoUsuariosDesconectados.add(usuario);
+
+			super.setChanged();
+			super.notifyObservers();
+		}
+	}
+	
+	/**
+	 * Método para eleminiar un nuevo usuario a la conversación.
+	 * 
+	 * @param usuario
+	 */
+	public void eliminarUsuario(Usuario usuario) {
+		synchronized (mutex) {
+			listadoUsuariosDesconectados.add(usuario);
+			listadoUsuariosConectados.remove(usuario);
+			
+			super.setChanged();
+			super.notifyObservers();
+		}
+	}
+	
+	/**
+	 * Método para añadir un nuevo usuario a la conversación.
+	 * 
+	 * @param usuario
+	 */
+	public void anyadirUsuarioConectado(Usuario usuario) {
+		synchronized (mutex) {
+			listadoUsuariosConectados.add(usuario);
+			listadoUsuariosDesconectados.remove(usuario);
+			
+			super.setChanged();
+			super.notifyObservers();
+		}
+	}
+
+
+	/**
+	 * Devuelve el elemento conectados cuyo indice es index
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public Usuario getUsuarioConectado(int index) {
+		return listadoUsuariosConectados.get(index);
+	}
+
+	/**
+	 * Devuelve el elemento desconectados cuyo indice es index
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public Usuario getUsuarioDesconectado(int index) {
+		return listadoUsuariosDesconectados.get(index);
+	}
+
+	/**
+	 * Devuelve el número de usuarios conectados
+	 * 
+	 * @return
+	 */
+	public int getNumUsuariosConectados() {
+		return listadoUsuariosConectados.size();
+	}
+
+	/**
+	 * Devuelve el número de usuarios sin conectar
+	 * 
+	 * @return
+	 */
+	public int getNumUsuariosDesconectados() {
+		return listadoUsuarios.getNumUsuarios()
+				- listadoUsuariosConectados.size();
+	}
+
+	/**
+	 * Compueba si el usuario está conectado.
+	 * 
+	 * @param usuario
+	 * @return
+	 */
+	public boolean contains(Usuario usuario) {
+		synchronized (mutex) {
+			return listadoUsuariosConectados.contains(usuario);
+		}
+	}
+
+	/*
+	 * compareTo, equals y toString
+	 */
+
+	@Override
+	public int compareTo(Canal o) {
+		return nombreCanal.compareTo(o.nombreCanal);
 	}
 
 	@Override
@@ -51,73 +147,8 @@ public class Canal extends AbstractTableModel implements Comparable<Canal>,
 			return false;
 	}
 
-	/**
-	 * Método para añadir un nuevo usuario a la conversación.
-	 * 
-	 * @param usuario
-	 */
-	public void anyadirUsuarioConectado(Usuario usuario) {
-		listadoUsuariosConectados.add(usuario);
-	}
-
-	/**
-	 * Método para eleminiar un nuevo usuario a la conversación.
-	 * 
-	 * @param usuario
-	 */
-	public void eliminarUsuario(Usuario usuario) {
-		listadoUsuariosConectados.remove(usuario);
-	}
-
-	// Métodos del AbstractTableModel
 	@Override
-	public int compareTo(Canal o) {
-		return nombreCanal.compareTo(o.nombreCanal);
+	public String toString() {
+		return nombreCanal;
 	}
-
-	@Override
-	public int getColumnCount() {
-		return 1;
-	}
-
-	@Override
-	public int getRowCount() {
-		return listadoUsuariosConectados.size();
-	}
-
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
-		return listadoUsuariosConectados.get(rowIndex).nickName;
-	}
-
-	// Métodos del ComboBoxModel
-	@Override
-	public Object getSelectedItem() {
-		return null;
-	}
-
-	@Override
-	public void setSelectedItem(Object anItem) {
-	}
-
-	@Override
-	public void addListDataListener(ListDataListener l) {
-	}
-
-	@Override
-	public Object getElementAt(int index) {
-		LinkedList<Usuario> usuariosSinConectar;
-		usuariosSinConectar = listadoUsuarios.diferenciaUsuarios(listadoUsuariosConectados);
-		return usuariosSinConectar.get(index).nickName;
-	}
-
-	@Override
-	public int getSize() {
-		return listadoUsuarios.getLenght() - listadoUsuariosConectados.size();
-	}
-
-	@Override
-	public void removeListDataListener(ListDataListener l) {
-	}
-
 }

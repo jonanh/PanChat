@@ -1,40 +1,93 @@
 package panchat.addressing.channels;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
-
-import javax.swing.table.AbstractTableModel;
+import java.util.Observable;
 
 import panchat.addressing.users.Usuario;
 
-public class ListaCanales extends AbstractTableModel {
+public class ListaCanales extends Observable {
 
 	private static final long serialVersionUID = 1L;
 
 	private LinkedList<Canal> listaCanales;
 
+	private Object mutex = new Object();
+
+	/**
+	 * Nueva lista de canales
+	 */
 	public ListaCanales() {
 		listaCanales = new LinkedList<Canal>();
 	}
 
-	public Iterator<Canal> getIterator() {
-		return listaCanales.iterator();
+	/**
+	 * Registra un nuevo canal en la lista de canales
+	 * 
+	 * @param canal
+	 */
+	public void añadirCanal(Canal canal) {
+		synchronized (mutex) {
+			listaCanales.add(canal);
+			Collections.sort(listaCanales);
+			super.setChanged();
+			super.notifyObservers();
+		}
 	}
 
-	public synchronized void añadirCanal(Canal canal) {
-		listaCanales.add(canal);
-		Collections.sort(listaCanales);
+	/**
+	 * Añade el nuevo usuario a todos los canales como nuevo usuario
+	 * desconectado
+	 * 
+	 * @param usuario
+	 */
+	public void anyadirUsuario(Usuario usuario) {
+		synchronized (mutex) {
+			for (Canal canal : listaCanales)
+				canal.anyadirUsuario(usuario);
+
+			super.setChanged();
+			super.notifyObservers();
+		}
 	}
 
-	public synchronized void eliminarUsuario(Usuario usuario) {
-		for (Canal canal : listaCanales)
-			canal.eliminarUsuario(usuario);
+	/**
+	 * Elimina el usuario de todos los canales
+	 * 
+	 * @param usuario
+	 */
+	public void eliminarUsuario(Usuario usuario) {
+		synchronized (mutex) {
+			for (Canal canal : listaCanales)
+				canal.eliminarUsuario(usuario);
+
+			super.setChanged();
+			super.notifyObservers();
+		}
 	}
 
-	public boolean contains(Canal canal) {
-		return listaCanales.contains(canal);
+	/**
+	 * Devuelve el canal según la posición index
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public Canal getCanal(int index) {
+		return listaCanales.get(index);
 	}
+
+	/**
+	 * Devuelve el número de canales que posee la lista de canales
+	 * 
+	 * @return
+	 */
+	public int getNumCanales() {
+		return listaCanales.size();
+	}
+
+	/*
+	 * Equals
+	 */
 
 	@Override
 	public boolean equals(Object obj) {
@@ -42,53 +95,5 @@ public class ListaCanales extends AbstractTableModel {
 			return listaCanales.equals(((ListaCanales) obj).listaCanales);
 		else
 			return false;
-	}
-
-	/*
-	 * Métodos del AbstractTableModel
-	 */
-
-	// Por si quisieramos hacer los nombres de los canales editables 0:-)
-	// @Override
-	// public boolean isCellEditable(int row, int col) {
-	// return col == 0;
-	// }
-	//
-	// @Override
-	// public void setValueAt(Object value, int rowIndex, int columnIndex) {
-	// if (columnIndex == 0) {
-	// listaCanales.get(rowIndex).nombreCanal = (String) value;
-	// }
-	// super.setValueAt(value, rowIndex, columnIndex);
-	// }
-	@Override
-	public String getColumnName(int col) {
-		switch (col) {
-		case 0:
-			return "Nombre del canal";
-		default:
-			return "Número de usuarios";
-		}
-	}
-
-	@Override
-	public int getColumnCount() {
-		return 2;
-	}
-
-	@Override
-	public int getRowCount() {
-		return listaCanales.size();
-	}
-
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
-		switch (columnIndex) {
-		case 0:
-			return listaCanales.get(rowIndex).getNombreCanal();
-		default:
-			return listaCanales.get(rowIndex).getListadoUsuariosConectados()
-					.size();
-		}
 	}
 }
