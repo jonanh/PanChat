@@ -79,16 +79,6 @@ public class Connector {
 		 * Nos damos a conocer al mundo, como buenos ciudadanos 0:-)
 		 */
 		enviarSaludo(true);
-
-		/*
-		 * Creamos un MulticastListenerThread para escuchar los eventos
-		 * Multicast
-		 */
-		printDebug("Creando el MulticastListenerThread 0:-)");
-
-		this.multicastThread = new MulticastListenerThread(socket, panchat);
-
-		this.causalLinkerThread = new CausalLinkerThread(socket, panchat);
 	}
 
 	private void inicializarSockets() {
@@ -168,6 +158,16 @@ public class Connector {
 	 * recividos a traves del causalLinker.
 	 */
 	public void arrancarThreads() {
+
+		/*
+		 * Creamos un MulticastListenerThread para escuchar los eventos
+		 * Multicast
+		 */
+		printDebug("Creando el MulticastListenerThread 0:-)");
+
+		this.multicastThread = new MulticastListenerThread(socket, panchat);
+
+		this.causalLinkerThread = new CausalLinkerThread(socket, panchat);
 
 		this.multicastThread.start();
 

@@ -68,7 +68,11 @@ public class VentanaConversacionCanal extends JFrame implements
 
 	@Override
 	public void eventoNuevoComentario(String comentario) {
-		panchat.escribirComentarioCanal(canal, comentario);
+		String nickName = panchat.getUsuario().nickName;
+		String entrada = "<" + nickName + "> " + comentario;
+
+		panchat.escribirComentarioCanal(canal, entrada);
+		this.escribirComentario(entrada);
 	}
 
 	/**

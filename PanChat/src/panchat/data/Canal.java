@@ -177,4 +177,9 @@ public class Canal extends Observable implements Comparable<Canal>,
 	public String toString() {
 		return nombreCanal;
 	}
+
+	@Override
+	public int hashCode() {
+		return this.nombreCanal.hashCode();
+	}
 }

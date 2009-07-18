@@ -1,6 +1,7 @@
 package panchat.linker;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.io.*;
 
 import panchat.Panchat;
@@ -9,7 +10,11 @@ import panchat.messages.CausalMessage;
 
 public class CausalLinker extends Linker {
 
+	private static final boolean DEBUG = false;
+
 	private CausalMatrix matrix;
+
+	private Usuario myId;
 
 	private Object mutex = new Object();
 
@@ -28,10 +33,11 @@ public class CausalLinker extends Linker {
 	 * @param panchat
 	 * @throws Exception
 	 */
-	public CausalLinker(Panchat panchat) {
-		super(panchat);
+	public CausalLinker(Panchat pPanchat) {
+		super(pPanchat);
+		this.myId = pPanchat.getUsuario();
+		this.matrix = new CausalMatrix(myId);
 
-		matrix = new CausalMatrix(myId.uuid);
 	}
 
 	/**
@@ -40,18 +46,24 @@ public class CausalLinker extends Linker {
 	 * @param destId
 	 * @param msg
 	 */
-	public void sendMsg(Usuario destId, Object msg) {
+	@Override
+	public synchronized void sendMsg(Usuario destId, Object msg) {
+
 		synchronized (mutex) {
+			printDebug("sendMsg " + destId.nickName + " " + msg.getClass());
+
 			matrix.incrementarDestino(destId);
 
 			/*
 			 * Si nos estamos enviando un mensaje a nosotros mismos lo añadimos
 			 * directamente a la lista de pendientes
 			 */
-			if (destId.equals(myId))
-				pendingQ.add(new CausalMessage(msg, destId, matrix));
-			else
-				super.sendMsg(destId, new CausalMessage(msg, destId, matrix));
+			if (destId.equals(myId)) {
+				mutex.notifyAll();
+				pendingQ.add(new CausalMessage(msg, myId, matrix));
+			} else
+				super.socketSendMsg(destId,
+						new CausalMessage(msg, myId, matrix));
 		}
 	}
 
@@ -61,8 +73,11 @@ public class CausalLinker extends Linker {
 	 * @param destIds
 	 * @param msg
 	 */
-	public void sendMsg(LinkedList<Usuario> destIds, Object msg) {
+	@Override
+	public synchronized void sendMsg(LinkedList<Usuario> destIds, Object msg) {
 		synchronized (mutex) {
+			printDebug("sendMsg multicast " + destIds + " " + msg.getClass());
+
 			matrix.incrementarDestino(destIds);
 
 			for (Usuario usuario : destIds)
@@ -72,10 +87,9 @@ public class CausalLinker extends Linker {
 				 * añadimos directamente a la lista de pendientes
 				 */
 				if (usuario.equals(myId))
-					pendingQ.add(new CausalMessage(msg, usuario, matrix));
+					pendingQ.add(new CausalMessage(msg, myId, matrix));
 				else
-					super.sendMsg(usuario, new CausalMessage(msg, usuario,
-							matrix));
+					socketSendMsg(usuario, new CausalMessage(msg, myId, matrix));
 		}
 	}
 
@@ -99,17 +113,23 @@ public class CausalLinker extends Linker {
 		// return true;
 
 		if (W.getValue(srcId.uuid, myId.uuid) > matrix.getValue(srcId.uuid,
-				myId.uuid) + 1)
+				myId.uuid) + 1) {
+			System.out.println("salida por la primera condicción");
 			return false;
+		}
 
-		for (int k = 0; k < panchat.getListaUsuarios().getNumUsuarios(); k++) {
+		// Primero añadimos unas columnas que falten en las filas ya existentes.
+		Iterator<Entry<UUID, Hashtable<UUID, Integer>>> iter = matrix.HashMatrix
+				.entrySet().iterator();
+		while (iter.hasNext()) {
 
-			UUID kIduui = panchat.getListaUsuarios().getUsuario(k).uuid;
+			UUID kIduuid = iter.next().getKey();
+			if ((!kIduuid.equals(srcId.uuid))
+					&& (W.getValue(kIduuid, myId.uuid) > matrix.getValue(
+							kIduuid, myId.uuid))) {
 
-			if ((kIduui != srcId.uuid)
-					&& (W.getValue(kIduui, myId.uuid) > matrix.getValue(kIduui,
-							myId.uuid)))
 				return false;
+			}
 		}
 
 		return true;
@@ -119,18 +139,27 @@ public class CausalLinker extends Linker {
 	 * Comprobamos la cola de pendientes, y en caso de que estén listos, los
 	 * cambiamos a la cola de entrega.
 	 */
-	private synchronized void checkPendingQ() {
+	private void checkPendingQ() {
 
 		Iterator<CausalMessage> iter = pendingQ.iterator();
 
 		while (iter.hasNext()) {
 			CausalMessage cm = iter.next();
 
+			printDebug("comprobando mensaje " + cm.getContent().getClass());
+
 			if (okayToRecv(cm.getMatrix(), cm.getUsuario())) {
+
+				printDebug("mensaje añadido a la cola de delivery "
+						+ cm.getContent().getClass());
+
 				iter.remove();
 				deliveryQ.add(cm);
 			}
 		}
+
+		printDebug("despues de checkPendingQ : pendingQ : " + pendingQ.size());
+		printDebug("despues de checkPendingQ : deliveryQ : " + deliveryQ.size());
 	}
 
 	/**
@@ -138,38 +167,40 @@ public class CausalLinker extends Linker {
 	 * 
 	 * Si no hay un paquete disponible, realiza un wait hasta que lo esté.
 	 */
-	// polls the channel given by fromId to add to the pendingQ
+	@Override
 	public CausalMessage handleMsg() throws IOException {
 
 		// tratamos la lista de pendientes
 		synchronized (mutex) {
 			checkPendingQ();
-		}
 
-		/*
-		 * Esperamos mientras no hayamos recibido ningún elemento
-		 */
-		while (deliveryQ.isEmpty()) {
+			/*
+			 * Esperamos mientras no hayamos recibido ningún elemento
+			 */
+			while (deliveryQ.isEmpty()) {
 
-			// Mientras la cola de pendientes esté vacía dormimos
-			if (pendingQ.isEmpty()) {
+				printDebug("deliveryQ is empty, durmiendo");
+
+				// Mientras la cola de pendientes esté vacía dormimos
 				try {
-					pendingQ.wait();
+
+					mutex.wait();
+
 				} catch (InterruptedException e) {
 				}
-			}
 
-			// tratamos la lista de pendientes
-			synchronized (mutex) {
+				printDebug("se ha recibido algo, comprobando");
+
+				// tratamos la lista de pendientes
 				checkPendingQ();
 			}
-		}
 
-		synchronized (mutex) {
+			printDebug("objeto en deliveryQ");
+
 			/*
 			 * Obtenemos el primer elemento de pendientes.
 			 */
-			CausalMessage cm = deliveryQ.peek();
+			CausalMessage cm = deliveryQ.poll();
 
 			/*
 			 * Actualizamos la matrix
@@ -186,16 +217,26 @@ public class CausalLinker extends Linker {
 	 * @param usuario
 	 */
 	public void anyadirUsuario(Usuario usuario) {
-		matrix.anyadirUsuario(usuario);
+		synchronized (mutex) {
+			matrix.anyadirUsuario(usuario);
+		}
 	}
 
 	/**
 	 * Añadimos un nuevo mensaje a la cola de mensajes
 	 */
-	public synchronized void anyadirMensaje(UUID uuid, CausalMessage msg) {
+	public void anyadirMensaje(CausalMessage msg) {
 		synchronized (mutex) {
+			printDebug("Elemento añadido a la cola de pendientes");
+
 			pendingQ.add(msg);
-			pendingQ.notify();
+			mutex.notify();
 		}
+	}
+
+	private void printDebug(String string) {
+		String msgClase = "CausalLinker.java: ";
+		if (DEBUG)
+			System.out.println(msgClase + string);
 	}
 }

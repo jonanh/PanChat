@@ -10,10 +10,11 @@ import panchat.messages.SimpleMessage;
 
 public class Linker {
 
+	private static final boolean DEBUG = false;
+
 	private Connector connector;
 
-	Panchat panchat;
-	Usuario myId;
+	private Panchat panchat;
 
 	private Object mutex = new Object();
 
@@ -24,19 +25,19 @@ public class Linker {
 
 	public Linker(Panchat pPanchat) {
 		this.panchat = pPanchat;
-		this.myId = pPanchat.getUsuario();
-		this.connector = panchat.getConnector();
+		this.connector = pPanchat.getConnector();
 	}
 
 	/**
-	 * Envio de mensaje
+	 * Función a nivel de paquete para mandar objetos
 	 * 
 	 * @param destId
 	 * @param msg
 	 */
-	public void sendMsg(Usuario destId, Object msg) {
+	void socketSendMsg(Usuario destId, Object msg) {
 		try {
 			ObjectOutputStream oos = connector.getOOS(destId.uuid);
+			// System.out.println(oos + " " + msg);
 			oos.writeObject(msg);
 			oos.flush();
 		} catch (IOException e) {
@@ -46,12 +47,22 @@ public class Linker {
 	}
 
 	/**
+	 * Envio de mensaje
+	 * 
+	 * @param destId
+	 * @param msg
+	 */
+	public synchronized void sendMsg(Usuario destId, Object msg) {
+		socketSendMsg(destId, new SimpleMessage(msg, panchat.getUsuario()));
+	}
+
+	/**
 	 * Envio de mensaje multicast
 	 * 
 	 * @param destIds
 	 * @param msg
 	 */
-	public void sendMsg(LinkedList<Usuario> destIds, Object msg) {
+	public synchronized void sendMsg(LinkedList<Usuario> destIds, Object msg) {
 		for (Usuario usuario : destIds)
 			sendMsg(usuario, msg);
 	}
@@ -63,21 +74,26 @@ public class Linker {
 	 */
 	public Object handleMsg() throws IOException {
 
-		/*
-		 * Esperamos mientras no hayamos recibido ningún elemento
-		 */
-		try {
-			while (deliveryQ.isEmpty())
-				deliveryQ.wait();
-
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		/*
-		 * Hacemos riguroso el acceso a la lista
-		 */
 		synchronized (mutex) {
+
+			printDebug("invocado handleMsg");
+
+			/*
+			 * Esperamos mientras no hayamos recibido ningún elemento
+			 */
+			try {
+				while (deliveryQ.isEmpty())
+					deliveryQ.wait();
+
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			printDebug("Un objeto encontrado");
+
+			/*
+			 * Hacemos riguroso el acceso a la lista
+			 */
 			return deliveryQ.poll();
 		}
 	}
@@ -86,7 +102,17 @@ public class Linker {
 	 * Añadimos un nuevo mensaje a la cola de mensajes
 	 */
 	public synchronized void anyadirMensaje(SimpleMessage msg) {
-		deliveryQ.add(msg);
-		deliveryQ.notify();
+		synchronized (mutex) {
+			printDebug("Mensaje añadido a la cola del Linker");
+
+			deliveryQ.add(msg);
+			mutex.notifyAll();
+		}
+	}
+
+	private void printDebug(String string) {
+		String msgClase = "ListenerThread.java: ";
+		if (DEBUG)
+			System.out.println(msgClase + string);
 	}
 }

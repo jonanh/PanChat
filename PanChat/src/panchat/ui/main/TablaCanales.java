@@ -83,8 +83,7 @@ public class TablaCanales extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println(listaCanales
-						.getCanal(table.getSelectedRow()));
+
 			}
 		});
 
@@ -103,8 +102,7 @@ public class TablaCanales extends JPanel {
 
 				// Si obtenemos un nombre decente :-P
 				if (input != null && input.length() > 0) {
-					Canal canal = new Canal(input);
-					panchat.getConnector().escribirMultiCastSocket(canal);
+					// panchat.accionIniciarConversacionCanal(canal);
 				}
 			}
 		});

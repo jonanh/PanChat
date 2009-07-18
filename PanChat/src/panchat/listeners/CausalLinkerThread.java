@@ -15,7 +15,7 @@ import panchat.messages.SaludoListaCanales;
 
 public class CausalLinkerThread extends Thread {
 
-	public final static boolean DEBUG = false;
+	public final static boolean DEBUG = true;
 
 	private MulticastSocket socket;
 
@@ -30,30 +30,43 @@ public class CausalLinkerThread extends Thread {
 	}
 
 	public void run() {
+
 		while (!socket.isClosed()) {
 
 			try {
 				// Leyendo objeto
+
 				CausalMessage cm = causalLinker.handleMsg();
 
 				Object objeto = cm.getContent();
 
-				if (objeto instanceof SaludoListaCanales)
+				printDebug("objeto leído");
+
+				if (objeto instanceof SaludoListaCanales) {
+
+					printDebug("SaludoListaCanales");
 
 					registrarSaludoCanales((SaludoListaCanales) objeto, cm
 							.getUsuario());
 
-				else if (objeto instanceof InscripcionCanal)
+				} else if (objeto instanceof InscripcionCanal) {
+
+					printDebug("InscripcionCanal");
 
 					inscribirCanal((InscripcionCanal) objeto, cm.getUsuario());
 
-				else if (objeto instanceof MessageChat)
+				} else if (objeto instanceof MessageChat) {
+
+					printDebug("MessageChat");
 
 					escribirMensajeCanal((MessageChat) objeto);
 
-				else if (objeto instanceof String)
+				} else if (objeto instanceof String) {
+
+					printDebug("Message");
 
 					escribirMensaje((String) objeto, cm.getUsuario());
+				}
 
 			} catch (IOException e1) {
 				// Se ha cerrado el socket
@@ -127,7 +140,7 @@ public class CausalLinkerThread extends Thread {
 	}
 
 	private void printDebug(String string) {
-		String msgClase = "MulticastListenerThread.java: ";
+		String msgClase = "CausalLinkerThread.java: ";
 		if (DEBUG)
 			System.out.println(msgClase + string);
 	}

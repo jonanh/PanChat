@@ -16,13 +16,13 @@ public class PanchatUI extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	private final Panchat panchat;
+	private Panchat panchat;
 
 	public PanchatUI() {
 
-		String nombreUsuario = null;
-
 		final JFrame frame = this;
+
+		String nombreUsuario = null;
 
 		/*
 		 * Mientras el usuario nos rellene el InputDialog vacio o nos pulse
@@ -59,6 +59,8 @@ public class PanchatUI extends JFrame {
 		// Añadimos el panel al contenido de la ventana
 		this.getContentPane().add(pane);
 
+		setTitle(nombreUsuario);
+
 		pack();
 
 		setSize(750, 500);
@@ -66,6 +68,8 @@ public class PanchatUI extends JFrame {
 	}
 
 	public static void main(String[] args) {
+
 		new PanchatUI();
+
 	}
 }

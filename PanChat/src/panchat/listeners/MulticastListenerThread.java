@@ -105,10 +105,10 @@ public class MulticastListenerThread extends Thread {
 				 */
 				printDebug("Enviamos información sobre canales");
 
-				panchat.getCausalLinker().sendMsg(
-						usuario,
-						panchat.getListaConversaciones()
-								.getListaConversacionesCanal());
+				// panchat.getCausalLinker().sendMsg(
+				// usuario,
+				// panchat.getListaConversaciones()
+				// .getListaConversacionesCanal());
 			}
 		}
 	}

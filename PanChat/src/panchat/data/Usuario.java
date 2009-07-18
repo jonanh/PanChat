@@ -49,4 +49,9 @@ public class Usuario implements Serializable, Comparable<Usuario> {
 		} else
 			return false;
 	}
+
+	@Override
+	public int hashCode() {
+		return this.uuid.hashCode();
+	}
 }

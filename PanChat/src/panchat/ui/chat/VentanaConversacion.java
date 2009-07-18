@@ -15,7 +15,7 @@ public class VentanaConversacion extends JFrame implements IVentanaConversacion 
 	private final Panchat panchat;
 
 	private final Usuario usuario;
-	
+
 	private PanelConversacion panelConversacion;
 
 	public VentanaConversacion(Panchat pPanchat, Usuario pUsuario) {
@@ -32,8 +32,8 @@ public class VentanaConversacion extends JFrame implements IVentanaConversacion 
 		pack();
 
 		// Establecemos el nombre de la ventana
-		String nombreVentana = "[ " + panchat.getUsuario().nickName
-				+ " ] conversando con : " + usuario.nickName;
+		String nombreVentana = panchat.getUsuario().nickName
+				+ "  conversando con " + usuario.nickName;
 		this.setTitle(nombreVentana);
 
 		/*
@@ -58,9 +58,13 @@ public class VentanaConversacion extends JFrame implements IVentanaConversacion 
 
 	@Override
 	public void eventoNuevoComentario(String comentario) {
-		panchat.escribirComentario(usuario, comentario);
+		String nickName = panchat.getUsuario().nickName;
+		String entrada = "<" + nickName + "> " + comentario;
+
+		panchat.escribirComentario(usuario, entrada);
+		this.escribirComentario(entrada);
 	}
-	
+
 	/**
 	 * Escribir nuevo comentario
 	 * 

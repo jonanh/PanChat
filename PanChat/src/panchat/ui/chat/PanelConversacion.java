@@ -30,6 +30,10 @@ public class PanelConversacion extends JPanel {
 		textArea = new JTextArea();
 		textField = new JTextField();
 
+		// Organizar el foco
+		textArea.setFocusable(false);
+		textField.requestFocusInWindow();
+
 		// Cambiamos el borderlayout del panel
 		setLayout(new BorderLayout());
 

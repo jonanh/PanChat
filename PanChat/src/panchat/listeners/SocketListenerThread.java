@@ -10,15 +10,15 @@ import panchat.messages.SimpleMessage;
 
 public class SocketListenerThread extends Thread {
 
-	public final static boolean DEBUG = false;
+	private final static boolean DEBUG = false;
 
 	private Panchat panchat;
 	private ObjectInputStream ois;
 	private Socket socket;
 	private Usuario usuario;
 
-	public SocketListenerThread(Panchat panchat, Usuario usuario, Socket socket,
-			ObjectInputStream ois) {
+	public SocketListenerThread(Panchat panchat, Usuario usuario,
+			Socket socket, ObjectInputStream ois) {
 		this.panchat = panchat;
 		this.ois = ois;
 		this.usuario = usuario;
@@ -33,20 +33,25 @@ public class SocketListenerThread extends Thread {
 			try {
 				// Leyendo objeto
 				Object msg = ois.readObject();
-				
+
 				// Si es un mensaje causal
 				if (msg instanceof CausalMessage) {
-					
+
+					printDebug("mensaje añadido al causal linker");
+
 					// Lo añadimos en la cola de pendientes del causalLinker
-					panchat.getCausalLinker().anyadirMensaje((CausalMessage) msg);
-					
-				} 
+					panchat.getCausalLinker().anyadirMensaje(
+							(CausalMessage) msg);
+
+				}
 				// Si es un mensaje simple
-				else if (msg instanceof SimpleMessage ){
-					
+				else if (msg instanceof SimpleMessage) {
+
+					printDebug("mensaje añadido al simple linker");
+
 					// Lo añadimos en la cola de pendientes del causalLinker
 					panchat.getLinker().anyadirMensaje((SimpleMessage) msg);
-					
+
 				}
 			} catch (IOException e) {
 				// El socket se ha cerrado
