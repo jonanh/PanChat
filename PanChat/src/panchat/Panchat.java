@@ -1,19 +1,30 @@
 package panchat;
 
 import panchat.connector.Connector;
+import panchat.data.Canal;
 import panchat.data.ListaCanales;
+import panchat.data.ListaConversaciones;
 import panchat.data.ListaUsuarios;
 import panchat.data.Usuario;
 import panchat.linker.CausalLinker;
 import panchat.linker.Linker;
+import panchat.share.protocolo.InscripcionCanal;
+import panchat.share.protocolo.MessageChat;
 
 public class Panchat {
+
+	// Connector
+	private Connector connector;
+
+	// Datos
+	private Usuario usuario;
 	private ListaUsuarios listaUsuarios;
 	private ListaCanales listaCanales;
-	private Usuario usuario;
-	private CausalLinker causalLinker;
+	private ListaConversaciones listaConversaciones;
+
+	// Linkers
 	private Linker linker;
-	private Connector connector;
+	private CausalLinker causalLinker;
 
 	/**
 	 * Crea nueva instancia de panchat
@@ -33,8 +44,11 @@ public class Panchat {
 	 */
 	public Panchat(Usuario pUsuario) {
 		this.usuario = pUsuario;
+
 		this.listaCanales = new ListaCanales();
 		this.listaUsuarios = new ListaUsuarios(listaCanales);
+		this.listaConversaciones = new ListaConversaciones(this);
+
 		// Nos añadimos a nuestra propia lista de usuarios
 		this.listaUsuarios.añadirUsuario(usuario);
 
@@ -45,8 +59,12 @@ public class Panchat {
 		// Como el hilo MulticastListenerThread depende de causalLinker, lo
 		// arrancamos después para evitar una condicción de carrera al
 		// instanciar las clases.
-		this.connector.arrancarMulticastListenerThread();
+		this.connector.arrancarThreads();
 	}
+
+	/*
+	 * Getters
+	 */
 
 	/**
 	 * Devuelve la lista de usuarios del chat
@@ -64,6 +82,15 @@ public class Panchat {
 	 */
 	public ListaCanales getListaCanales() {
 		return listaCanales;
+	}
+
+	/**
+	 * Devuelve la lista de conversaciones
+	 * 
+	 * @return
+	 */
+	public ListaConversaciones getListaConversaciones() {
+		return listaConversaciones;
 	}
 
 	/**
@@ -102,10 +129,105 @@ public class Panchat {
 		return connector;
 	}
 
-	public void desegistrarCliente() {
+	/*
+	 * Acciones para el GUI
+	 */
+
+	/**
+	 * Desregistra el cliente e inicia la terminación de la aplicación
+	 */
+	public void accionDesegistrarCliente() {
 		connector.enviarSaludo(false);
 
 		connector.closeSockets();
+	}
+
+	/**
+	 * Inicia una conversación con el usuario
+	 * 
+	 * @param usuario
+	 */
+	public void accionIniciarConversacion(Usuario usuario) {
+		listaConversaciones.getVentanaConversacion(usuario);
+	}
+
+	/**
+	 * Cierra una conversación con el usuario
+	 * 
+	 * @param usuario
+	 */
+	public void accionCerrarConversacion(Usuario usuario) {
+		this.listaConversaciones.eliminarConversacion(usuario);
+	}
+
+	/**
+	 * Inicia la conversación de un canal
+	 * 
+	 * @param usuario
+	 */
+	public void accionIniciarConversacionCanal(Canal canal) {
+		listaConversaciones.getVentanaConversacion(canal);
+
+		// Notificamos a todo el mundo sobre el nuevo canal
+		InscripcionCanal inscripcion = new InscripcionCanal(canal, usuario,
+				true);
+
+		causalLinker.sendMsg(canal.getListadoUsuarios(), inscripcion);
+
+	}
+
+	/**
+	 * Cierra la conversación de un canal
+	 * 
+	 * @param usuario
+	 */
+	public void accionCerrarConversacionCanal(Canal canal) {
+		// Lo añadimos a la lista de conversaciones
+		listaConversaciones.eliminarConversacion(canal);
+
+		// Notificamos a todo el mundo sobre el nuevo canal
+		InscripcionCanal inscripcion = new InscripcionCanal(canal, usuario,
+				false);
+
+		causalLinker.sendMsg(listaUsuarios.getListaUsuarios(), inscripcion);
+	}
+
+	/**
+	 * Envia un comentario a un usuario
+	 * 
+	 * @param usuario
+	 * @param pComentario
+	 */
+	public void escribirComentario(Usuario usuario, String pComentario) {
+		causalLinker.sendMsg(usuario, pComentario);
+	}
+
+	/**
+	 * Envia un comentario a un canal
+	 * 
+	 * @param usuario
+	 * @param pComentario
+	 */
+	public void escribirComentarioCanal(Canal pCanal, String pComentario) {
+		MessageChat mensaje = new MessageChat(pCanal, pComentario);
+		causalLinker.sendMsg(pCanal.getListadoUsuarios(), mensaje);
+	}
+
+	/**
+	 * Invitar un usuario un canal
+	 * 
+	 * @param canal
+	 * @param usuario
+	 */
+	public void invitarUsuario(Canal pCanal, Usuario pUsuario) {
+		// Lo añadimos a la lista de conversaciones
+		listaConversaciones.eliminarConversacion(pCanal);
+
+		// Notificamos a todo el mundo sobre el nuevo canal
+		InscripcionCanal inscripcion = new InscripcionCanal(pCanal, pUsuario,
+				true);
+
+		causalLinker.sendMsg(pCanal.getListadoUsuarios(), inscripcion);
 	}
 
 }

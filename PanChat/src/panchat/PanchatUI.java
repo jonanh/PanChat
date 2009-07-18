@@ -16,45 +16,47 @@ public class PanchatUI extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	final Panchat panchat;
+	private final Panchat panchat;
 
 	public PanchatUI() {
 
-		String nombreUsuario = "";
+		String nombreUsuario = null;
 
 		final JFrame frame = this;
 
+		/*
+		 * Mientras el usuario nos rellene el InputDialog vacio o nos pulse
+		 * cancelar, le pedimos nuevamente un nombre de usuario
+		 */
 		while (nombreUsuario == null || nombreUsuario.length() == 0) {
 			nombreUsuario = JOptionPane.showInputDialog(frame,
 					"Introduzca su nickName", "Panchat",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
 
+		// Creamos un nuevo usuario con el nick leido
 		Usuario user = new Usuario(nombreUsuario);
 
+		// Creamos una nueva clase panchat
 		panchat = new Panchat(user);
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		// Cambiamos el listener de la ventana para gestionar nosotros la
+		// correcta terminación de la aplicación
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				panchat.desegistrarCliente();
+				panchat.accionDesegistrarCliente();
 				System.exit(0);
 			}
 		});
 
+		// Creamos un panel y añadimos los paneles de usuarios y canales
 		JTabbedPane pane = new JTabbedPane();
 
-		/*
-		 * Añadimos el panel TablaFicheros.
-		 */
 		pane.addTab("Usuarios", new TablaUsuarios(panchat));
 
-		/*
-		 * Añadimos el panel2
-		 */
 		pane.addTab("Canales", new TablaCanales(panchat));
 
+		// Añadimos el panel al contenido de la ventana
 		this.getContentPane().add(pane);
 
 		pack();

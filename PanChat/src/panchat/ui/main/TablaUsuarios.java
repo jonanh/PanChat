@@ -14,6 +14,7 @@ import javax.swing.ListSelectionModel;
 
 import panchat.Panchat;
 import panchat.data.ListaUsuarios;
+import panchat.data.Usuario;
 import panchat.data.models.UsuarioTablaModel;
 
 public class TablaUsuarios extends JPanel {
@@ -26,6 +27,8 @@ public class TablaUsuarios extends JPanel {
 
 	private JButton boton;
 
+	private Panchat panchat;
+
 	/**
 	 * Crea un JPanel con una tabla de usuarios
 	 * 
@@ -33,6 +36,7 @@ public class TablaUsuarios extends JPanel {
 	 */
 	public TablaUsuarios(Panchat panchat) {
 		this(panchat.getListaUsuarios());
+		this.panchat = panchat;
 	}
 
 	/**
@@ -90,6 +94,10 @@ public class TablaUsuarios extends JPanel {
 	}
 
 	private void action() {
-		System.out.println(listaUsuarios.getUsuario(tabla.getSelectedRow()));
+		// Obtenemos el usuario
+		Usuario usuario = listaUsuarios.getUsuario(tabla.getSelectedRow());
+
+		// Creamos la nueva conversacion
+		panchat.accionIniciarConversacion(usuario);
 	}
 }

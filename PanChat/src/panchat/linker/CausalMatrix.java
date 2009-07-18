@@ -112,8 +112,12 @@ public class CausalMatrix implements Serializable {
 	public void incrementarDestino(Usuario usuario) {
 		// M[myId][destId]++;
 
+		System.out.println(HashMatrix);
+		
 		// Obtenemos la tabla referente a myId
 		Hashtable<UUID, Integer> tabla = HashMatrix.get(myId);
+		
+		System.out.println(tabla);
 
 		// Actualizamos el valor referente a destId
 		tabla.put(usuario.uuid, tabla.get(usuario.uuid) + 1);

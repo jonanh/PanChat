@@ -5,6 +5,7 @@ import java.net.MulticastSocket;
 
 import panchat.Panchat;
 import panchat.connector.Connector;
+import panchat.data.Usuario;
 import panchat.share.protocolo.SaludoUsuario;
 
 public class MulticastListenerThread extends Thread {
@@ -34,7 +35,6 @@ public class MulticastListenerThread extends Thread {
 
 				// Registrar nuevo usuario
 				if (objeto instanceof SaludoUsuario) {
-
 					registrarCliente((SaludoUsuario) objeto);
 
 				}
@@ -46,22 +46,24 @@ public class MulticastListenerThread extends Thread {
 		printDebug("Terminado");
 	}
 
-	private void registrarCliente(SaludoUsuario msgCliente) {
+	private void registrarCliente(SaludoUsuario saludoUsuario) {
+
+		Usuario usuario = saludoUsuario.usuario;
 
 		if (DEBUG) {
 			System.out.println("MulticastListenerThread.java:"
 					+ "Petición de cliente recibida");
 			System.out.println("\tRecibido por " + panchat.getUsuario());
-			System.out.println("\tRecibido Desde " + msgCliente.getUsuario());
+			System.out.println("\tRecibido Desde " + usuario);
 		}
 
 		// Si no contenemos a este usuario lo añadimos
-		if (!panchat.getListaUsuarios().contains(msgCliente.getUsuario())) {
+		if (!panchat.getListaUsuarios().contains(usuario)) {
 
 			/*
 			 * Si es una acción de registrar lo registramos
 			 */
-			if (msgCliente.isRegistrar()) {
+			if (saludoUsuario.registrar) {
 
 				/*
 				 * Respondemos el saludo al usuario como buenos ciudadanos 0:-)
@@ -78,9 +80,8 @@ public class MulticastListenerThread extends Thread {
 				// Unos aceptan desde el ServerSocket y otros crean
 				// sockets.
 
-				if (msgCliente.getUsuario().uuid
-						.compareTo(panchat.getUsuario().uuid) < 0)
-					connector.connect(msgCliente.getUsuario());
+				if (usuario.uuid.compareTo(panchat.getUsuario().uuid) < 0)
+					connector.connect(usuario);
 				else
 					connector.acceptConnect();
 
@@ -89,18 +90,25 @@ public class MulticastListenerThread extends Thread {
 				 */
 				printDebug("Añadimos elementos a los Linkers");
 
-				panchat.getCausalLinker().anyadirUsuario(
-						msgCliente.getUsuario());
-
-				panchat.getLinker().anyadirUsuario(msgCliente.getUsuario());
+				panchat.getCausalLinker().anyadirUsuario(usuario);
 
 				/*
 				 * Añadir a la ListaUsuarios el usuario
 				 */
 				printDebug("Añadimos el usuario a ListaUsuarios");
 
-				panchat.getListaUsuarios().añadirUsuario(
-						msgCliente.getUsuario());
+				panchat.getListaUsuarios().añadirUsuario(usuario);
+
+				/*
+				 * Enviamos al usuario la información que tenemos sobre los
+				 * canales.
+				 */
+				printDebug("Enviamos información sobre canales");
+
+				panchat.getCausalLinker().sendMsg(
+						usuario,
+						panchat.getListaConversaciones()
+								.getListaConversacionesCanal());
 			}
 		}
 	}

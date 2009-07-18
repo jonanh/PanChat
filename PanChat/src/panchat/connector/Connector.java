@@ -7,7 +7,8 @@ import java.io.*;
 
 import panchat.Panchat;
 import panchat.data.Usuario;
-import panchat.listeners.ListenerThread;
+import panchat.listeners.CausalLinkerThread;
+import panchat.listeners.SocketListenerThread;
 import panchat.listeners.MulticastListenerThread;
 import panchat.share.protocolo.SaludoUsuario;
 
@@ -48,6 +49,8 @@ public class Connector {
 	// Multicast thread
 	private MulticastListenerThread multicastThread;
 
+	private CausalLinkerThread causalLinkerThread;
+
 	private Usuario usuario;
 	private Panchat panchat;
 
@@ -84,6 +87,8 @@ public class Connector {
 		printDebug("Creando el MulticastListenerThread 0:-)");
 
 		this.multicastThread = new MulticastListenerThread(socket, panchat);
+
+		this.causalLinkerThread = new CausalLinkerThread(socket, panchat);
 	}
 
 	private void inicializarSockets() {
@@ -159,6 +164,17 @@ public class Connector {
 	}
 
 	/**
+	 * Arrancar los hilos que gestionan el hilo multicast y los eventos
+	 * recividos a traves del causalLinker.
+	 */
+	public void arrancarThreads() {
+
+		this.multicastThread.start();
+
+		this.causalLinkerThread.start();
+	}
+
+	/**
 	 * Registramos el usuario, creamos un socket con el
 	 * 
 	 * Este es el caso cuando UUID del usuario es menor que nuestro UUID, si no
@@ -192,7 +208,7 @@ public class Connector {
 		}
 
 		// Creamos el ListenerThread para escuchar al socket
-		Thread thread = new ListenerThread(panchat, pUsuario, socket, ois);
+		Thread thread = new SocketListenerThread(panchat, pUsuario, socket, ois);
 		thread.start();
 
 		// Añadimos el thread al thread Pool
@@ -237,48 +253,12 @@ public class Connector {
 		}
 
 		// Creamos el ListenerThread para escuchar al socket
-		Thread thread = new ListenerThread(panchat, readUsuario, socket, ois);
+		Thread thread = new SocketListenerThread(panchat, readUsuario, socket,
+				ois);
 		thread.start();
 
 		// Añadimos el thread al thread Pool
 		threadPool.put(readUsuario.uuid, thread);
-	}
-
-	/**
-	 * Obtener el Socket
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public Socket getSocket(UUID uuid) {
-		return link.get(uuid);
-	}
-
-	/**
-	 * Obtener el ObjectInputStream
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public ObjectInputStream getOIS(UUID uuid) {
-		return hashOIS.get(uuid);
-	}
-
-	/**
-	 * Obtener el ObjectOutputStream
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public ObjectOutputStream getOOS(UUID uuid) {
-		return hashOOS.get(uuid);
-	}
-
-	/**
-	 * Arrancar el hilo MulticastListenerThread
-	 */
-	public void arrancarMulticastListenerThread() {
-		this.multicastThread.start();
 	}
 
 	/**
@@ -349,6 +329,10 @@ public class Connector {
 		printDebug("Parado el multicastThread");
 
 	}
+
+	/*
+	 * Funciones de escritura
+	 */
 
 	/**
 	 * Lee un objeto de un socket multicast
@@ -424,6 +408,43 @@ public class Connector {
 		return null;
 	}
 
+	/*
+	 * Getters
+	 */
+
+	/**
+	 * Obtener el Socket
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public Socket getSocket(UUID uuid) {
+		return link.get(uuid);
+	}
+
+	/**
+	 * Obtener el ObjectInputStream
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public ObjectInputStream getOIS(UUID uuid) {
+		return hashOIS.get(uuid);
+	}
+
+	/**
+	 * Obtener el ObjectOutputStream
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public ObjectOutputStream getOOS(UUID uuid) {
+		return hashOOS.get(uuid);
+	}
+
+	/*
+	 * funciones de debug
+	 */
 	private void printDebug(String string) {
 		if (DEBUG)
 			System.out.println(msgClase + string);

@@ -1,15 +1,17 @@
 package panchat.data;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Observable;
-
 
 public class ListaCanales extends Observable {
 
 	private static final long serialVersionUID = 1L;
 
 	private LinkedList<Canal> listaCanales;
+
+	private HashMap<String, Canal> hashtableCanales;
 
 	private Object mutex = new Object();
 
@@ -18,6 +20,7 @@ public class ListaCanales extends Observable {
 	 */
 	public ListaCanales() {
 		listaCanales = new LinkedList<Canal>();
+		hashtableCanales = new HashMap<String, Canal>();
 	}
 
 	/**
@@ -27,10 +30,35 @@ public class ListaCanales extends Observable {
 	 */
 	public void añadirCanal(Canal canal) {
 		synchronized (mutex) {
-			listaCanales.add(canal);
-			Collections.sort(listaCanales);
-			super.setChanged();
-			super.notifyObservers();
+			if (!hashtableCanales.containsKey(canal.getNombreCanal())) {
+
+				hashtableCanales.put(canal.getNombreCanal(), canal);
+
+				listaCanales.add(canal);
+				Collections.sort(listaCanales);
+
+				super.setChanged();
+				super.notifyObservers();
+			}
+		}
+	}
+
+	/**
+	 * Registra un nuevo canal en la lista de canales
+	 * 
+	 * @param canal
+	 */
+	public void eliminarCanal(Canal canal) {
+		synchronized (mutex) {
+			if (!hashtableCanales.containsKey(canal.getNombreCanal())) {
+
+				hashtableCanales.remove(canal.getNombreCanal());
+
+				listaCanales.remove(canal);
+
+				super.setChanged();
+				super.notifyObservers();
+			}
 		}
 	}
 
@@ -82,6 +110,16 @@ public class ListaCanales extends Observable {
 	 */
 	public int getNumCanales() {
 		return listaCanales.size();
+	}
+
+	/**
+	 * Devuelve el canal según la posición index
+	 * 
+	 * @param index
+	 * @return
+	 */
+	public Canal getCanal(String nombre) {
+		return this.hashtableCanales.get(nombre);
 	}
 
 	/*

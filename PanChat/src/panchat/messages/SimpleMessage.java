@@ -25,7 +25,7 @@ public class SimpleMessage extends Message {
 		this.address = pAddress;
 	}
 
-	public Usuario getAddress() {
+	public Usuario getUsuario() {
 		return address;
 	}
 

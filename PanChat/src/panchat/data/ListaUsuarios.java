@@ -1,16 +1,20 @@
 package panchat.data;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Observable;
-
+import java.util.UUID;
 
 public class ListaUsuarios extends Observable {
 
 	private static final long serialVersionUID = 1L;
 
-	private LinkedList<Usuario> listaUsuarios;
 	private ListaCanales listaCanales;
+
+	private LinkedList<Usuario> listaUsuarios;
+
+	private HashMap<UUID, Usuario> hashtableUsuarios;
 
 	private Object mutex = new Object();
 
@@ -22,6 +26,7 @@ public class ListaUsuarios extends Observable {
 	public ListaUsuarios(ListaCanales listaCanales) {
 		this.listaCanales = listaCanales;
 		this.listaUsuarios = new LinkedList<Usuario>();
+		this.hashtableUsuarios = new HashMap<UUID, Usuario>();
 	}
 
 	/**
@@ -32,6 +37,8 @@ public class ListaUsuarios extends Observable {
 	public void añadirUsuario(Usuario usuario) {
 		synchronized (mutex) {
 			if (!contains(usuario)) {
+				hashtableUsuarios.put(usuario.uuid, usuario);
+
 				listaUsuarios.add(usuario);
 				Collections.sort(listaUsuarios);
 				listaCanales.anyadirUsuario(usuario);
@@ -48,6 +55,8 @@ public class ListaUsuarios extends Observable {
 	 */
 	public void eliminarUsuario(Usuario usuario) {
 		synchronized (mutex) {
+			hashtableUsuarios.remove(usuario.uuid);
+
 			listaUsuarios.remove(usuario);
 			listaCanales.eliminarUsuario(usuario);
 			super.setChanged();
@@ -78,13 +87,23 @@ public class ListaUsuarios extends Observable {
 	}
 
 	/**
+	 * Devuelve el usuario pedido
+	 * 
+	 * @param Index
+	 * @return
+	 */
+	public Usuario getUsuario(UUID nombre) {
+		return hashtableUsuarios.get(nombre);
+	}
+
+	/**
 	 * Contiene el usuario en la lista de usuarios
 	 * 
 	 * @param usuario
 	 * @return
 	 */
 	public boolean contains(Usuario usuario) {
-		return listaUsuarios.contains(usuario);
+		return hashtableUsuarios.containsKey(usuario.uuid);
 	}
 
 	/**
@@ -97,13 +116,12 @@ public class ListaUsuarios extends Observable {
 	}
 
 	/**
-	 * Nos indica si somos el usuario con el UUID más bajo registrado
+	 * Devuelve la lista de usuarios
 	 * 
-	 * @param usuario
 	 * @return
 	 */
-	public boolean soyElPrimero(Usuario usuario) {
-		return listaUsuarios.get(0).equals(usuario);
+	public LinkedList<Usuario> getListaUsuarios() {
+		return this.listaUsuarios;
 	}
 
 	/*

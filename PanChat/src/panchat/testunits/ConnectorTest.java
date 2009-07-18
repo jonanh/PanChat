@@ -70,7 +70,7 @@ public class ConnectorTest extends TestCase {
 
 		// Ordenamos terminar la aplicación
 		for (Panchat panchat : listaListaPanchat.subList(0, 3))
-			panchat.desegistrarCliente();
+			panchat.accionDesegistrarCliente();
 
 		// Dejamos un tiempo para que termine todo
 		try {

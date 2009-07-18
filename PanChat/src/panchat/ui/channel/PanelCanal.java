@@ -15,9 +15,9 @@ import javax.swing.ListSelectionModel;
 
 import panchat.Panchat;
 import panchat.data.Canal;
+import panchat.data.Usuario;
 import panchat.data.models.CanalComboBoxModel;
 import panchat.data.models.CanalTableModel;
-import panchat.share.protocolo.UsuarioCanal;
 
 public class PanelCanal extends JPanel {
 
@@ -27,7 +27,7 @@ public class PanelCanal extends JPanel {
 
 	private JComboBox JComboBox;
 
-	private Canal canal;
+	private final Canal canal;
 
 	private Panchat panchat;
 
@@ -76,9 +76,9 @@ public class PanelCanal extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				UsuarioCanal usuarioCanal = new UsuarioCanal(panchat
-						.getUsuario(), canal, true);
-				panchat.getConnector().escribirMultiCastSocket(usuarioCanal);
+				Usuario usuario = (Usuario) JComboBox.getSelectedItem();
+
+				panchat.invitarUsuario(canal, usuario);
 			}
 		});
 

@@ -5,27 +5,14 @@ import java.io.Serializable;
 import panchat.data.Usuario;
 
 public class SaludoUsuario implements Serializable {
+
 	private static final long serialVersionUID = 1L;
 
-	private Usuario usuario;
-	private boolean registrar;
+	public Usuario usuario;
+	public boolean registrar;
 
-	/**
-	 * Crear un nuevo mensaje para registrar clientes
-	 * 
-	 * @param usuario
-	 * @param registrar
-	 */
-	public SaludoUsuario(Usuario usuario, boolean registrar) {
-		this.usuario = usuario;
-		this.registrar = registrar;
-	}
-
-	public Usuario getUsuario() {
-		return usuario;
-	}
-
-	public boolean isRegistrar() {
-		return registrar;
+	public SaludoUsuario(Usuario pUsuario, boolean isRegistrar) {
+		this.usuario = pUsuario;
+		this.registrar = isRegistrar;
 	}
 }

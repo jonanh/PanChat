@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Observable;
 
-
 public class Canal extends Observable implements Comparable<Canal>,
 		Serializable {
 
@@ -142,6 +141,17 @@ public class Canal extends Observable implements Comparable<Canal>,
 	public boolean contains(Usuario usuario) {
 		synchronized (mutex) {
 			return listadoUsuariosConectados.contains(usuario);
+		}
+	}
+
+	/**
+	 * Devuelve el listado de usuario del canal
+	 * 
+	 * @return
+	 */
+	public LinkedList<Usuario> getListadoUsuarios() {
+		synchronized (mutex) {
+			return this.listadoUsuariosConectados;
 		}
 	}
 
