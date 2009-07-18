@@ -1,4 +1,6 @@
-package interfaz;
+package interfaz.paneles;
+
+import interfaz.ventanas.VentanaBase;
 
 import java.awt.Dimension;
 import java.awt.Graphics;

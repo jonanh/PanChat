@@ -1,4 +1,4 @@
-package interfaz;
+package interfaz.ventanas;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;

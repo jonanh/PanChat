@@ -1,4 +1,4 @@
-package interfaz;
+package interfaz.paneles;
 
 import java.awt.Graphics;
 

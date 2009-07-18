@@ -1,4 +1,8 @@
-package interfaz;
+package interfaz.ventanas;
+
+import interfaz.elementos.Datos;
+import interfaz.paneles.MiPanel;
+import interfaz.paneles.PanelCentral;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;

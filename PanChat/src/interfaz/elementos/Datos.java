@@ -1,4 +1,6 @@
-package interfaz;
+package interfaz.elementos;
+
+import interfaz.ventanas.VentanaBase;
 
 import java.awt.Color;
 import java.awt.Font;

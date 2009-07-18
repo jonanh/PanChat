@@ -1,4 +1,8 @@
-package interfaz;
+package interfaz.paneles;
+
+import interfaz.ventanas.VentanaBase;
+import interfaz.conversaciones.Conversacion;
+import interfaz.elementos.Datos;
 
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
@@ -11,6 +15,8 @@ import java.util.HashMap;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
+
+
 
 public class PanelCentral extends MiPanel implements MouseListener {
 

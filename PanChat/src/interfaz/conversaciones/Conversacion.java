@@ -1,4 +1,8 @@
-package interfaz;
+package interfaz.conversaciones;
+
+import interfaz.ventanas.VentanaBase;
+import interfaz.elementos.Editor;
+import interfaz.paneles.MiPanel;
 
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;

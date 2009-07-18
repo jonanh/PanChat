@@ -1,4 +1,8 @@
-package interfaz;
+package interfaz.conversaciones;
+
+import interfaz.ventanas.VentanaBase;
+import interfaz.elementos.Editor;
+import interfaz.paneles.MiPanel;
 
 import java.awt.BorderLayout;
 import java.awt.Graphics;
@@ -19,9 +23,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import panchat.addressing.channels.Canal;
-import panchat.addressing.users.ListaUsuarios;
-import panchat.addressing.users.Usuario;
+import panchat.data.Canal;
+import panchat.data.ListaCanales;
+import panchat.data.ListaUsuarios;
+import panchat.data.Usuario;
+
+
 
 public class ConversacionCanal extends MiPanel implements KeyListener,ActionListener{
 	private static final long serialVersionUID = 1L;
@@ -151,8 +158,10 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ActionList
 		e.put("nubes", "nubes.jpg");
 		e.put("pizarra", "pizarra.png");
 		
+		ListaCanales listaCanal = new ListaCanales();
+		
 		// Obtenemos referencias a las clases Singleton
-		ListaUsuarios usuarios = new ListaUsuarios();
+		ListaUsuarios usuarios = new ListaUsuarios(listaCanal);
 		
 		// Creamos un listado de usuarios
 		LinkedList<Usuario> listaUsuarios = new LinkedList<Usuario>();

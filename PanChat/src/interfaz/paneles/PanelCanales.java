@@ -1,4 +1,4 @@
-package interfaz;
+package interfaz.paneles;
 
 
 
@@ -12,11 +12,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
-import panchat.addressing.channels.Canal;
-import panchat.addressing.channels.ListaCanales;
-import panchat.addressing.users.ListaUsuarios;
-import panchat.addressing.users.Usuario;
-
+import panchat.data.Canal;
+import panchat.data.ListaUsuarios;
+import panchat.data.ListaCanales;
+import panchat.data.Usuario;
 
 
 public class PanelCanales extends MiPanel{
@@ -61,8 +60,9 @@ public class PanelCanales extends MiPanel{
 
 	public static void main(String[] args) {
 		// Obtenemos referencias a las clases Singleton
-		ListaUsuarios usuarios = new ListaUsuarios();
 		ListaCanales canales = new ListaCanales();
+		ListaUsuarios usuarios = new ListaUsuarios(canales);
+		
 		
 		// Creamos un listado de usuarios
 		LinkedList<Usuario> listaUsuarios = new LinkedList<Usuario>();

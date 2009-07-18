@@ -1,14 +1,16 @@
-package interfaz;
+package interfaz.paneles;
 
 import java.util.LinkedList;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
-import panchat.addressing.channels.Canal;
-import panchat.addressing.channels.ListaCanales;
-import panchat.addressing.users.ListaUsuarios;
-import panchat.addressing.users.Usuario;
+import panchat.data.Canal;
+import panchat.data.ListaCanales;
+import panchat.data.ListaUsuarios;
+import panchat.data.Usuario;
+
+
 
 public class PanelPrincipal extends JTabbedPane{
 	
@@ -33,8 +35,9 @@ public class PanelPrincipal extends JTabbedPane{
 	
 	public static void main(String[] args) {
 		// Obtenemos referencias a las clases Singleton
-		ListaUsuarios usuarios = new ListaUsuarios();
 		ListaCanales canales = new ListaCanales();
+		ListaUsuarios usuarios = new ListaUsuarios(canales);
+		
 		
 		// Creamos un listado de usuarios
 		LinkedList<Usuario> listaUsuarios = new LinkedList<Usuario>();

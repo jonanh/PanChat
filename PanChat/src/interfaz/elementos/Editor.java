@@ -1,5 +1,6 @@
-package interfaz;
+package interfaz.elementos;
 
+import interfaz.ventanas.VentanaBase;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -266,11 +267,11 @@ public class Editor extends JTextPane implements KeyListener, DocumentListener {
 		VentanaBase in = new VentanaBase();
 		HashMap<String, String> e = new HashMap<String, String>(100);
 		String f = "xd";
-		e.put(f, "xd.gif");
-		e.put("nubes", "nubes.jpg");
-		e.put("pizarra", "pizarra.png");
+		e.put(f, "imagenes/xd.gif");
+		e.put("nubes", "imagenes/nubes.jpg");
+		e.put("pizarra", "imagenes/pizarra.png");
 
-		Editor edit = new Editor("pizarra.png", e);
+		Editor edit = new Editor("imagenes/pizarra.png", e);
 		in.add(edit);
 		in.setVisible(true);
 
