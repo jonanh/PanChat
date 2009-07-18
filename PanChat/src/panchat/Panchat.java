@@ -1,11 +1,11 @@
 package panchat;
 
-import panchat.channels.ListaCanales;
 import panchat.connector.Connector;
+import panchat.data.ListaCanales;
+import panchat.data.ListaUsuarios;
+import panchat.data.Usuario;
 import panchat.linker.CausalLinker;
 import panchat.linker.Linker;
-import panchat.users.ListaUsuarios;
-import panchat.users.Usuario;
 
 public class Panchat {
 	private ListaUsuarios listaUsuarios;

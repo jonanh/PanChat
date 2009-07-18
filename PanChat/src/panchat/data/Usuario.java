@@ -1,4 +1,4 @@
-package panchat.users;
+package panchat.data;
 
 import java.io.Serializable;
 import java.util.UUID;

@@ -14,9 +14,9 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
 import panchat.Panchat;
-import panchat.channels.Canal;
-import panchat.channels.models.CanalComboBoxModel;
-import panchat.channels.models.CanalTableModel;
+import panchat.data.Canal;
+import panchat.data.models.CanalComboBoxModel;
+import panchat.data.models.CanalTableModel;
 import panchat.share.protocolo.UsuarioCanal;
 
 public class PanelCanal extends JPanel {

@@ -2,7 +2,7 @@ package panchat.share.protocolo;
 
 import java.io.Serializable;
 
-import panchat.users.Usuario;
+import panchat.data.Usuario;
 
 public class SaludoUsuario implements Serializable {
 	private static final long serialVersionUID = 1L;

@@ -13,9 +13,9 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
 import panchat.Panchat;
-import panchat.channels.Canal;
-import panchat.channels.ListaCanales;
-import panchat.channels.models.ListaCanalesAbstractTableModel;
+import panchat.data.Canal;
+import panchat.data.ListaCanales;
+import panchat.data.models.ListaCanalesAbstractTableModel;
 
 public class TablaCanales extends JPanel {
 

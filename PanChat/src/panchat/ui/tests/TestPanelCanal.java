@@ -5,11 +5,11 @@ import java.util.LinkedList;
 
 import javax.swing.JFrame;
 
-import panchat.channels.Canal;
-import panchat.channels.ListaCanales;
+import panchat.data.Canal;
+import panchat.data.ListaCanales;
+import panchat.data.ListaUsuarios;
+import panchat.data.Usuario;
 import panchat.ui.channel.PanelCanal;
-import panchat.users.ListaUsuarios;
-import panchat.users.Usuario;
 
 public class TestPanelCanal {
 

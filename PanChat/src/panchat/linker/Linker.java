@@ -5,8 +5,8 @@ import java.io.*;
 
 import panchat.Panchat;
 import panchat.connector.Connector;
+import panchat.data.Usuario;
 import panchat.messages.CausalMessage;
-import panchat.users.Usuario;
 
 public class Linker {
 

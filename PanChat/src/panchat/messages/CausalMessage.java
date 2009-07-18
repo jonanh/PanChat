@@ -1,7 +1,7 @@
 package panchat.messages;
 
+import panchat.data.Usuario;
 import panchat.linker.CausalMatrix;
-import panchat.users.Usuario;
 
 /**
  * Mensaje genérico causal.

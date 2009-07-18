@@ -4,11 +4,11 @@ import java.io.*;
 import java.net.Socket;
 
 import panchat.Panchat;
+import panchat.data.Usuario;
 import panchat.messages.CausalMessage;
 import panchat.messages.SimpleMessage;
 import panchat.share.protocolo.Bloque;
 import panchat.share.protocolo.Fichero;
-import panchat.users.Usuario;
 
 public class ListenerThread extends Thread {
 
@@ -33,13 +33,19 @@ public class ListenerThread extends Thread {
 
 		while (!socket.isClosed()) {
 			try {
+				// Leyendo objeto
 				Object msg = ois.readObject();
+				
 				if (msg instanceof CausalMessage) {
+					
 					panchat.getCausalLinker().anyadirMensaje(usuario.uuid,
 							(CausalMessage) msg);
+					
 				} else if (msg instanceof SimpleMessage) {
+					
 					panchat.getCausalLinker().anyadirMensaje(usuario.uuid,
 							(CausalMessage) msg);
+					
 				} else if (msg instanceof Fichero) {
 
 					/*

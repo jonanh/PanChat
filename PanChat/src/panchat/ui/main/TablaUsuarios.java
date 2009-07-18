@@ -13,8 +13,8 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
 import panchat.Panchat;
-import panchat.users.ListaUsuarios;
-import panchat.users.models.UsuarioTablaModel;
+import panchat.data.ListaUsuarios;
+import panchat.data.models.UsuarioTablaModel;
 
 public class TablaUsuarios extends JPanel {
 

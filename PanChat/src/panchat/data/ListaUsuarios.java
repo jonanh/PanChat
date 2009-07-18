@@ -1,10 +1,9 @@
-package panchat.users;
+package panchat.data;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Observable;
 
-import panchat.channels.ListaCanales;
 
 public class ListaUsuarios extends Observable {
 

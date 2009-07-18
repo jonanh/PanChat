@@ -5,10 +5,12 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JTabbedPane;
 
 import panchat.Panchat;
+import panchat.data.Usuario;
+import panchat.ui.main.TablaCanales;
 import panchat.ui.main.TablaUsuarios;
-import panchat.users.Usuario;
 
 public class PanchatUI extends JFrame {
 
@@ -41,7 +43,19 @@ public class PanchatUI extends JFrame {
 			}
 		});
 
-		getContentPane().add(new TablaUsuarios(panchat));
+		JTabbedPane pane = new JTabbedPane();
+
+		/*
+		 * Añadimos el panel TablaFicheros.
+		 */
+		pane.addTab("Usuarios", new TablaUsuarios(panchat));
+
+		/*
+		 * Añadimos el panel2
+		 */
+		pane.addTab("Canales", new TablaCanales(panchat));
+
+		this.getContentPane().add(pane);
 
 		pack();
 

@@ -2,8 +2,8 @@ package panchat.share.protocolo;
 
 import java.io.Serializable;
 
-import panchat.channels.Canal;
-import panchat.users.Usuario;
+import panchat.data.Canal;
+import panchat.data.Usuario;
 
 public class UsuarioCanal implements Serializable {
 

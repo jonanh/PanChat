@@ -3,8 +3,8 @@ package panchat.testunits;
 import java.util.LinkedList;
 
 import panchat.Panchat;
-import panchat.users.ListaUsuarios;
-import panchat.users.Usuario;
+import panchat.data.ListaUsuarios;
+import panchat.data.Usuario;
 import junit.framework.TestCase;
 
 public class ConnectorTest extends TestCase {

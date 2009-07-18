@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.net.MulticastSocket;
 
 import panchat.Panchat;
-import panchat.channels.Canal;
 import panchat.connector.Connector;
 import panchat.share.protocolo.SaludoUsuario;
-import panchat.share.protocolo.UsuarioCanal;
 
 public class MulticastListenerThread extends Thread {
 
@@ -19,35 +17,25 @@ public class MulticastListenerThread extends Thread {
 
 	private Connector connector;
 
-	public MulticastListenerThread(MulticastSocket socket, Panchat panchat,
-			Connector connector) {
+	public MulticastListenerThread(MulticastSocket socket, Panchat panchat) {
 		this.socket = socket;
 		this.panchat = panchat;
-		this.connector = connector;
 	}
 
 	public void run() {
+
+		this.connector = panchat.getConnector();
+
 		while (!socket.isClosed()) {
 
 			try {
+				// Leyendo objeto
 				Object objeto = connector.leerMultiCastSocket();
 
 				// Registrar nuevo usuario
 				if (objeto instanceof SaludoUsuario) {
 
 					registrarCliente((SaludoUsuario) objeto);
-
-				}
-				// Registrar nuevo canal
-				else if (objeto instanceof Canal) {
-
-					registrarCanal((Canal) objeto);
-
-				}
-				// Registrar usuario en canal
-				else if (objeto instanceof UsuarioCanal) {
-
-					tratarUsuarioCanal((UsuarioCanal) objeto);
 
 				}
 			} catch (IOException e1) {
@@ -115,22 +103,6 @@ public class MulticastListenerThread extends Thread {
 						msgCliente.getUsuario());
 			}
 		}
-	}
-
-	private void registrarCanal(Canal pCanal) {
-
-		// Obtener nombre
-		String nombreCanal = pCanal.getNombreCanal();
-
-		// Crear objeto
-		Canal canal = new Canal(nombreCanal, panchat.getListaUsuarios());
-
-		// registrar
-		panchat.getListaCanales().añadirCanal(canal);
-	}
-
-	private void tratarUsuarioCanal(UsuarioCanal objeto) {
-
 	}
 
 	private void printDebug(String string) {

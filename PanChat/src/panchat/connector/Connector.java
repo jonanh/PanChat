@@ -6,10 +6,10 @@ import java.net.*;
 import java.io.*;
 
 import panchat.Panchat;
+import panchat.data.Usuario;
 import panchat.listeners.ListenerThread;
 import panchat.listeners.MulticastListenerThread;
 import panchat.share.protocolo.SaludoUsuario;
-import panchat.users.Usuario;
 
 /**
  * Esta gestiona los sockets con el conjunto de clientes
@@ -83,8 +83,7 @@ public class Connector {
 		 */
 		printDebug("Creando el MulticastListenerThread 0:-)");
 
-		this.multicastThread = new MulticastListenerThread(socket, panchat,
-				this);
+		this.multicastThread = new MulticastListenerThread(socket, panchat);
 	}
 
 	private void inicializarSockets() {

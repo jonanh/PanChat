@@ -4,8 +4,8 @@ import java.util.*;
 import java.io.*;
 
 import panchat.Panchat;
+import panchat.data.Usuario;
 import panchat.messages.CausalMessage;
-import panchat.users.Usuario;
 
 public class CausalLinker extends Linker {
 
@@ -39,6 +39,9 @@ public class CausalLinker extends Linker {
 		matrix = new CausalMatrix(panchat.getUsuario().uuid);
 	}
 
+	/**
+	 * Envío causal
+	 */
 	public synchronized void sendMsg(Usuario destId, Object msg) {
 
 		matrix.incrementarDestino(destId);
@@ -46,7 +49,13 @@ public class CausalLinker extends Linker {
 		super.sendMsg(destId, new CausalMessage(msg, destId, matrix));
 	}
 
-	public synchronized void multicast(LinkedList<Usuario> destIds, Object msg) {
+	/**
+	 * Envío causal multicast
+	 * 
+	 * @param destIds
+	 * @param msg
+	 */
+	public synchronized void multicastSendMsg(LinkedList<Usuario> destIds, Object msg) {
 
 		matrix.incrementarDestino(destIds);
 

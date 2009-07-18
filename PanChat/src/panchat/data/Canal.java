@@ -1,11 +1,9 @@
-package panchat.channels;
+package panchat.data;
 
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Observable;
 
-import panchat.users.ListaUsuarios;
-import panchat.users.Usuario;
 
 public class Canal extends Observable implements Comparable<Canal>,
 		Serializable {
