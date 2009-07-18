@@ -59,6 +59,5 @@ public class UsuarioTablaModel extends AbstractTableModel implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 		this.fireTableDataChanged();
-		System.out.println("actualizado");
 	}
 }
