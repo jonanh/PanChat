@@ -10,7 +10,7 @@ import panchat.data.Usuario;
 import panchat.listeners.CausalLinkerThread;
 import panchat.listeners.SocketListenerThread;
 import panchat.listeners.MulticastListenerThread;
-import panchat.share.protocolo.SaludoUsuario;
+import panchat.messages.SaludoUsuario;
 
 /**
  * Esta gestiona los sockets con el conjunto de clientes

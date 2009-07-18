@@ -1,4 +1,4 @@
-package panchat.share.protocolo;
+package panchat.messages;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

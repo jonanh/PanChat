@@ -1,4 +1,4 @@
-package panchat.share.protocolo;
+package panchat.messages;
 
 import java.io.FileInputStream;
 import java.io.IOException;
