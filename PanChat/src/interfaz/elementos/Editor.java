@@ -18,6 +18,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
 
+
+
 public class Editor extends JTextPane implements KeyListener, DocumentListener {
 
 	private static final long serialVersionUID = 1L;
@@ -54,7 +56,7 @@ public class Editor extends JTextPane implements KeyListener, DocumentListener {
 	String clave2;
 	String ruta;
 
-	String camino = "D:\\Java\\PanChat\\src\\interfaz\\";
+	String camino ="/interfaz/imagenes/";
 
 	StyledDocument documento;
 
@@ -219,7 +221,7 @@ public class Editor extends JTextPane implements KeyListener, DocumentListener {
 
 			ruta = hash.get(clave2);
 
-			String abs = "D:\\Java\\PanChat\\src\\interfaz\\" + ruta;
+			String abs = "D:\\Java\\PanChat\\src\\interfaz\\imagenes\\" + ruta;
 			ImageIcon emoticon = new ImageIcon(abs);
 
 			normalizarVector(contenido, clave);
@@ -267,11 +269,11 @@ public class Editor extends JTextPane implements KeyListener, DocumentListener {
 		VentanaBase in = new VentanaBase();
 		HashMap<String, String> e = new HashMap<String, String>(100);
 		String f = "xd";
-		e.put(f, "imagenes/xd.gif");
-		e.put("nubes", "imagenes/nubes.jpg");
-		e.put("pizarra", "imagenes/pizarra.png");
+		e.put(f, "xd.gif");
+		e.put("nubes", "nubes.jpg");
+		e.put("pizarra", "pizarra.png");
 
-		Editor edit = new Editor("imagenes/pizarra.png", e);
+		Editor edit = new Editor("/interfaz/imagenes/pizarra.png", e);
 		in.add(edit);
 		in.setVisible(true);
 

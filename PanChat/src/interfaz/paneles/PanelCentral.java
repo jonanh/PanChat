@@ -25,7 +25,7 @@ public class PanelCentral extends MiPanel implements MouseListener {
 	// tabla hash con las rutas de los emoticonos
 	static HashMap<String, String> emoticonos = new HashMap<String, String>();
 
-	PanelRecuadro imagen = new PanelRecuadro("nubes.jpg");
+	PanelRecuadro imagen = new PanelRecuadro(camino+"nubes.jpg");
 	MiPanel nick = new MiPanel();
 	MiPanel usuarios = new MiPanel();
 
@@ -36,6 +36,8 @@ public class PanelCentral extends MiPanel implements MouseListener {
 
 	DefaultListModel modelo = new DefaultListModel();
 	JList listaUsuarios = new JList(modelo);
+	
+	static String  camino ="/interfaz/imagenes/";
 
 	public PanelCentral(String nombre) {
 		super();

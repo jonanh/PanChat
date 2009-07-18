@@ -37,10 +37,11 @@ public class Conversacion extends MiPanel implements KeyListener {
 	private void construir(HashMap<String, String> tabla) {
 
 		hash = tabla;
+		String ruta="/interfaz/imagenes/";
 
-		escritura = new Editor("cuadro.jpg", hash);
+		escritura = new Editor(ruta+"cuadro.jpg", hash);
 
-		log = new Editor("pizarra.png", hash);
+		log = new Editor(ruta+"pizarra.png", hash);
 		log.setEditable(false);
 
 		JScrollPane arriba = new JScrollPane(log);
@@ -112,7 +113,7 @@ public class Conversacion extends MiPanel implements KeyListener {
 
 		Conversacion edit = new Conversacion(e);
 		in.add(edit);
-		in.setTitle("conversaci�n con el jonan");
+		in.setTitle("conversacion con el jonan");
 		in.setVisible(true);
 
 	}

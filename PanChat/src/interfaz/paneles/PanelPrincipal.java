@@ -16,6 +16,8 @@ public class PanelPrincipal extends JTabbedPane{
 	
 	private static final long serialVersionUID = 1L;
 	
+	static String camino ="/interfaz/imagenes/";
+	
 	PanelCentral central;
 	PanelCanales can;
 	

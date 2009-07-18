@@ -47,13 +47,15 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ActionList
 	JTable usuariosConectados;
 	JComboBox usuariosNoConectados;
 	
+	static String camino= "/interfaz/imagenes/";
+	
 	public ConversacionCanal(HashMap<String, String> tabla,Canal canal) {
 		super();
 		construir(tabla,canal);
 	}
 
 	public ConversacionCanal(String ruta, HashMap<String, String> tabla,ListaUsuarios usuarios) {
-		super(ruta);
+		super(camino+ruta);
 		construir(tabla,canal);
 	}
 

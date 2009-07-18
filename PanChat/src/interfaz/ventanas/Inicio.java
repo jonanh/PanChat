@@ -13,6 +13,8 @@ import javax.swing.JButton;
 public class Inicio extends VentanaBase implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
+	
+	static String camino ="/interfaz/imagenes/";
 
 	MiPanel panel;
 	Datos nombre;
@@ -32,7 +34,7 @@ public class Inicio extends VentanaBase implements ActionListener {
 	}
 
 	private void construir() {
-		panel = new MiPanel("init.jpg");
+		panel = new MiPanel(camino+"init.jpg");
 		// para el nombre que quiere el usuario
 		nombre = new Datos("an�nimo");
 		// panel que contiene los elementos
