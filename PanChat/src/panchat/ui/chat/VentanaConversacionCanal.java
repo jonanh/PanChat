@@ -41,8 +41,8 @@ public class VentanaConversacionCanal extends JFrame implements
 		pack();
 
 		// Establecemos el nombre de la ventana
-		String nombreVentana = "[ " + panchat.getUsuario().nickName
-				+ " ] Canal : " + canal.getNombreCanal();
+		String nombreVentana = panchat.getUsuario().nickName
+				+ " conversando en el canal " + canal.getNombreCanal();
 		this.setTitle(nombreVentana);
 
 		/*
