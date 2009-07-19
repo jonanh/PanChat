@@ -8,17 +8,14 @@ import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Vector;
 
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -27,10 +24,12 @@ import panchat.data.Canal;
 import panchat.data.ListaCanales;
 import panchat.data.ListaUsuarios;
 import panchat.data.Usuario;
+import panchat.data.models.UsuariosConectadosTableModel;
+import panchat.data.models.UsuariosDesconectadosTableModel;
 
 
 
-public class ConversacionCanal extends MiPanel implements KeyListener,ActionListener{
+public class ConversacionCanal extends MiPanel implements KeyListener,MouseListener{
 	private static final long serialVersionUID = 1L;
 	
 	
@@ -45,7 +44,11 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ActionList
 	JPanel informacion;
 	
 	JTable usuariosConectados;
-	JComboBox usuariosNoConectados;
+	JTable usuariosNoConectados;
+	
+	
+	UsuariosConectadosTableModel modeloConectados;
+	UsuariosDesconectadosTableModel modeloDesconectados;
 	
 	static String camino= "/interfaz/imagenes/";
 	
@@ -62,12 +65,14 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ActionList
 	private void construir(HashMap<String, String> tabla,Canal canal) {
 
 		this.canal=canal;
-		
+		modeloConectados= new UsuariosConectadosTableModel(canal);
+		modeloDesconectados= new UsuariosDesconectadosTableModel(canal);
+			
 		hash = tabla;
 
-		escritura = new Editor("cuadro.jpg", hash);
+		escritura = new Editor(camino+"cuadro.jpg", hash);
 
-		log = new Editor("pizarra.png", hash);
+		log = new Editor(camino+"pizarra.png", hash);
 		log.setEditable(false);
 
 		JScrollPane arriba = new JScrollPane(log);
@@ -75,8 +80,8 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ActionList
 		
 		informacion=new JPanel();
 		
-		usuariosConectados=new JTable(canal);
-		usuariosNoConectados=new JComboBox(canal);
+		usuariosConectados=new JTable(modeloConectados);
+		usuariosNoConectados=new JTable(modeloDesconectados);
 		
 		informacion.setLayout(new BorderLayout());
 		informacion.add(usuariosConectados,BorderLayout.CENTER);
@@ -123,7 +128,7 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ActionList
 
 	private void añadirEscuchas() {
 		escritura.addKeyListener(this);
-		usuariosNoConectados.addActionListener(this);
+		usuariosNoConectados.addMouseListener(this);
 	}
 
 	
@@ -198,11 +203,37 @@ public class ConversacionCanal extends MiPanel implements KeyListener,ActionList
 	}
 
 
+
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
+	public void mouseClicked(MouseEvent arg0) {
 		System.out.println(arg0.getSource());
-		System.out.println(usuariosNoConectados.getSelectedItem());
-		System.out.println(usuariosNoConectados.getSelectedIndex());
+		System.out.println(usuariosNoConectados.getValueAt(usuariosNoConectados.getSelectedRow(), usuariosNoConectados.getSelectedColumn()));
+		
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

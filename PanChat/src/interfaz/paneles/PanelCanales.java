@@ -16,26 +16,27 @@ import panchat.data.Canal;
 import panchat.data.ListaUsuarios;
 import panchat.data.ListaCanales;
 import panchat.data.Usuario;
+import panchat.data.models.ListaCanalesAbstractTableModel;
 
 
 public class PanelCanales extends MiPanel{
 	
 	private static final long serialVersionUID = 1L;
 	
-	ListaCanales canales;
+	ListaCanalesAbstractTableModel canales;
 
-	public PanelCanales (ListaCanales canales){
+	public PanelCanales (ListaCanalesAbstractTableModel canales){
 		super();
 		acciones(canales);
 	}
 
-	public PanelCanales (ListaCanales canales, String ruta){
+	public PanelCanales (ListaCanalesAbstractTableModel canales, String ruta){
 		super(ruta);
 		acciones(canales);
 	}
 
 
-	private void acciones(ListaCanales canales){
+	private void acciones(ListaCanalesAbstractTableModel canales){
 
 		this.canales=canales;
 
@@ -60,7 +61,9 @@ public class PanelCanales extends MiPanel{
 
 	public static void main(String[] args) {
 		// Obtenemos referencias a las clases Singleton
+		
 		ListaCanales canales = new ListaCanales();
+		ListaCanalesAbstractTableModel modelo=new ListaCanalesAbstractTableModel(canales);
 		ListaUsuarios usuarios = new ListaUsuarios(canales);
 		
 		
@@ -106,7 +109,7 @@ public class PanelCanales extends MiPanel{
 
 
 
-		jframe.add(new PanelCanales(canales));
+		jframe.add(new PanelCanales(modelo));
 
 
 
