@@ -56,19 +56,6 @@ public class SocketListenerThread extends Thread {
 			} catch (IOException e) {
 				// El socket se ha cerrado
 				try {
-
-					printDebug("Se ha cerrado el socket");
-
-					// Lo eliminamos del listado de usuarios
-
-					printDebug("Borramos a " + usuario.nickName
-							+ " de la lista de usuarios");
-					panchat.getListaUsuarios().eliminarUsuario(usuario);
-
-					// Lo eliminamos del listado de canales
-
-					panchat.getListaCanales().eliminarUsuario(usuario);
-
 					socket.close();
 				} catch (IOException e1) {
 				}
@@ -76,7 +63,17 @@ public class SocketListenerThread extends Thread {
 				e.printStackTrace();
 			}
 		}
-		printDebug("Hilo terminado");
+		printDebug("Hilo terminado, se ha cerrado el socket");
+
+		// Lo eliminamos del listado de usuarios
+
+		printDebug("Borramos a " + usuario.nickName
+				+ " de la lista de usuarios");
+		panchat.getListaUsuarios().eliminarUsuario(usuario);
+
+		// Lo eliminamos del listado de canales
+
+		panchat.getListaCanales().eliminarUsuario(usuario);
 	}
 
 	private void printDebug(String string) {
