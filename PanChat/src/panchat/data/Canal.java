@@ -70,7 +70,7 @@ public class Canal extends Observable implements Comparable<Canal>,
 	 */
 	public void eliminarUsuario(Usuario usuario) {
 		synchronized (mutex) {
-			listadoUsuariosDesconectados.add(usuario);
+			listadoUsuariosDesconectados.remove(usuario);
 			listadoUsuariosConectados.remove(usuario);
 
 			super.setChanged();
@@ -87,6 +87,21 @@ public class Canal extends Observable implements Comparable<Canal>,
 		synchronized (mutex) {
 			listadoUsuariosConectados.add(usuario);
 			listadoUsuariosDesconectados.remove(usuario);
+
+			super.setChanged();
+			super.notifyObservers();
+		}
+	}
+
+	/**
+	 * Método para añadir un nuevo usuario a la conversación.
+	 * 
+	 * @param usuario
+	 */
+	public void eliminarUsuarioConectado(Usuario usuario) {
+		synchronized (mutex) {
+			listadoUsuariosConectados.remove(usuario);
+			listadoUsuariosDesconectados.add(usuario);
 
 			super.setChanged();
 			super.notifyObservers();

@@ -37,7 +37,6 @@ public class Linker {
 	void socketSendMsg(Usuario destId, Object msg) {
 		try {
 			ObjectOutputStream oos = connector.getOOS(destId.uuid);
-			// System.out.println(oos + " " + msg);
 			oos.writeObject(msg);
 			oos.flush();
 		} catch (IOException e) {

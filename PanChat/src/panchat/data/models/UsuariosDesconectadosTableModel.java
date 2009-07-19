@@ -7,20 +7,21 @@ import javax.swing.table.AbstractTableModel;
 
 import panchat.data.Canal;
 
-public class CanalTableModel extends AbstractTableModel implements Observer {
+public class UsuariosDesconectadosTableModel extends AbstractTableModel
+		implements Observer {
 
 	private static final long serialVersionUID = 1L;
 
 	private Canal canal;
 
-	public CanalTableModel(Canal canal) {
+	public UsuariosDesconectadosTableModel(Canal canal) {
 		this.canal = canal;
 		this.canal.addObserver(this);
 	}
 
 	@Override
 	public String getColumnName(int col) {
-		return "Usuarios conectados";
+		return "Usuarios desconectados";
 	}
 
 	@Override
@@ -30,12 +31,15 @@ public class CanalTableModel extends AbstractTableModel implements Observer {
 
 	@Override
 	public int getRowCount() {
-		return canal.getNumUsuariosConectados();
+		return canal.getNumUsuariosDesconectados();
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		return canal.getUsuarioConectado(rowIndex);
+		if (rowIndex >= 0 && rowIndex < getRowCount()) {
+			return canal.getUsuarioDesconectado(rowIndex);
+		} else
+			return null;
 	}
 
 	@Override

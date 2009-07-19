@@ -9,7 +9,7 @@ import panchat.data.Canal;
 import panchat.data.ListaCanales;
 import panchat.data.ListaUsuarios;
 import panchat.data.Usuario;
-import panchat.ui.channel.PanelCanal;
+import panchat.ui.chat.PanelCanal;
 
 public class TestPanelCanal {
 

@@ -8,7 +8,6 @@ import javax.swing.JFrame;
 
 import panchat.Panchat;
 import panchat.data.Canal;
-import panchat.ui.channel.PanelCanal;
 
 public class VentanaConversacionCanal extends JFrame implements
 		IVentanaConversacion {
@@ -35,7 +34,7 @@ public class VentanaConversacionCanal extends JFrame implements
 		this.add(panelConversacion, BorderLayout.CENTER);
 
 		// Creamos el panel del canal
-		PanelCanal panelCanal = new PanelCanal(canal);
+		PanelCanal panelCanal = new PanelCanal(panchat, canal);
 
 		this.getContentPane().add(panelCanal, BorderLayout.EAST);
 

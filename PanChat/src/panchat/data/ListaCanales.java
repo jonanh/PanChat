@@ -50,7 +50,7 @@ public class ListaCanales extends Observable {
 	 */
 	public void eliminarCanal(Canal canal) {
 		synchronized (mutex) {
-			if (!hashtableCanales.containsKey(canal.getNombreCanal())) {
+			if (hashtableCanales.containsKey(canal.getNombreCanal())) {
 
 				hashtableCanales.remove(canal.getNombreCanal());
 
@@ -100,7 +100,11 @@ public class ListaCanales extends Observable {
 	 * @return
 	 */
 	public Canal getCanal(int index) {
-		return listaCanales.get(index);
+		// Comprobar límites
+		if (index >= 0 && index < getNumCanales())
+			return listaCanales.get(index);
+		else
+			return null;
 	}
 
 	/**
@@ -120,6 +124,15 @@ public class ListaCanales extends Observable {
 	 */
 	public Canal getCanal(String nombre) {
 		return this.hashtableCanales.get(nombre);
+	}
+
+	/**
+	 * La información de uno de los canales ha sido modificada, actualizar la
+	 * vista de canales
+	 */
+	public void canalModificado() {
+		super.setChanged();
+		super.notifyObservers();
 	}
 
 	/*

@@ -46,12 +46,17 @@ public class ListaCanalesAbstractTableModel extends AbstractTableModel
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		switch (columnIndex) {
-		case 0:
-			return listaCanales.getCanal(rowIndex).getNombreCanal();
-		default:
-			return listaCanales.getCanal(rowIndex).getNumUsuariosConectados();
-		}
+		// Comprobamos los "bounds"
+		if (rowIndex >= 0 && rowIndex < getRowCount()) {
+			switch (columnIndex) {
+			case 0:
+				return listaCanales.getCanal(rowIndex).getNombreCanal();
+			default:
+				return listaCanales.getCanal(rowIndex)
+						.getNumUsuariosConectados();
+			}
+		} else
+			return null;
 	}
 
 	@Override

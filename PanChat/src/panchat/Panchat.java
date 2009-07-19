@@ -147,6 +147,18 @@ public class Panchat {
 	 * 
 	 * @param usuario
 	 */
+	public void accionInscribirCanal(String nombre) {
+		Canal canal = new Canal(nombre, listaUsuarios);
+		listaCanales.añadirCanal(canal);
+
+		accionIniciarConversacionCanal(canal);
+	}
+
+	/**
+	 * Inicia una conversación con el usuario
+	 * 
+	 * @param usuario
+	 */
 	public void accionIniciarConversacion(Usuario usuario) {
 		listaConversaciones.getVentanaConversacion(usuario);
 	}
@@ -166,13 +178,18 @@ public class Panchat {
 	 * @param usuario
 	 */
 	public void accionIniciarConversacionCanal(Canal canal) {
-		listaConversaciones.getVentanaConversacion(canal);
+		if (!canal.contains(usuario)) {
+			canal.anyadirUsuarioConectado(usuario);
 
-		// Notificamos a todo el mundo sobre el nuevo canal
-		InscripcionCanal inscripcion = new InscripcionCanal(canal, usuario,
-				true);
+			listaConversaciones.getVentanaConversacion(canal);
 
-		causalLinker.sendMsg(canal.getListadoUsuarios(), inscripcion);
+			// Notificamos a todo el mundo sobre el nuevo canal
+			InscripcionCanal inscripcion = new InscripcionCanal(canal, usuario,
+					true);
+
+			causalLinker.sendMsg(this.listaUsuarios.getListaUsuarios(),
+					inscripcion);
+		}
 
 	}
 
@@ -190,6 +207,16 @@ public class Panchat {
 				false);
 
 		causalLinker.sendMsg(listaUsuarios.getListaUsuarios(), inscripcion);
+
+		// Nos borramos del listado de usuarios conectados del canal
+		canal.eliminarUsuarioConectado(usuario);
+
+		if (canal.getNumUsuariosConectados() == 0) {
+
+			System.out.println("Se ha desregistrado el canal");
+
+			listaCanales.eliminarCanal(canal);
+		}
 	}
 
 	/**
@@ -221,13 +248,17 @@ public class Panchat {
 	 */
 	public void invitarUsuario(Canal pCanal, Usuario pUsuario) {
 		// Lo añadimos a la lista de conversaciones
-		listaConversaciones.eliminarConversacion(pCanal);
+		listaCanales.getCanal(pCanal.getNombreCanal()).anyadirUsuarioConectado(
+				pUsuario);
 
+		listaCanales.canalModificado();
+		
 		// Notificamos a todo el mundo sobre el nuevo canal
 		InscripcionCanal inscripcion = new InscripcionCanal(pCanal, pUsuario,
 				true);
 
-		causalLinker.sendMsg(pCanal.getListadoUsuarios(), inscripcion);
+		causalLinker
+				.sendMsg(this.listaUsuarios.getListaUsuarios(), inscripcion);
 	}
 
 }

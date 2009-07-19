@@ -83,7 +83,10 @@ public class TablaCanales extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				Canal canal = listaCanales.getCanal(table.getSelectedRow());
 
+				if (canal != null)
+					panchat.accionIniciarConversacionCanal(canal);
 			}
 		});
 
@@ -102,7 +105,8 @@ public class TablaCanales extends JPanel {
 
 				// Si obtenemos un nombre decente :-P
 				if (input != null && input.length() > 0) {
-					// panchat.accionIniciarConversacionCanal(canal);
+
+					panchat.accionInscribirCanal(input);
 				}
 			}
 		});

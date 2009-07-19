@@ -6,6 +6,7 @@ import java.net.MulticastSocket;
 import panchat.Panchat;
 import panchat.connector.Connector;
 import panchat.data.Usuario;
+import panchat.messages.SaludoListaCanales;
 import panchat.messages.SaludoUsuario;
 
 public class MulticastListenerThread extends Thread {
@@ -105,10 +106,10 @@ public class MulticastListenerThread extends Thread {
 				 */
 				printDebug("Enviamos información sobre canales");
 
-				// panchat.getCausalLinker().sendMsg(
-				// usuario,
-				// panchat.getListaConversaciones()
-				// .getListaConversacionesCanal());
+				SaludoListaCanales saludo = new SaludoListaCanales(panchat
+						.getListaConversaciones().getListaConversacionesCanal());
+
+				panchat.getCausalLinker().sendMsg(usuario, saludo);
 			}
 		}
 	}
