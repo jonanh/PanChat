@@ -1,4 +1,4 @@
-package panchat;
+package panchat.ui.main;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -9,8 +9,6 @@ import javax.swing.JTabbedPane;
 
 import panchat.Panchat;
 import panchat.data.Usuario;
-import panchat.ui.main.TablaCanales;
-import panchat.ui.main.TablaUsuarios;
 
 public class PanchatUI extends JFrame {
 

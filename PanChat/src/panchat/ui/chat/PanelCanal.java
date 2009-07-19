@@ -105,7 +105,8 @@ public class PanelCanal extends JPanel {
 		JPanel panelBotones = new JPanel();
 		panelBotones.setLayout(new BorderLayout());
 
-		panelBotones.add(usuariosDesconectados, BorderLayout.CENTER);
+		panelBotones.add(new JScrollPane(usuariosDesconectados),
+				BorderLayout.CENTER);
 		panelBotones.add(boton, BorderLayout.SOUTH);
 
 		this.add(panelBotones);

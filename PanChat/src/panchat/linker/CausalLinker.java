@@ -114,7 +114,6 @@ public class CausalLinker extends Linker {
 
 		if (W.getValue(srcId.uuid, myId.uuid) > matrix.getValue(srcId.uuid,
 				myId.uuid) + 1) {
-			System.out.println("salida por la primera condicción");
 			return false;
 		}
 

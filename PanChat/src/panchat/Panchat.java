@@ -10,6 +10,7 @@ import panchat.linker.CausalLinker;
 import panchat.linker.Linker;
 import panchat.messages.InscripcionCanal;
 import panchat.messages.MessageChat;
+import panchat.ui.main.PanchatUI;
 
 public class Panchat {
 
@@ -213,8 +214,6 @@ public class Panchat {
 
 		if (canal.getNumUsuariosConectados() == 0) {
 
-			System.out.println("Se ha desregistrado el canal");
-
 			listaCanales.eliminarCanal(canal);
 		}
 	}
@@ -252,13 +251,17 @@ public class Panchat {
 				pUsuario);
 
 		listaCanales.canalModificado();
-		
+
 		// Notificamos a todo el mundo sobre el nuevo canal
 		InscripcionCanal inscripcion = new InscripcionCanal(pCanal, pUsuario,
 				true);
 
 		causalLinker
 				.sendMsg(this.listaUsuarios.getListaUsuarios(), inscripcion);
+	}
+
+	public static void main(String[] args) {
+		new PanchatUI();
 	}
 
 }

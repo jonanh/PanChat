@@ -40,7 +40,6 @@ public class Linker {
 			oos.writeObject(msg);
 			oos.flush();
 		} catch (IOException e) {
-			System.out.println("ConexionEnvio.java: Error al enviar");
 			e.printStackTrace();
 		}
 	}
