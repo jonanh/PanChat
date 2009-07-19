@@ -221,7 +221,7 @@ public class Connector {
 	 * Este es el caso cuando UUID del usuario es menor que nuestro UUID, si no
 	 * se llama a acceptConnect()
 	 */
-	public synchronized void acceptConnect() {
+	public synchronized Usuario acceptConnect() {
 		Socket socket = null;
 		ObjectInputStream ois = null;
 		ObjectOutputStream oos = null;
@@ -259,6 +259,8 @@ public class Connector {
 
 		// Añadimos el thread al thread Pool
 		threadPool.put(readUsuario.uuid, thread);
+
+		return readUsuario;
 	}
 
 	/**

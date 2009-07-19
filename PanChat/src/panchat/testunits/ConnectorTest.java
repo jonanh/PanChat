@@ -68,6 +68,19 @@ public class ConnectorTest extends TestCase {
 			assertEquals(lista1, lista2);
 		}
 
+		// Mandamos un mensaje de uno a todos
+		for (Panchat lPanchat : listaListaPanchat) {
+			for (Usuario lUsuario : lPanchat.getListaUsuarios()
+					.getListaUsuarios()) {
+				if (!lPanchat.getUsuario().equals(lUsuario)) {
+					assertNotNull(lPanchat.getConnector().getOIS(lUsuario.uuid));
+					assertNotNull(lPanchat.getConnector().getOOS(lUsuario.uuid));
+
+					lPanchat.getCausalLinker().sendMsg(lUsuario, 5);
+				}
+			}
+		}
+
 		// Ordenamos terminar la aplicación
 		for (Panchat panchat : listaListaPanchat.subList(0, 3))
 			panchat.accionDesegistrarCliente();
@@ -81,14 +94,14 @@ public class ConnectorTest extends TestCase {
 
 		// Comprobamos que finalmente se han quedado desregistrados 3 clientes
 		// (solo se tienen registrados a si mismos)
-		assertEquals(listaListaUsuarios.get(0).getNumUsuarios(), 1);
-		assertEquals(listaListaUsuarios.get(1).getNumUsuarios(), 1);
-		assertEquals(listaListaUsuarios.get(2).getNumUsuarios(), 1);
+		assertEquals(1, listaListaUsuarios.get(0).getNumUsuarios());
+		assertEquals(1, listaListaUsuarios.get(1).getNumUsuarios());
+		assertEquals(1, listaListaUsuarios.get(2).getNumUsuarios());
 
 		// Comprobamos que los otros dos clientes se tienen registrados
 		// mutuamente
-		assertEquals(listaListaUsuarios.get(3).getNumUsuarios(), 2);
-		assertEquals(listaListaUsuarios.get(4).getNumUsuarios(), 2);
+		assertEquals(2, listaListaUsuarios.get(3).getNumUsuarios());
+		assertEquals(2, listaListaUsuarios.get(4).getNumUsuarios());
 
 	}
 }

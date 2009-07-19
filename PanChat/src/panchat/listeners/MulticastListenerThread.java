@@ -81,17 +81,18 @@ public class MulticastListenerThread extends Thread {
 				// Unos aceptan desde el ServerSocket y otros crean
 				// sockets.
 
-				if (usuario.uuid.compareTo(panchat.getUsuario().uuid) < 0)
+				if (usuario.uuid.compareTo(panchat.getUsuario().uuid) < 0) {
+
 					connector.connect(usuario);
-				else
-					connector.acceptConnect();
 
-				/*
-				 * Añadir elementos en el CausalLinker y el Linker
-				 */
-				printDebug("Añadimos elementos a los Linkers");
+					accionesRegistro(usuario);
 
-				panchat.getCausalLinker().anyadirUsuario(usuario);
+				} else {
+
+					Usuario usuarioLeido = connector.acceptConnect();
+
+					accionesRegistro(usuarioLeido);
+				}
 
 				/*
 				 * Añadir a la ListaUsuarios el usuario
@@ -99,19 +100,36 @@ public class MulticastListenerThread extends Thread {
 				printDebug("Añadimos el usuario a ListaUsuarios");
 
 				panchat.getListaUsuarios().añadirUsuario(usuario);
-
-				/*
-				 * Enviamos al usuario la información que tenemos sobre los
-				 * canales.
-				 */
-				printDebug("Enviamos información sobre canales");
-
-				SaludoListaCanales saludo = new SaludoListaCanales(panchat
-						.getListaConversaciones().getListaConversacionesCanal());
-
-				panchat.getCausalLinker().sendMsg(usuario, saludo);
 			}
 		}
+	}
+
+	/**
+	 * Realizamos la accionRegistro teniendo en cuenta que el usuario aceptado
+	 * no tiene porque darse en orden, y por tanto puede ocasionarse una
+	 * potencial condición de carrera que puede ser evitada tratando el elemento
+	 * registrado o aceptado
+	 * 
+	 * @param pUsuario
+	 */
+	private void accionesRegistro(Usuario pUsuario) {
+		/*
+		 * Añadir elementos en el CausalLinker y el Linker
+		 */
+		printDebug("Añadimos elementos a los Linkers");
+
+		panchat.getCausalLinker().anyadirUsuario(pUsuario);
+
+		/*
+		 * Enviamos al usuario la información que tenemos sobre los canales.
+		 */
+		printDebug("Enviamos información sobre canales");
+
+		SaludoListaCanales saludo = new SaludoListaCanales(panchat
+				.getListaConversaciones().getListaConversacionesCanal());
+
+		panchat.getCausalLinker().sendMsg(pUsuario, saludo);
+
 	}
 
 	private void printDebug(String string) {
