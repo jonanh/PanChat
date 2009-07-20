@@ -182,6 +182,8 @@ public class Panchat {
 		if (!canal.contains(usuario)) {
 			canal.anyadirUsuarioConectado(usuario);
 
+			listaCanales.canalModificado();
+
 			listaConversaciones.getVentanaConversacion(canal);
 
 			// Notificamos a todo el mundo sobre el nuevo canal
@@ -216,6 +218,8 @@ public class Panchat {
 
 			listaCanales.eliminarCanal(canal);
 		}
+
+		listaCanales.canalModificado();
 	}
 
 	/**
