@@ -38,7 +38,7 @@ public class ConversacionCanal extends MiPanel implements KeyListener,MouseListe
 	Editor escritura;
 	Editor log;
 
-	HashMap<String, String> hash;
+	
 	Vector<Character> lectura;
 	
 	JPanel informacion;
@@ -52,27 +52,27 @@ public class ConversacionCanal extends MiPanel implements KeyListener,MouseListe
 	
 	static String camino= "/interfaz/imagenes/";
 	
-	public ConversacionCanal(HashMap<String, String> tabla,Canal canal) {
+	public ConversacionCanal(Canal canal) {
 		super();
-		construir(tabla,canal);
+		construir(canal);
 	}
 
-	public ConversacionCanal(String ruta, HashMap<String, String> tabla,ListaUsuarios usuarios) {
+	public ConversacionCanal(String ruta,ListaUsuarios usuarios) {
 		super(camino+ruta);
-		construir(tabla,canal);
+		construir(canal);
 	}
 
-	private void construir(HashMap<String, String> tabla,Canal canal) {
+	private void construir(Canal canal) {
 
 		this.canal=canal;
 		modeloConectados= new UsuariosConectadosTableModel(canal);
 		modeloDesconectados= new UsuariosDesconectadosTableModel(canal);
 			
-		hash = tabla;
+		
 
-		escritura = new Editor(camino+"cuadro.jpg", hash);
+		escritura = new Editor(camino+"cuadro.jpg");
 
-		log = new Editor(camino+"pizarra.png", hash);
+		log = new Editor(camino+"pizarra.png");
 		log.setEditable(false);
 
 		JScrollPane arriba = new JScrollPane(log);
@@ -195,7 +195,7 @@ public class ConversacionCanal extends MiPanel implements KeyListener,MouseListe
 		
 		
 
-		ConversacionCanal edit = new ConversacionCanal(e,canal);
+		ConversacionCanal edit = new ConversacionCanal(canal);
 		in.add(edit);
 		in.setTitle("conversación con el jonan");
 		in.setVisible(true);

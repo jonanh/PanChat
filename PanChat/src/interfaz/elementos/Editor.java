@@ -1,12 +1,13 @@
 package interfaz.elementos;
 
+import interfaz.paneles.PanelCentral;
 import interfaz.ventanas.VentanaBase;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.HashMap;
+
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -24,7 +25,7 @@ public class Editor extends JTextPane implements KeyListener, DocumentListener {
 
 	private static final long serialVersionUID = 1L;
 
-	HashMap<String, String> hash;
+	
 	Vector<Character> teclasPulsadas;
 
 	/*
@@ -60,11 +61,11 @@ public class Editor extends JTextPane implements KeyListener, DocumentListener {
 
 	StyledDocument documento;
 
-	public Editor(String ruta, HashMap<String, String> hash) {
+	public Editor(String ruta) {
 		super();
 		this.setOpaque(false);
 		path = ruta;
-		this.hash = hash;
+		
 		icon = new ImageIcon(this.getClass().getResource(path));
 		imagen = icon.getImage();
 		this.setForeground(Color.red);
@@ -133,9 +134,9 @@ public class Editor extends JTextPane implements KeyListener, DocumentListener {
 			// quitamos espacios porque si no no reconoce los emoticonos
 			elemento = elemento.trim();
 
-			if (hash.containsKey(elemento)) {
+			if (PanelCentral.estaEmoticon(elemento)){//hash.containsKey(elemento)) {
 				this.insertIcon(new ImageIcon(new ImageIcon(camino
-						+ hash.get(elemento)).getImage().getScaledInstance(25,
+						+ PanelCentral.obtenerEmoticonos().get(elemento)).getImage().getScaledInstance(25,
 						25, 0)));
 
 				try {
@@ -211,15 +212,16 @@ public class Editor extends JTextPane implements KeyListener, DocumentListener {
 			if (tecla == ' ')
 				teclasPulsadas.removeAllElements();
 			else
-				teclasPulsadas.addElement(tecla);
+				if (' ' <= tecla && tecla <= '}')
+					teclasPulsadas.addElement(tecla);
 		}
 
 		clave = obtenerClave(teclasPulsadas);
 		clave2 = new String(clave);
+		System.out.println(PanelCentral.estaEmoticon(clave2));System.out.println(clave2);
+		if (PanelCentral.estaEmoticon(clave2)) {
 
-		if (hash.containsKey(clave2)) {
-
-			ruta = hash.get(clave2);
+			ruta = PanelCentral.obtenerEmoticonos().get(clave2);
 
 			String abs = "D:\\Java\\PanChat\\src\\interfaz\\imagenes\\" + ruta;
 			ImageIcon emoticon = new ImageIcon(abs);
@@ -267,13 +269,11 @@ public class Editor extends JTextPane implements KeyListener, DocumentListener {
 
 	public static void main(String[] args) {
 		VentanaBase in = new VentanaBase();
-		HashMap<String, String> e = new HashMap<String, String>(100);
-		String f = "xd";
-		e.put(f, "xd.gif");
-		e.put("nubes", "nubes.jpg");
-		e.put("pizarra", "pizarra.png");
+		
+		
+		
 
-		Editor edit = new Editor("/interfaz/imagenes/pizarra.png", e);
+		Editor edit = new Editor("/interfaz/imagenes/pizarra.png");
 		in.add(edit);
 		in.setVisible(true);
 

@@ -6,7 +6,10 @@ import java.util.LinkedList;
 import java.util.Observable;
 import java.util.UUID;
 
-public class ListaUsuarios extends Observable {
+import javax.swing.ListModel;
+import javax.swing.event.ListDataListener;
+
+public class ListaUsuarios extends Observable implements ListModel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -139,5 +142,29 @@ public class ListaUsuarios extends Observable {
 	@Override
 	public String toString() {
 		return listaUsuarios.toString();
+	}
+
+	@Override
+	public void addListDataListener(ListDataListener arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Object getElementAt(int arg0) {
+		// TODO Auto-generated method stub
+		return (Usuario) listaUsuarios.get(arg0);
+	}
+
+	@Override
+	public int getSize() {
+		// TODO Auto-generated method stub
+		return listaUsuarios.size();
+	}
+
+	@Override
+	public void removeListDataListener(ListDataListener arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

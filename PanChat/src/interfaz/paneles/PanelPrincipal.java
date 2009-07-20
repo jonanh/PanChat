@@ -5,10 +5,12 @@ import java.util.LinkedList;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
+import panchat.Panchat;
 import panchat.data.Canal;
 import panchat.data.ListaCanales;
 import panchat.data.ListaUsuarios;
 import panchat.data.Usuario;
+import panchat.data.models.ListaCanalesAbstractTableModel;
 
 
 
@@ -18,18 +20,24 @@ public class PanelPrincipal extends JTabbedPane{
 	
 	static String camino ="/interfaz/imagenes/";
 	
+	Panchat panchat;
+	
 	PanelCentral central;
 	PanelCanales can;
 	
 	ListaCanales canales;
+	ListaCanalesAbstractTableModel modelo;
 	String name;
 	
-	public PanelPrincipal(String name, ListaCanales canales){
-		this.name=name;
-		this.canales=canales;
+	public PanelPrincipal(String name, Panchat panchat){
 		
-		central=new PanelCentral(name);
-		can=new PanelCanales(canales);
+		this.panchat=panchat;
+		this.name=name;
+		this.canales=panchat.getListaCanales();
+		modelo=new ListaCanalesAbstractTableModel(canales);
+		
+		central=new PanelCentral(panchat);
+		can=new PanelCanales(panchat);
 		
 		this.addTab("Principal", central);
 		this.addTab("canales", can);
@@ -81,9 +89,10 @@ public class PanelPrincipal extends JTabbedPane{
 
 
 
+		Panchat panchat=new Panchat("Javier");
+		panchat.accionInscribirCanal("canalLocos");
 
-
-		jframe.add(new PanelPrincipal("Javier",canales));
+		jframe.add(new PanelPrincipal("Javier",panchat));
 
 
 

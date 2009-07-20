@@ -2,13 +2,19 @@ package interfaz.ventanas;
 
 import interfaz.elementos.Datos;
 import interfaz.paneles.MiPanel;
-import interfaz.paneles.PanelCentral;
+
+import interfaz.paneles.PanelPrincipal;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+
 import javax.swing.JButton;
+
+import panchat.Panchat;
+
+
 
 public class Inicio extends VentanaBase implements ActionListener {
 
@@ -36,7 +42,7 @@ public class Inicio extends VentanaBase implements ActionListener {
 	private void construir() {
 		panel = new MiPanel(camino+"init.jpg");
 		// para el nombre que quiere el usuario
-		nombre = new Datos("an�nimo");
+		nombre = new Datos("anonimo");
 		// panel que contiene los elementos
 
 		panel.add(nombre);
@@ -56,9 +62,12 @@ public class Inicio extends VentanaBase implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		// lo que haya que hacer al conectar
+		
+		Panchat panchat=new Panchat(nombre.obtenerTexto());
 		VentanaBase ventana = new VentanaBase("Bienvenido "
 				+ nombre.obtenerTexto());
-		PanelCentral panel = new PanelCentral(nombre.obtenerTexto());
+		
+		PanelPrincipal panel = new PanelPrincipal(nombre.obtenerTexto(),panchat);
 		ventana.add(panel);
 
 	}

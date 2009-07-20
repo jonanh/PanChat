@@ -12,9 +12,16 @@ import java.awt.Insets;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
+
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
+
+import panchat.Panchat;
+import panchat.connector.Connector;
+import panchat.data.ListaConversaciones;
+import panchat.data.Usuario;
+import panchat.data.models.UsuarioTablaModel;
+
 
 
 
@@ -24,6 +31,8 @@ public class PanelCentral extends MiPanel implements MouseListener {
 
 	// tabla hash con las rutas de los emoticonos
 	static HashMap<String, String> emoticonos = new HashMap<String, String>();
+	static boolean cargada=false;
+	static Object mutex=new Object();
 
 	PanelRecuadro imagen = new PanelRecuadro(camino+"nubes.jpg");
 	MiPanel nick = new MiPanel();
@@ -34,28 +43,37 @@ public class PanelCentral extends MiPanel implements MouseListener {
 	Datos nickname;
 	Datos estado;
 
-	DefaultListModel modelo = new DefaultListModel();
-	JList listaUsuarios = new JList(modelo);
+	UsuarioTablaModel modelo;
+	JTable listaUsuarios ;//= new JList(modelo);
+	
+	Panchat panchat;
+	
 	
 	static String  camino ="/interfaz/imagenes/";
 
-	public PanelCentral(String nombre) {
+	public PanelCentral(Panchat panchat) {
 		super();
+		modelo=new UsuarioTablaModel(panchat.getListaUsuarios());
+		listaUsuarios = new JTable(modelo);
+		
+		this.panchat=panchat;
 		this.setOpaque(false);
 		this.setLayout(new GridBagLayout());
 
-		nickname = new Datos(nombre);
+		nickname = new Datos(panchat.getUsuario().nickName);
 		estado = new Datos("conectado");
 
 		nick.setLayout(new GridLayout(2, 1));
 		nick.add(nickname);
 		nick.add(estado);
 
-		int i = 0;
-		for (; i < 10; i++) {
-			modelo.add(i, new String("usuario" + i));
+		/*int i=0;
+		int numUsuarios = panchat.getListaUsuarios().getNumUsuarios();
+		for (; i < numUsuarios; i++) {
+			if(panchat.getListaUsuarios().getUsuario(i).nickName!=panchat.getUsuario().nickName)
+			modelo.add(i,panchat.getListaUsuarios().getUsuario(i).nickName);
 
-		}
+		}*/
 
 		listaUsuarios.addMouseListener(this);
 
@@ -101,29 +119,39 @@ public class PanelCentral extends MiPanel implements MouseListener {
 		c.anchor = GridBagConstraints.EAST;
 		c.fill = GridBagConstraints.BOTH;
 		this.add(scroll, c);
-		cargarEmoticonos();
+		
 
 	}
 
-	static HashMap<String, String> obtenerEmoticonos() {
+	public static HashMap<String, String> obtenerEmoticonos() {
+		synchronized(mutex){
+		if(!cargada)
+			cargarEmoticonos();
+			cargada=true;
+		}
 		return emoticonos;
 	}
 
-	static boolean estaEmoticon(String clave) {
+	public static boolean estaEmoticon(String clave) {
+		synchronized(mutex){
+			if(!cargada)
+				cargarEmoticonos();
+				cargada=true;
+			}
 		return emoticonos.containsKey(clave);
+	}
+	
+	private static void cargarEmoticonos(){
+		emoticonos.put("nubes", "nubes.jpg");
+		emoticonos.put("xd", "xd.gif");
+		emoticonos.put("pizarra", "pizarra.png");
 	}
 
 	static String obtenerRuta(String clave) {
 		return emoticonos.get(clave);
 	}
 
-	public void cargarEmoticonos() {
-
-		emoticonos.put("xd", "xd.gif");
-		emoticonos.put("pizarra", "pizarra.png");
-		emoticonos.put("nubes", "nubes.jpg");
-
-	}
+	
 
 	public void paint(Graphics g) {
 
@@ -133,7 +161,8 @@ public class PanelCentral extends MiPanel implements MouseListener {
 
 	public static void main(String[] args) {
 		VentanaBase in = new VentanaBase();
-		PanelCentral central = new PanelCentral("Javier");
+		Panchat panchat=new Panchat("kk");
+		PanelCentral central = new PanelCentral(panchat);
 		in.add(central);
 		in.setVisible(true);
 
@@ -142,10 +171,20 @@ public class PanelCentral extends MiPanel implements MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 
+		Usuario usuario = (Usuario) panchat.getListaUsuarios().getElementAt(listaUsuarios
+				.getSelectedRow());
+		
 		if (arg0.getClickCount() == 2) {
-			System.out.println((modelo.getElementAt(listaUsuarios
-					.getSelectedIndex())));
-			new VentanaBase().add(new Conversacion(emoticonos));
+			System.out.println((usuario));
+			VentanaBase ventana = new VentanaBase();
+			Conversacion conversacion = new Conversacion();
+			
+			ListaConversaciones conversaciones= panchat.getListaConversaciones();
+			
+			
+			
+			Connector conector =panchat.getConnector();
+			ventana.add( conversacion);
 		}
 
 	}

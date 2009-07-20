@@ -9,7 +9,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.HashMap;
+
 import java.util.Vector;
 
 import javax.swing.JScrollPane;
@@ -21,27 +21,27 @@ public class Conversacion extends MiPanel implements KeyListener {
 	Editor escritura;
 	Editor log;
 
-	HashMap<String, String> hash;
+	
 	Vector<Character> lectura;
 
-	public Conversacion(HashMap<String, String> tabla) {
+	public Conversacion() {
 		super();
-		construir(tabla);
+		construir();
 	}
 
-	public Conversacion(String ruta, HashMap<String, String> tabla) {
+	public Conversacion(String ruta) {
 		super(ruta);
-		construir(tabla);
+		construir();
 	}
 
-	private void construir(HashMap<String, String> tabla) {
+	private void construir() {
 
-		hash = tabla;
+		
 		String ruta="/interfaz/imagenes/";
 
-		escritura = new Editor(ruta+"cuadro.jpg", hash);
+		escritura = new Editor(ruta+"cuadro.jpg");
 
-		log = new Editor(ruta+"pizarra.png", hash);
+		log = new Editor(ruta+"pizarra.png");
 		log.setEditable(false);
 
 		JScrollPane arriba = new JScrollPane(log);
@@ -105,13 +105,9 @@ public class Conversacion extends MiPanel implements KeyListener {
 
 	public static void main(String[] args) {
 		VentanaBase in = new VentanaBase();
-		HashMap<String, String> e = new HashMap<String, String>(100);
-		String f = "xd";
-		e.put(f, "xd.gif");
-		e.put("nubes", "nubes.jpg");
-		e.put("pizarra", "pizarra.png");
+	
 
-		Conversacion edit = new Conversacion(e);
+		Conversacion edit = new Conversacion();
 		in.add(edit);
 		in.setTitle("conversacion con el jonan");
 		in.setVisible(true);
