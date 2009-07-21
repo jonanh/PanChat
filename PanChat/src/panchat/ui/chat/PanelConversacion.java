@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -38,7 +39,7 @@ public class PanelConversacion extends JPanel {
 		setLayout(new BorderLayout());
 
 		// Anadimos el textArea al área central del panel
-		add(textArea, BorderLayout.CENTER);
+		add(new JScrollPane(textArea), BorderLayout.CENTER);
 
 		// Añadimos el textfield al área inferior del panel
 		add(textField, BorderLayout.SOUTH);
