@@ -188,8 +188,7 @@ public class CausalLinkerThread extends Thread {
 
 					printDebug("he sido invitado");
 
-					String bienvenido = panchat.getUsuario().nickName
-							+ " he sido invitado a la conversacion por "
+					String bienvenido = "he sido invitado a la conversacion por "
 							+ usuario.nickName;
 
 					panchat.getListaConversaciones().getVentanaConversacion(
@@ -203,7 +202,7 @@ public class CausalLinkerThread extends Thread {
 					printDebug("alguien ha entrado en una conversacion en la que ya estaba");
 
 					String bienvenido = panchat.getUsuario().nickName
-							+ " bienvenido a la conversacion";
+							+ " ha entrado en la conversacion";
 
 					panchat.getListaConversaciones().getVentanaConversacion(
 							canalObtenido).escribirComentario(bienvenido);
