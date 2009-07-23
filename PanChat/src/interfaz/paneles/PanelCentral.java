@@ -170,9 +170,8 @@ public class PanelCentral extends MiPanel implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-
-		Usuario usuario = (Usuario) panchat.getListaUsuarios().getElementAt(listaUsuarios
-				.getSelectedRow());
+		
+		Usuario usuario = panchat.getListaUsuarios().getUsuario(listaUsuarios.getSelectedRow());
 		
 		if (arg0.getClickCount() == 2) {
 			System.out.println((usuario));
