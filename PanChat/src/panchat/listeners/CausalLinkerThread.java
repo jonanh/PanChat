@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.net.MulticastSocket;
 
 import panchat.Panchat;
-import panchat.data.Canal;
-import panchat.data.ListaCanales;
-import panchat.data.Usuario;
+import panchat.data.ChatRoom;
+import panchat.data.ChatRoomList;
+import panchat.data.User;
 import panchat.linker.CausalLinker;
 import panchat.messages.CausalMessage;
-import panchat.messages.InscripcionCanal;
+import panchat.messages.JoinChannel;
 import panchat.messages.MessageChat;
 import panchat.messages.SaludoListaCanales;
 
@@ -49,11 +49,11 @@ public class CausalLinkerThread extends Thread {
 					registrarSaludoCanales((SaludoListaCanales) objeto, cm
 							.getUsuario());
 
-				} else if (objeto instanceof InscripcionCanal) {
+				} else if (objeto instanceof JoinChannel) {
 
 					printDebug("InscripcionCanal");
 
-					inscribirCanal((InscripcionCanal) objeto, cm.getUsuario());
+					inscribirCanal((JoinChannel) objeto, cm.getUsuario());
 
 				} else if (objeto instanceof MessageChat) {
 
@@ -77,48 +77,48 @@ public class CausalLinkerThread extends Thread {
 	}
 
 	private void registrarSaludoCanales(SaludoListaCanales saludo,
-			Usuario usuario) {
+			User usuario) {
 
 		printDebug("Saludo canal recibido");
 
-		ListaCanales listaCanales = panchat.getListaCanales();
+		ChatRoomList listaCanales = panchat.getChannelList();
 
-		for (Canal canal : saludo.lista) {
+		for (ChatRoom canal : saludo.lista) {
 
-			Usuario usuarioObtenido = panchat.getListaUsuarios().getUsuario(
+			User usuarioObtenido = panchat.getListaUsuarios().getUser(
 					usuario.uuid);
 
-			Canal canalObtenido = listaCanales.getCanal(canal.getNombreCanal());
+			ChatRoom canalObtenido = listaCanales.getChannel(canal.getName());
 
 			if (canalObtenido == null) {
 
-				canalObtenido = new Canal(canal.getNombreCanal(), panchat
+				canalObtenido = new ChatRoom(canal.getName(), panchat
 						.getListaUsuarios());
 
-				listaCanales.añadirCanal(canalObtenido);
+				listaCanales.addChannel(canalObtenido);
 			}
 
-			canalObtenido.anyadirUsuarioConectado(usuarioObtenido);
+			canalObtenido.joinUser(usuarioObtenido);
 
 			printDebug("añadiendo usuario " + usuarioObtenido + " al canal : "
 					+ canalObtenido.toString());
 
 		}
 
-		listaCanales.canalModificado();
+		listaCanales.setModified();
 	}
 
-	private void inscribirCanal(InscripcionCanal inscripcion, Usuario usuario) {
+	private void inscribirCanal(JoinChannel inscripcion, User usuario) {
 
-		ListaCanales listaCanales = panchat.getListaCanales();
+		ChatRoomList listaCanales = panchat.getChannelList();
 
-		Usuario usuarioInscripcionObtenido = panchat.getListaUsuarios()
-				.getUsuario(inscripcion.usuario.uuid);
-		Usuario usuarioEnvioObtenido = panchat.getListaUsuarios().getUsuario(
+		User usuarioInscripcionObtenido = panchat.getListaUsuarios()
+				.getUser(inscripcion.user.uuid);
+		User usuarioEnvioObtenido = panchat.getListaUsuarios().getUser(
 				usuario.uuid);
 
-		Canal canalObtenido = listaCanales.getCanal(inscripcion.canal
-				.getNombreCanal());
+		ChatRoom canalObtenido = listaCanales.getChannel(inscripcion.channel
+				.getName());
 
 		printDebug("usuarioInscripcionObtenido : " + usuarioInscripcionObtenido);
 		printDebug("usuarioEnvioObtenido : " + usuarioEnvioObtenido);
@@ -127,19 +127,19 @@ public class CausalLinkerThread extends Thread {
 		// El canal no está registrado
 		if (canalObtenido == null) {
 
-			if (inscripcion.registrar) {
+			if (inscripcion.joing) {
 
 				printDebug("El canal no existía, creamos el canal y lo añadimos");
 
 				// Creamos el canal
-				Canal canal = new Canal(inscripcion.canal.getNombreCanal(),
+				ChatRoom canal = new ChatRoom(inscripcion.channel.getName(),
 						panchat.getListaUsuarios());
 
 				// Añadimos al usuario inscrito al canal
-				canal.anyadirUsuarioConectado(usuarioInscripcionObtenido);
+				canal.joinUser(usuarioInscripcionObtenido);
 
 				// Añadimos el canal a la lista de canales
-				panchat.getListaCanales().añadirCanal(canal);
+				panchat.getChannelList().addChannel(canal);
 
 				// Si he sido invitado a la conversacion
 				if (usuarioInscripcionObtenido.equals(panchat.getUsuario())) {
@@ -151,7 +151,7 @@ public class CausalLinkerThread extends Thread {
 							+ usuario.nickName;
 
 					// Crear la ventana
-					panchat.getListaConversaciones().getVentanaConversacion(
+					panchat.getListaConversaciones().getChatRoomWindow(
 							canalObtenido).escribirComentario(bienvenido);
 				}
 
@@ -174,13 +174,13 @@ public class CausalLinkerThread extends Thread {
 
 			printDebug("El canal existía");
 
-			if (inscripcion.registrar) {
+			if (inscripcion.joing) {
 
 				if (!canalObtenido.contains(usuarioInscripcionObtenido)) {
 
 					printDebug("El canal no contenia al usuario inscrito, agregandolo a la lista");
 					canalObtenido
-							.anyadirUsuarioConectado(usuarioInscripcionObtenido);
+							.joinUser(usuarioInscripcionObtenido);
 				}
 
 				// Si he sido invitado a la conversacion
@@ -191,7 +191,7 @@ public class CausalLinkerThread extends Thread {
 					String bienvenido = "he sido invitado a la conversacion por "
 							+ usuario.nickName;
 
-					panchat.getListaConversaciones().getVentanaConversacion(
+					panchat.getListaConversaciones().getChatRoomWindow(
 							canalObtenido).escribirComentario(bienvenido);
 				}
 
@@ -204,7 +204,7 @@ public class CausalLinkerThread extends Thread {
 					String bienvenido = panchat.getUsuario().nickName
 							+ " ha entrado en la conversacion";
 
-					panchat.getListaConversaciones().getVentanaConversacion(
+					panchat.getListaConversaciones().getChatRoomWindow(
 							canalObtenido).escribirComentario(bienvenido);
 				}
 
@@ -230,7 +230,7 @@ public class CausalLinkerThread extends Thread {
 					printDebug("El canal contenía al usuario inscrito, desregistrando al usuario del canal");
 
 					canalObtenido
-							.eliminarUsuarioConectado(usuarioInscripcionObtenido);
+							.leaveUser(usuarioInscripcionObtenido);
 
 					if (DEBUG) {
 						printDebug("Resultado");
@@ -251,23 +251,23 @@ public class CausalLinkerThread extends Thread {
 
 						printDebug("El canal ya no posee más usuarios, desregistrando");
 
-						listaCanales.eliminarCanal(canalObtenido);
+						listaCanales.deleteChannel(canalObtenido);
 					}
 				}
 			}
 		}
 
 		// Actualizamos la vista de canales
-		panchat.getListaCanales().canalModificado();
+		panchat.getChannelList().setModified();
 	}
 
 	private void escribirMensajeCanal(MessageChat objeto) {
 
-		String nombreCanal = objeto.canal.getNombreCanal();
+		String nombreCanal = objeto.chatroom.getName();
 
-		ListaCanales listaCanales = panchat.getListaCanales();
+		ChatRoomList listaCanales = panchat.getChannelList();
 
-		Canal canalObtenido = listaCanales.getCanal(nombreCanal);
+		ChatRoom canalObtenido = listaCanales.getChannel(nombreCanal);
 
 		printDebug("canalObtenido : " + canalObtenido);
 
@@ -275,15 +275,15 @@ public class CausalLinkerThread extends Thread {
 
 			if (canalObtenido.contains(panchat.getUsuario()))
 
-				panchat.getListaConversaciones().getVentanaConversacion(
+				panchat.getListaConversaciones().getChatRoomWindow(
 						canalObtenido).escribirComentario(objeto.mensaje);
 
 		}
 	}
 
-	private void escribirMensaje(String comentario, Usuario usuario) {
+	private void escribirMensaje(String comentario, User usuario) {
 
-		panchat.getListaConversaciones().getVentanaConversacion(usuario)
+		panchat.getListaConversaciones().getChatWindow(usuario)
 				.escribirComentario(comentario);
 
 	}

@@ -2,16 +2,16 @@ package panchat.messages;
 
 import java.io.Serializable;
 
-import panchat.data.Usuario;
+import panchat.data.User;
 
 public class SaludoUsuario implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public Usuario usuario;
+	public User usuario;
 	public boolean registrar;
 
-	public SaludoUsuario(Usuario pUsuario, boolean isRegistrar) {
+	public SaludoUsuario(User pUsuario, boolean isRegistrar) {
 		this.usuario = pUsuario;
 		this.registrar = isRegistrar;
 	}

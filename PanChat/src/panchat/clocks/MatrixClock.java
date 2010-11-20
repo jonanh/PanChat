@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.Map.Entry;
 
-import panchat.data.Usuario;
+import panchat.data.User;
 
 public class MatrixClock implements Serializable {
 
@@ -126,7 +126,7 @@ public class MatrixClock implements Serializable {
 	 * 
 	 * @param nuevoUsuario
 	 */
-	public void anyadirUsuario(Usuario nuevoUsuario) {
+	public void anyadirUsuario(User nuevoUsuario) {
 
 		// Primero añadimos unas columnas que falten en las filas ya existentes.
 		Iterator<Entry<UUID, Hashtable<UUID, Integer>>> iter = HashMatrix

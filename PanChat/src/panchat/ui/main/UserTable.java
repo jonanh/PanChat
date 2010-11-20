@@ -13,15 +13,15 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
 import panchat.Panchat;
-import panchat.data.ListaUsuarios;
-import panchat.data.Usuario;
-import panchat.data.models.UsuarioTablaModel;
+import panchat.data.UserList;
+import panchat.data.User;
+import panchat.data.models.UserTableModel;
 
-public class TablaUsuarios extends JPanel {
+public class UserTable extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private ListaUsuarios listaUsuarios;
+	private UserList userList;
 
 	private JTable tabla;
 
@@ -34,7 +34,7 @@ public class TablaUsuarios extends JPanel {
 	 * 
 	 * @param panchat
 	 */
-	public TablaUsuarios(Panchat panchat) {
+	public UserTable(Panchat panchat) {
 		this(panchat.getListaUsuarios());
 		this.panchat = panchat;
 	}
@@ -42,16 +42,16 @@ public class TablaUsuarios extends JPanel {
 	/**
 	 * Crea una JPanel con una tabla de usuarios
 	 * 
-	 * @param listaUsuarios
+	 * @param pUserList
 	 */
-	public TablaUsuarios(ListaUsuarios listaUsuarios) {
+	public UserTable(UserList pUserList) {
 
-		this.listaUsuarios = listaUsuarios;
+		this.userList = pUserList;
 
 		// Creamos la tabla con el modelo de datos proporcionado por
 		// DatosTablaFicheros.
 
-		tabla = new JTable(new UsuarioTablaModel(listaUsuarios));
+		tabla = new JTable(new UserTableModel(pUserList));
 
 		// Le añadimos el ActionListener
 
@@ -95,7 +95,7 @@ public class TablaUsuarios extends JPanel {
 
 	private void action() {
 		// Obtenemos el usuario
-		Usuario usuario = listaUsuarios.getUsuario(tabla.getSelectedRow());
+		User usuario = userList.getUser(tabla.getSelectedRow());
 
 		// Creamos la nueva conversacion
 		panchat.accionIniciarConversacion(usuario);

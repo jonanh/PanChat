@@ -5,22 +5,22 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Observable;
 
-public class ListaCanales extends Observable {
+public class ChatRoomList extends Observable {
 
 	private static final long serialVersionUID = 1L;
 
-	private LinkedList<Canal> listaCanales;
+	private LinkedList<ChatRoom> channelList;
 
-	private HashMap<String, Canal> hashtableCanales;
+	private HashMap<String, ChatRoom> channelHashTable;
 
 	private Object mutex = new Object();
 
 	/**
 	 * Nueva lista de canales
 	 */
-	public ListaCanales() {
-		listaCanales = new LinkedList<Canal>();
-		hashtableCanales = new HashMap<String, Canal>();
+	public ChatRoomList() {
+		channelList = new LinkedList<ChatRoom>();
+		channelHashTable = new HashMap<String, ChatRoom>();
 	}
 
 	/**
@@ -28,14 +28,14 @@ public class ListaCanales extends Observable {
 	 * 
 	 * @param canal
 	 */
-	public void añadirCanal(Canal canal) {
+	public void addChannel(ChatRoom canal) {
 		synchronized (mutex) {
-			if (!hashtableCanales.containsKey(canal.getNombreCanal())) {
+			if (!channelHashTable.containsKey(canal.getName())) {
 
-				hashtableCanales.put(canal.getNombreCanal(), canal);
+				channelHashTable.put(canal.getName(), canal);
 
-				listaCanales.add(canal);
-				Collections.sort(listaCanales);
+				channelList.add(canal);
+				Collections.sort(channelList);
 
 				super.setChanged();
 				super.notifyObservers();
@@ -48,13 +48,13 @@ public class ListaCanales extends Observable {
 	 * 
 	 * @param canal
 	 */
-	public void eliminarCanal(Canal canal) {
+	public void deleteChannel(ChatRoom canal) {
 		synchronized (mutex) {
-			if (hashtableCanales.containsKey(canal.getNombreCanal())) {
+			if (channelHashTable.containsKey(canal.getName())) {
 
-				hashtableCanales.remove(canal.getNombreCanal());
+				channelHashTable.remove(canal.getName());
 
-				listaCanales.remove(canal);
+				channelList.remove(canal);
 
 				super.setChanged();
 				super.notifyObservers();
@@ -68,10 +68,10 @@ public class ListaCanales extends Observable {
 	 * 
 	 * @param usuario
 	 */
-	public void anyadirUsuario(Usuario usuario) {
+	public void addUser(User usuario) {
 		synchronized (mutex) {
-			for (Canal canal : listaCanales)
-				canal.anyadirUsuario(usuario);
+			for (ChatRoom channel : channelList)
+				channel.addUser(usuario);
 
 			super.setChanged();
 			super.notifyObservers();
@@ -83,10 +83,10 @@ public class ListaCanales extends Observable {
 	 * 
 	 * @param usuario
 	 */
-	public void eliminarUsuario(Usuario usuario) {
+	public void deleteUser(User usuario) {
 		synchronized (mutex) {
-			for (Canal canal : listaCanales)
-				canal.eliminarUsuario(usuario);
+			for (ChatRoom channel : channelList)
+				channel.removeUser(usuario);
 
 			super.setChanged();
 			super.notifyObservers();
@@ -99,10 +99,10 @@ public class ListaCanales extends Observable {
 	 * @param index
 	 * @return
 	 */
-	public Canal getCanal(int index) {
+	public ChatRoom getChannel(int index) {
 		// Comprobar límites
-		if (index >= 0 && index < getNumCanales())
-			return listaCanales.get(index);
+		if (index >= 0 && index < length())
+			return channelList.get(index);
 		else
 			return null;
 	}
@@ -112,8 +112,8 @@ public class ListaCanales extends Observable {
 	 * 
 	 * @return
 	 */
-	public int getNumCanales() {
-		return listaCanales.size();
+	public int length() {
+		return channelList.size();
 	}
 
 	/**
@@ -122,15 +122,15 @@ public class ListaCanales extends Observable {
 	 * @param index
 	 * @return
 	 */
-	public Canal getCanal(String nombre) {
-		return this.hashtableCanales.get(nombre);
+	public ChatRoom getChannel(String nombre) {
+		return this.channelHashTable.get(nombre);
 	}
 
 	/**
 	 * La información de uno de los canales ha sido modificada, actualizar la
 	 * vista de canales
 	 */
-	public void canalModificado() {
+	public void setModified() {
 		super.setChanged();
 		super.notifyObservers();
 	}
@@ -141,8 +141,8 @@ public class ListaCanales extends Observable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof ListaCanales)
-			return listaCanales.equals(((ListaCanales) obj).listaCanales);
+		if (obj instanceof ChatRoomList)
+			return channelList.equals(((ChatRoomList) obj).channelList);
 		else
 			return false;
 	}

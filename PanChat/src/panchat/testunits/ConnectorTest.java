@@ -3,28 +3,28 @@ package panchat.testunits;
 import java.util.LinkedList;
 
 import panchat.Panchat;
-import panchat.data.ListaUsuarios;
-import panchat.data.Usuario;
+import panchat.data.UserList;
+import panchat.data.User;
 import junit.framework.TestCase;
 
 public class ConnectorTest extends TestCase {
 
 	public final static boolean DEBUG = false;
 
-	private LinkedList<Usuario> listaUsuarios;
+	private LinkedList<User> listaUsuarios;
 
 	protected void setUp() throws Exception {
 		super.setUp();
 
 		// Creamos un listado de usuarios
-		listaUsuarios = new LinkedList<Usuario>();
-		listaUsuarios.add(new Usuario("JonAn"));
-		listaUsuarios.add(new Usuario("Javier"));
-		listaUsuarios.add(new Usuario("Dennis"));
-		listaUsuarios.add(new Usuario("Imanol"));
-		listaUsuarios.add(new Usuario("Nagore"));
-		listaUsuarios.add(new Usuario("Nerea"));
-		listaUsuarios.add(new Usuario("Ainara"));
+		listaUsuarios = new LinkedList<User>();
+		listaUsuarios.add(new User("JonAn"));
+		listaUsuarios.add(new User("Javier"));
+		listaUsuarios.add(new User("Dennis"));
+		listaUsuarios.add(new User("Imanol"));
+		listaUsuarios.add(new User("Nagore"));
+		listaUsuarios.add(new User("Nerea"));
+		listaUsuarios.add(new User("Ainara"));
 	}
 
 	/**
@@ -32,13 +32,13 @@ public class ConnectorTest extends TestCase {
 	 */
 	public void testRegistroMulticastUsuarios() {
 
-		LinkedList<ListaUsuarios> listaListaUsuarios;
+		LinkedList<UserList> listaListaUsuarios;
 		LinkedList<Panchat> listaListaPanchat;
 
-		listaListaUsuarios = new LinkedList<ListaUsuarios>();
+		listaListaUsuarios = new LinkedList<UserList>();
 		listaListaPanchat = new LinkedList<Panchat>();
 
-		for (Usuario usuario : listaUsuarios.subList(0, 5)) {
+		for (User usuario : listaUsuarios.subList(0, 5)) {
 
 			// Creamos una nueva clase Panchat
 			Panchat panchat = new Panchat(usuario);
@@ -57,21 +57,21 @@ public class ConnectorTest extends TestCase {
 		}
 
 		if (DEBUG)
-			for (ListaUsuarios listaUsuarios : listaListaUsuarios)
+			for (UserList listaUsuarios : listaListaUsuarios)
 				System.out.println(listaUsuarios);
 
 		// Comprobamos que todos se han registrado
 		for (int i = 0; i < listaListaUsuarios.size() - 1; i++) {
-			ListaUsuarios lista1 = listaListaUsuarios.get(0 + i);
-			ListaUsuarios lista2 = listaListaUsuarios.get(1 + i);
+			UserList lista1 = listaListaUsuarios.get(0 + i);
+			UserList lista2 = listaListaUsuarios.get(1 + i);
 
 			assertEquals(lista1, lista2);
 		}
 
 		// Mandamos un mensaje de uno a todos
 		for (Panchat lPanchat : listaListaPanchat) {
-			for (Usuario lUsuario : lPanchat.getListaUsuarios()
-					.getListaUsuarios()) {
+			for (User lUsuario : lPanchat.getListaUsuarios()
+					.getUserList()) {
 				if (!lPanchat.getUsuario().equals(lUsuario)) {
 					assertNotNull(lPanchat.getConnector().getOIS(lUsuario.uuid));
 					assertNotNull(lPanchat.getConnector().getOOS(lUsuario.uuid));
@@ -94,14 +94,14 @@ public class ConnectorTest extends TestCase {
 
 		// Comprobamos que finalmente se han quedado desregistrados 3 clientes
 		// (solo se tienen registrados a si mismos)
-		assertEquals(1, listaListaUsuarios.get(0).getNumUsuarios());
-		assertEquals(1, listaListaUsuarios.get(1).getNumUsuarios());
-		assertEquals(1, listaListaUsuarios.get(2).getNumUsuarios());
+		assertEquals(1, listaListaUsuarios.get(0).length());
+		assertEquals(1, listaListaUsuarios.get(1).length());
+		assertEquals(1, listaListaUsuarios.get(2).length());
 
 		// Comprobamos que los otros dos clientes se tienen registrados
 		// mutuamente
-		assertEquals(2, listaListaUsuarios.get(3).getNumUsuarios());
-		assertEquals(2, listaListaUsuarios.get(4).getNumUsuarios());
+		assertEquals(2, listaListaUsuarios.get(3).length());
+		assertEquals(2, listaListaUsuarios.get(4).length());
 
 	}
 }

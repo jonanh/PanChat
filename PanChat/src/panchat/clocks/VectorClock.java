@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import panchat.data.Usuario;
+import panchat.data.User;
 
 /**
  * Implementación de un vector de relojes lógicos de Lamport.
@@ -16,9 +16,9 @@ public class VectorClock implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private HashMap<Usuario, LamportClock> clock;
+	private HashMap<User, LamportClock> clock;
 
-	private Usuario myId;
+	private User myId;
 
 	/**
 	 * Inicialización y construcción de la clase VectorClock
@@ -28,12 +28,12 @@ public class VectorClock implements Serializable {
 	 * @param id
 	 *            Identificador de nuestro proceso
 	 */
-	public VectorClock(Usuario id) {
+	public VectorClock(User id) {
 
 		myId = id;
 
 		// Inicializamos la hashmap
-		clock = new HashMap<Usuario, LamportClock>();
+		clock = new HashMap<User, LamportClock>();
 
 		// Añadimos un primer LamportClock asociado a nuestro identificador.
 		clock.put(myId, new LamportClock());
@@ -61,9 +61,9 @@ public class VectorClock implements Serializable {
 	 */
 	public void receiveAction(VectorClock receivedClock) {
 
-		Entry<Usuario, LamportClock> entry;
+		Entry<User, LamportClock> entry;
 
-		Iterator<Entry<Usuario, LamportClock>> iter = receivedClock.clock
+		Iterator<Entry<User, LamportClock>> iter = receivedClock.clock
 				.entrySet().iterator();
 
 		// Para cada elemento del reloj recivido

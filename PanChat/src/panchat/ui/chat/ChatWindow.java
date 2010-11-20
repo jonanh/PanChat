@@ -6,19 +6,19 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 
 import panchat.Panchat;
-import panchat.data.Usuario;
+import panchat.data.User;
 
-public class VentanaConversacion extends JFrame implements IVentanaConversacion {
+public class ChatWindow extends JFrame implements IVentanaConversacion {
 
 	private static final long serialVersionUID = 1L;
 
 	private final Panchat panchat;
 
-	private final Usuario usuario;
+	private final User usuario;
 
 	private PanelConversacion panelConversacion;
 
-	public VentanaConversacion(Panchat pPanchat, Usuario pUsuario) {
+	public ChatWindow(Panchat pPanchat, User pUsuario) {
 
 		this.panchat = pPanchat;
 

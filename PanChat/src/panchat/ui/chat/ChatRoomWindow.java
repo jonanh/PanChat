@@ -7,20 +7,20 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 
 import panchat.Panchat;
-import panchat.data.Canal;
+import panchat.data.ChatRoom;
 
-public class VentanaConversacionCanal extends JFrame implements
+public class ChatRoomWindow extends JFrame implements
 		IVentanaConversacion {
 
 	private static final long serialVersionUID = 1L;
 
 	private final Panchat panchat;
 
-	private final Canal canal;
+	private final ChatRoom canal;
 
 	private PanelConversacion panelConversacion;
 
-	public VentanaConversacionCanal(Panchat pPanchat, Canal pCanal) {
+	public ChatRoomWindow(Panchat pPanchat, ChatRoom pCanal) {
 
 		this.panchat = pPanchat;
 
@@ -34,7 +34,7 @@ public class VentanaConversacionCanal extends JFrame implements
 		this.add(panelConversacion, BorderLayout.CENTER);
 
 		// Creamos el panel del canal
-		PanelCanal panelCanal = new PanelCanal(panchat, canal);
+		ChatRoomPanel panelCanal = new ChatRoomPanel(panchat, canal);
 
 		this.getContentPane().add(panelCanal, BorderLayout.EAST);
 
@@ -42,7 +42,7 @@ public class VentanaConversacionCanal extends JFrame implements
 
 		// Establecemos el nombre de la ventana
 		String nombreVentana = panchat.getUsuario().nickName
-				+ " conversando en el canal " + canal.getNombreCanal();
+				+ " conversando en el canal " + canal.getName();
 		this.setTitle(nombreVentana);
 
 		/*

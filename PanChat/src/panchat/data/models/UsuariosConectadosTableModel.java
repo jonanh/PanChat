@@ -5,16 +5,16 @@ import java.util.Observer;
 
 import javax.swing.table.AbstractTableModel;
 
-import panchat.data.Canal;
+import panchat.data.ChatRoom;
 
 public class UsuariosConectadosTableModel extends AbstractTableModel implements
 		Observer {
 
 	private static final long serialVersionUID = 1L;
 
-	private Canal canal;
+	private ChatRoom canal;
 
-	public UsuariosConectadosTableModel(Canal canal) {
+	public UsuariosConectadosTableModel(ChatRoom canal) {
 		this.canal = canal;
 		this.canal.addObserver(this);
 	}

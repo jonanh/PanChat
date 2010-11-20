@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.UUID;
 import java.util.Map.Entry;
 
-import panchat.data.Usuario;
+import panchat.data.User;
 
 public class CausalMatrix implements Serializable {
 
@@ -15,7 +15,7 @@ public class CausalMatrix implements Serializable {
 
 	private final boolean DEBUG = false;
 
-	private Usuario usuario;
+	private User usuario;
 
 	private UUID myId;
 
@@ -26,7 +26,7 @@ public class CausalMatrix implements Serializable {
 	 */
 	Hashtable<UUID, Hashtable<UUID, Integer>> HashMatrix;
 
-	public CausalMatrix(Usuario usuario) {
+	public CausalMatrix(User usuario) {
 
 		this.usuario = usuario;
 
@@ -131,7 +131,7 @@ public class CausalMatrix implements Serializable {
 	 * 
 	 * @param nuevoUsuario
 	 */
-	public void anyadirUsuario(Usuario nuevoUsuario) {
+	public void anyadirUsuario(User nuevoUsuario) {
 
 		if (DEBUG) {
 			System.out
@@ -168,7 +168,7 @@ public class CausalMatrix implements Serializable {
 	 * 
 	 * @param usuario
 	 */
-	public void incrementarDestino(Usuario usuario) {
+	public void incrementarDestino(User usuario) {
 		// M[myId][destId]++;
 
 		if (DEBUG)
@@ -185,16 +185,16 @@ public class CausalMatrix implements Serializable {
 	 * Autoincrementamos el valor M[myId][destId]++ de la matrix indicando que
 	 * hemos enviado un mensaje a myId.
 	 * 
-	 * @param usuario
+	 * @param user
 	 */
-	public void incrementarDestino(LinkedList<Usuario> listaUsuarios) {
+	public void incrementarDestino(LinkedList<User> listaUsuarios) {
 		// for (int i = 0; i < destIds.size(); i++)
 		// ....M[myId][destIds.getEntry(i)]++;
 
 		// Obtenemos la tabla referente a myId
 		Hashtable<UUID, Integer> tabla = HashMatrix.get(myId);
 
-		for (Usuario usuario : listaUsuarios)
+		for (User usuario : listaUsuarios)
 			// Actualizamos el valor referente a destId
 			tabla.put(usuario.uuid, tabla.get(usuario.uuid) + 1);
 	}

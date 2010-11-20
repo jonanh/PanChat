@@ -5,7 +5,7 @@ import java.io.*;
 
 import panchat.Panchat;
 import panchat.connector.Connector;
-import panchat.data.Usuario;
+import panchat.data.User;
 import panchat.messages.SimpleMessage;
 
 public class Linker {
@@ -34,7 +34,7 @@ public class Linker {
 	 * @param destId
 	 * @param msg
 	 */
-	void socketSendMsg(Usuario destId, Object msg) {
+	void socketSendMsg(User destId, Object msg) {
 		try {
 			ObjectOutputStream oos = connector.getOOS(destId.uuid);
 			oos.writeObject(msg);
@@ -50,7 +50,7 @@ public class Linker {
 	 * @param destId
 	 * @param msg
 	 */
-	public synchronized void sendMsg(Usuario destId, Object msg) {
+	public synchronized void sendMsg(User destId, Object msg) {
 		socketSendMsg(destId, new SimpleMessage(msg, panchat.getUsuario()));
 	}
 
@@ -60,8 +60,8 @@ public class Linker {
 	 * @param destIds
 	 * @param msg
 	 */
-	public synchronized void sendMsg(LinkedList<Usuario> destIds, Object msg) {
-		for (Usuario usuario : destIds)
+	public synchronized void sendMsg(LinkedList<User> destIds, Object msg) {
+		for (User usuario : destIds)
 			sendMsg(usuario, msg);
 	}
 

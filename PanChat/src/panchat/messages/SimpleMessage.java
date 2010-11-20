@@ -1,6 +1,6 @@
 package panchat.messages;
 
-import panchat.data.Usuario;
+import panchat.data.User;
 
 /**
  * Mensaje simple (sin ordenación) p2p.
@@ -11,7 +11,7 @@ public class SimpleMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 
-	private Usuario address;
+	private User address;
 
 	/**
 	 * 
@@ -20,12 +20,12 @@ public class SimpleMessage extends Message {
 	 * @param pAddress
 	 *            La Dirección del destinatario.
 	 */
-	public SimpleMessage(Object pMessage, Usuario pAddress) {
+	public SimpleMessage(Object pMessage, User pAddress) {
 		super(pMessage);
 		this.address = pAddress;
 	}
 
-	public Usuario getUsuario() {
+	public User getUsuario() {
 		return address;
 	}
 

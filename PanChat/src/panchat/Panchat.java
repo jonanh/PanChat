@@ -1,14 +1,14 @@
 package panchat;
 
 import panchat.connector.Connector;
-import panchat.data.Canal;
-import panchat.data.ListaCanales;
-import panchat.data.ListaConversaciones;
-import panchat.data.ListaUsuarios;
-import panchat.data.Usuario;
+import panchat.data.ChatRoom;
+import panchat.data.ChatRoomList;
+import panchat.data.ChatList;
+import panchat.data.UserList;
+import panchat.data.User;
 import panchat.linker.CausalLinker;
 import panchat.linker.Linker;
-import panchat.messages.InscripcionCanal;
+import panchat.messages.JoinChannel;
 import panchat.messages.MessageChat;
 import panchat.ui.main.PanchatUI;
 
@@ -18,10 +18,10 @@ public class Panchat {
 	private Connector connector;
 
 	// Datos
-	private Usuario usuario;
-	private ListaUsuarios listaUsuarios;
-	private ListaCanales listaCanales;
-	private ListaConversaciones listaConversaciones;
+	private User usuario;
+	private UserList listaUsuarios;
+	private ChatRoomList listaCanales;
+	private ChatList listaConversaciones;
 
 	// Linkers
 	private Linker linker;
@@ -35,7 +35,7 @@ public class Panchat {
 	public Panchat(String nombreUsuario) {
 		// Apartir de un String obtiene un usuario valido, buscano la IP del
 		// ordenador actual, y buscando un puerto disponible a partir del 5000
-		this(new Usuario(nombreUsuario));
+		this(new User(nombreUsuario));
 	}
 
 	/**
@@ -43,15 +43,15 @@ public class Panchat {
 	 * 
 	 * @param pUsuario
 	 */
-	public Panchat(Usuario pUsuario) {
+	public Panchat(User pUsuario) {
 		this.usuario = pUsuario;
 
-		this.listaCanales = new ListaCanales();
-		this.listaUsuarios = new ListaUsuarios(listaCanales);
-		this.listaConversaciones = new ListaConversaciones(this);
+		this.listaCanales = new ChatRoomList();
+		this.listaUsuarios = new UserList(listaCanales);
+		this.listaConversaciones = new ChatList(this);
 
 		// Nos añadimos a nuestra propia lista de usuarios
-		this.listaUsuarios.añadirUsuario(usuario);
+		this.listaUsuarios.add(usuario);
 
 		this.connector = new Connector(this);
 		this.causalLinker = new CausalLinker(this);
@@ -72,7 +72,7 @@ public class Panchat {
 	 * 
 	 * @return
 	 */
-	public ListaUsuarios getListaUsuarios() {
+	public UserList getListaUsuarios() {
 		return listaUsuarios;
 	}
 
@@ -81,7 +81,7 @@ public class Panchat {
 	 * 
 	 * @return
 	 */
-	public ListaCanales getListaCanales() {
+	public ChatRoomList getChannelList() {
 		return listaCanales;
 	}
 
@@ -90,7 +90,7 @@ public class Panchat {
 	 * 
 	 * @return
 	 */
-	public ListaConversaciones getListaConversaciones() {
+	public ChatList getListaConversaciones() {
 		return listaConversaciones;
 	}
 
@@ -99,7 +99,7 @@ public class Panchat {
 	 * 
 	 * @return
 	 */
-	public Usuario getUsuario() {
+	public User getUsuario() {
 		return usuario;
 	}
 
@@ -146,11 +146,11 @@ public class Panchat {
 	/**
 	 * Inicia una conversación con el usuario
 	 * 
-	 * @param usuario
+	 * @param user
 	 */
 	public void accionInscribirCanal(String nombre) {
-		Canal canal = new Canal(nombre, listaUsuarios);
-		listaCanales.añadirCanal(canal);
+		ChatRoom canal = new ChatRoom(nombre, listaUsuarios);
+		listaCanales.addChannel(canal);
 
 		accionIniciarConversacionCanal(canal);
 	}
@@ -160,8 +160,8 @@ public class Panchat {
 	 * 
 	 * @param usuario
 	 */
-	public void accionIniciarConversacion(Usuario usuario) {
-		listaConversaciones.getVentanaConversacion(usuario);
+	public void accionIniciarConversacion(User usuario) {
+		listaConversaciones.getChatWindow(usuario);
 	}
 
 	/**
@@ -169,28 +169,28 @@ public class Panchat {
 	 * 
 	 * @param usuario
 	 */
-	public void accionCerrarConversacion(Usuario usuario) {
-		this.listaConversaciones.eliminarConversacion(usuario);
+	public void accionCerrarConversacion(User usuario) {
+		this.listaConversaciones.delete(usuario);
 	}
 
 	/**
 	 * Inicia la conversación de un canal
 	 * 
-	 * @param usuario
+	 * @param user
 	 */
-	public void accionIniciarConversacionCanal(Canal canal) {
+	public void accionIniciarConversacionCanal(ChatRoom canal) {
 		if (!canal.contains(usuario)) {
-			canal.anyadirUsuarioConectado(usuario);
+			canal.joinUser(usuario);
 
-			listaCanales.canalModificado();
+			listaCanales.setModified();
 
-			listaConversaciones.getVentanaConversacion(canal);
+			listaConversaciones.getChatRoomWindow(canal);
 
 			// Notificamos a todo el mundo sobre el nuevo canal
-			InscripcionCanal inscripcion = new InscripcionCanal(canal, usuario,
+			JoinChannel inscripcion = new JoinChannel(canal, usuario,
 					true);
 
-			causalLinker.sendMsg(this.listaUsuarios.getListaUsuarios(),
+			causalLinker.sendMsg(this.listaUsuarios.getUserList(),
 					inscripcion);
 		}
 
@@ -199,27 +199,27 @@ public class Panchat {
 	/**
 	 * Cierra la conversación de un canal
 	 * 
-	 * @param usuario
+	 * @param user
 	 */
-	public void accionCerrarConversacionCanal(Canal canal) {
+	public void accionCerrarConversacionCanal(ChatRoom canal) {
 		// Lo añadimos a la lista de conversaciones
-		listaConversaciones.eliminarConversacion(canal);
+		listaConversaciones.delete(canal);
 
 		// Notificamos a todo el mundo sobre el nuevo canal
-		InscripcionCanal inscripcion = new InscripcionCanal(canal, usuario,
+		JoinChannel inscripcion = new JoinChannel(canal, usuario,
 				false);
 
-		causalLinker.sendMsg(listaUsuarios.getListaUsuarios(), inscripcion);
+		causalLinker.sendMsg(listaUsuarios.getUserList(), inscripcion);
 
 		// Nos borramos del listado de usuarios conectados del canal
-		canal.eliminarUsuarioConectado(usuario);
+		canal.leaveUser(usuario);
 
 		if (canal.getNumUsuariosConectados() == 0) {
 
-			listaCanales.eliminarCanal(canal);
+			listaCanales.deleteChannel(canal);
 		}
 
-		listaCanales.canalModificado();
+		listaCanales.setModified();
 	}
 
 	/**
@@ -228,40 +228,40 @@ public class Panchat {
 	 * @param usuario
 	 * @param pComentario
 	 */
-	public void escribirComentario(Usuario usuario, String pComentario) {
+	public void escribirComentario(User usuario, String pComentario) {
 		causalLinker.sendMsg(usuario, pComentario);
 	}
 
 	/**
 	 * Envia un comentario a un canal
 	 * 
-	 * @param usuario
+	 * @param user
 	 * @param pComentario
 	 */
-	public void escribirComentarioCanal(Canal pCanal, String pComentario) {
+	public void escribirComentarioCanal(ChatRoom pCanal, String pComentario) {
 		MessageChat mensaje = new MessageChat(pCanal, pComentario);
-		causalLinker.sendMsg(pCanal.getListadoUsuarios(), mensaje);
+		causalLinker.sendMsg(pCanal.getUserList(), mensaje);
 	}
 
 	/**
 	 * Invitar un usuario un canal
 	 * 
-	 * @param canal
-	 * @param usuario
+	 * @param channel
+	 * @param user
 	 */
-	public void invitarUsuario(Canal pCanal, Usuario pUsuario) {
+	public void invitarUsuario(ChatRoom pCanal, User pUsuario) {
 		// Lo añadimos a la lista de conversaciones
-		listaCanales.getCanal(pCanal.getNombreCanal()).anyadirUsuarioConectado(
+		listaCanales.getChannel(pCanal.getName()).joinUser(
 				pUsuario);
 
-		listaCanales.canalModificado();
+		listaCanales.setModified();
 
 		// Notificamos a todo el mundo sobre el nuevo canal
-		InscripcionCanal inscripcion = new InscripcionCanal(pCanal, pUsuario,
+		JoinChannel inscripcion = new JoinChannel(pCanal, pUsuario,
 				true);
 
 		causalLinker
-				.sendMsg(this.listaUsuarios.getListaUsuarios(), inscripcion);
+				.sendMsg(this.listaUsuarios.getUserList(), inscripcion);
 	}
 
 	public static void main(String[] args) {

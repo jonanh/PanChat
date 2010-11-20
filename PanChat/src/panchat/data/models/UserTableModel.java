@@ -5,17 +5,17 @@ import java.util.Observer;
 
 import javax.swing.table.AbstractTableModel;
 
-import panchat.data.ListaUsuarios;
+import panchat.data.UserList;
 
-public class UsuarioTablaModel extends AbstractTableModel implements Observer {
+public class UserTableModel extends AbstractTableModel implements Observer {
 
 	private static final long serialVersionUID = 1L;
 
-	private ListaUsuarios listaUsuarios;
+	private UserList userList;
 
-	public UsuarioTablaModel(ListaUsuarios listaUsuario) {
-		this.listaUsuarios = listaUsuario;
-		this.listaUsuarios.addObserver(this);
+	public UserTableModel(UserList userList) {
+		this.userList = userList;
+		this.userList.addObserver(this);
 	}
 
 	@Override
@@ -39,20 +39,20 @@ public class UsuarioTablaModel extends AbstractTableModel implements Observer {
 
 	@Override
 	public int getRowCount() {
-		return listaUsuarios.getNumUsuarios();
+		return userList.length();
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		switch (columnIndex) {
 		case 0:
-			return listaUsuarios.getUsuario(rowIndex).nickName;
+			return userList.getUser(rowIndex).nickName;
 		case 1:
-			return listaUsuarios.getUsuario(rowIndex).ip;
+			return userList.getUser(rowIndex).ip;
 		case 2:
-			return listaUsuarios.getUsuario(rowIndex).port;
+			return userList.getUser(rowIndex).port;
 		default:
-			return listaUsuarios.getUsuario(rowIndex).uuid;
+			return userList.getUser(rowIndex).uuid;
 		}
 	}
 

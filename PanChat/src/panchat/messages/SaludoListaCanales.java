@@ -3,15 +3,15 @@ package panchat.messages;
 import java.io.Serializable;
 import java.util.LinkedList;
 
-import panchat.data.Canal;
+import panchat.data.ChatRoom;
 
 public class SaludoListaCanales implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public LinkedList<Canal> lista;
+	public LinkedList<ChatRoom> lista;
 
-	public SaludoListaCanales(LinkedList<Canal> pLista) {
+	public SaludoListaCanales(LinkedList<ChatRoom> pLista) {
 		this.lista = pLista;
 	}
 }

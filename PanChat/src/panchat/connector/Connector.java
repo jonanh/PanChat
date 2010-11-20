@@ -6,7 +6,7 @@ import java.net.*;
 import java.io.*;
 
 import panchat.Panchat;
-import panchat.data.Usuario;
+import panchat.data.User;
 import panchat.listeners.CausalLinkerThread;
 import panchat.listeners.SocketListenerThread;
 import panchat.listeners.MulticastListenerThread;
@@ -51,12 +51,12 @@ public class Connector {
 
 	private CausalLinkerThread causalLinkerThread;
 
-	private Usuario usuario;
+	private User usuario;
 	private Panchat panchat;
 
 	/**
 	 * 
-	 * @param usuario
+	 * @param user
 	 * @throws Exception
 	 */
 	public Connector(Panchat panchat) {
@@ -180,9 +180,9 @@ public class Connector {
 	 * Este es el caso cuando UUID del usuario es menor que nuestro UUID, si no
 	 * se llama a acceptConnect()
 	 * 
-	 * @param usuario
+	 * @param user
 	 */
-	public synchronized void connect(Usuario pUsuario) {
+	public synchronized void connect(User pUsuario) {
 		Socket socket = null;
 		ObjectInputStream ois = null;
 		ObjectOutputStream oos = null;
@@ -221,11 +221,11 @@ public class Connector {
 	 * Este es el caso cuando UUID del usuario es menor que nuestro UUID, si no
 	 * se llama a acceptConnect()
 	 */
-	public synchronized Usuario acceptConnect() {
+	public synchronized User acceptConnect() {
 		Socket socket = null;
 		ObjectInputStream ois = null;
 		ObjectOutputStream oos = null;
-		Usuario readUsuario = null;
+		User readUsuario = null;
 
 		try {
 			// Creamos el socket
@@ -237,7 +237,7 @@ public class Connector {
 
 			// Leemos el objeto Usuario que nos envia el cliente
 			try {
-				readUsuario = (Usuario) ois.readObject();
+				readUsuario = (User) ois.readObject();
 			} catch (ClassNotFoundException e) {
 				System.out.println("Connector.java: Objeto no recibido");
 				e.printStackTrace();

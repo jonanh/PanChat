@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.Socket;
 
 import panchat.Panchat;
-import panchat.data.Usuario;
+import panchat.data.User;
 import panchat.messages.CausalMessage;
 import panchat.messages.SimpleMessage;
 
@@ -15,9 +15,9 @@ public class SocketListenerThread extends Thread {
 	private Panchat panchat;
 	private ObjectInputStream ois;
 	private Socket socket;
-	private Usuario usuario;
+	private User usuario;
 
-	public SocketListenerThread(Panchat panchat, Usuario usuario,
+	public SocketListenerThread(Panchat panchat, User usuario,
 			Socket socket, ObjectInputStream ois) {
 		this.panchat = panchat;
 		this.ois = ois;
@@ -69,11 +69,11 @@ public class SocketListenerThread extends Thread {
 
 		printDebug("Borramos a " + usuario.nickName
 				+ " de la lista de usuarios");
-		panchat.getListaUsuarios().eliminarUsuario(usuario);
+		panchat.getListaUsuarios().remove(usuario);
 
 		// Lo eliminamos del listado de canales
 
-		panchat.getListaCanales().eliminarUsuario(usuario);
+		panchat.getChannelList().deleteUser(usuario);
 	}
 
 	private void printDebug(String string) {

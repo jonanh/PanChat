@@ -14,14 +14,14 @@ import javax.swing.ListSelectionModel;
 
 import panchat.Panchat;
 
-import panchat.data.models.ListaCanalesAbstractTableModel;
+import panchat.data.models.ChatRoomListAbstractTableModel;
 
 
 public class PanelCanales extends MiPanel{
 	
 	private static final long serialVersionUID = 1L;
 	
-	ListaCanalesAbstractTableModel canales;
+	ChatRoomListAbstractTableModel canales;
 	
 	Panchat panchat;
 
@@ -40,7 +40,7 @@ public class PanelCanales extends MiPanel{
 		
 		this.panchat=panchat;
 		
-		canales=new ListaCanalesAbstractTableModel(panchat.getListaCanales());
+		canales=new ChatRoomListAbstractTableModel(panchat.getChannelList());
 
 		JTable tabla=new JTable(canales);
 

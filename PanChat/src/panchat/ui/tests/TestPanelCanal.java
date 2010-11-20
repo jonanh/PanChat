@@ -5,44 +5,44 @@ import java.util.LinkedList;
 
 import javax.swing.JFrame;
 
-import panchat.data.Canal;
-import panchat.data.ListaCanales;
-import panchat.data.ListaUsuarios;
-import panchat.data.Usuario;
-import panchat.ui.chat.PanelCanal;
+import panchat.data.ChatRoom;
+import panchat.data.ChatRoomList;
+import panchat.data.UserList;
+import panchat.data.User;
+import panchat.ui.chat.ChatRoomPanel;
 
 public class TestPanelCanal {
 
 	public static void main(String[] args) {
 
 		// Obtenemos referencias a las clases Singleton
-		ListaCanales canales = new ListaCanales();
-		ListaUsuarios usuarios = new ListaUsuarios(canales);
+		ChatRoomList canales = new ChatRoomList();
+		UserList usuarios = new UserList(canales);
 		
 		// Creamos un listado de usuarios
-		LinkedList<Usuario> listaUsuarios = new LinkedList<Usuario>();
-		listaUsuarios.add(new Usuario("127.0.0.1", 50000, "JonAn"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50001, "Javier"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50002, "Dennis"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50003, "Imanol"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50004, "Nagore"));
+		LinkedList<User> listaUsuarios = new LinkedList<User>();
+		listaUsuarios.add(new User("127.0.0.1", 50000, "JonAn"));
+		listaUsuarios.add(new User("127.0.0.1", 50001, "Javier"));
+		listaUsuarios.add(new User("127.0.0.1", 50002, "Dennis"));
+		listaUsuarios.add(new User("127.0.0.1", 50003, "Imanol"));
+		listaUsuarios.add(new User("127.0.0.1", 50004, "Nagore"));
 
 		// Registramos el listado de usuarios en la clase Singleton Conexiones
-		for (Usuario address : listaUsuarios)
-			usuarios.añadirUsuario(address);
+		for (User address : listaUsuarios)
+			usuarios.add(address);
 
-		Canal canal = new Canal("Frikis", usuarios);
-		canales.añadirCanal(canal);
+		ChatRoom canal = new ChatRoom("Frikis", usuarios);
+		canales.addChannel(canal);
 		
 		// Añadimos el usuario
-		canal.anyadirUsuarioConectado(listaUsuarios.get(0));
-		canal.anyadirUsuarioConectado(listaUsuarios.get(1));
+		canal.joinUser(listaUsuarios.get(0));
+		canal.joinUser(listaUsuarios.get(1));
 		
 		
 		JFrame jframe = new JFrame();
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		jframe.getContentPane().add(new PanelCanal(canal));
+		jframe.getContentPane().add(new ChatRoomPanel(canal));
 
 		jframe.pack();
 

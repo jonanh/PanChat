@@ -5,7 +5,7 @@ import java.net.MulticastSocket;
 
 import panchat.Panchat;
 import panchat.connector.Connector;
-import panchat.data.Usuario;
+import panchat.data.User;
 import panchat.messages.SaludoListaCanales;
 import panchat.messages.SaludoUsuario;
 
@@ -49,7 +49,7 @@ public class MulticastListenerThread extends Thread {
 
 	private void registrarCliente(SaludoUsuario saludoUsuario) {
 
-		Usuario usuario = saludoUsuario.usuario;
+		User usuario = saludoUsuario.usuario;
 
 		if (DEBUG) {
 			System.out.println("MulticastListenerThread.java:"
@@ -89,7 +89,7 @@ public class MulticastListenerThread extends Thread {
 
 				} else {
 
-					Usuario usuarioLeido = connector.acceptConnect();
+					User usuarioLeido = connector.acceptConnect();
 
 					accionesRegistro(usuarioLeido);
 				}
@@ -99,7 +99,7 @@ public class MulticastListenerThread extends Thread {
 				 */
 				printDebug("Añadimos el usuario a ListaUsuarios");
 
-				panchat.getListaUsuarios().añadirUsuario(usuario);
+				panchat.getListaUsuarios().add(usuario);
 			}
 		}
 	}
@@ -112,7 +112,7 @@ public class MulticastListenerThread extends Thread {
 	 * 
 	 * @param pUsuario
 	 */
-	private void accionesRegistro(Usuario pUsuario) {
+	private void accionesRegistro(User pUsuario) {
 		/*
 		 * Añadir elementos en el CausalLinker y el Linker
 		 */

@@ -18,9 +18,9 @@ import javax.swing.JTable;
 
 import panchat.Panchat;
 import panchat.connector.Connector;
-import panchat.data.ListaConversaciones;
-import panchat.data.Usuario;
-import panchat.data.models.UsuarioTablaModel;
+import panchat.data.ChatList;
+import panchat.data.User;
+import panchat.data.models.UserTableModel;
 
 
 
@@ -43,7 +43,7 @@ public class PanelCentral extends MiPanel implements MouseListener {
 	Datos nickname;
 	Datos estado;
 
-	UsuarioTablaModel modelo;
+	UserTableModel modelo;
 	JTable listaUsuarios ;//= new JList(modelo);
 	
 	Panchat panchat;
@@ -53,7 +53,7 @@ public class PanelCentral extends MiPanel implements MouseListener {
 
 	public PanelCentral(Panchat panchat) {
 		super();
-		modelo=new UsuarioTablaModel(panchat.getListaUsuarios());
+		modelo=new UserTableModel(panchat.getListaUsuarios());
 		listaUsuarios = new JTable(modelo);
 		
 		this.panchat=panchat;
@@ -171,14 +171,14 @@ public class PanelCentral extends MiPanel implements MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		
-		Usuario usuario = panchat.getListaUsuarios().getUsuario(listaUsuarios.getSelectedRow());
+		User usuario = panchat.getListaUsuarios().getUser(listaUsuarios.getSelectedRow());
 		
 		if (arg0.getClickCount() == 2) {
 			System.out.println((usuario));
 			VentanaBase ventana = new VentanaBase();
 			Conversacion conversacion = new Conversacion();
 			
-			ListaConversaciones conversaciones= panchat.getListaConversaciones();
+			ChatList conversaciones= panchat.getListaConversaciones();
 			
 			
 			

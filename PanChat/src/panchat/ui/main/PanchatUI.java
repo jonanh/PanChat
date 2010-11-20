@@ -8,7 +8,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 
 import panchat.Panchat;
-import panchat.data.Usuario;
+import panchat.data.User;
 
 public class PanchatUI extends JFrame {
 
@@ -33,7 +33,7 @@ public class PanchatUI extends JFrame {
 		}
 
 		// Creamos un nuevo usuario con el nick leido
-		Usuario user = new Usuario(nombreUsuario);
+		User user = new User(nombreUsuario);
 
 		// Creamos una nueva clase panchat
 		panchat = new Panchat(user);
@@ -50,9 +50,9 @@ public class PanchatUI extends JFrame {
 		// Creamos un panel y añadimos los paneles de usuarios y canales
 		JTabbedPane pane = new JTabbedPane();
 
-		pane.addTab("Usuarios", new TablaUsuarios(panchat));
+		pane.addTab("Usuarios", new UserTable(panchat));
 
-		pane.addTab("Canales", new TablaCanales(panchat));
+		pane.addTab("Canales", new ChannelTable(panchat));
 
 		// Añadimos el panel al contenido de la ventana
 		this.getContentPane().add(pane);

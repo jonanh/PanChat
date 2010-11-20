@@ -3,45 +3,45 @@ package panchat.testunits;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import panchat.data.ListaCanales;
-import panchat.data.ListaUsuarios;
-import panchat.data.Usuario;
+import panchat.data.ChatRoomList;
+import panchat.data.UserList;
+import panchat.data.User;
 import junit.framework.TestCase;
 
 public class ListaUsuariosTest extends TestCase {
 
 	public static boolean DEBUG;;
-	LinkedList<Usuario> lista;
+	LinkedList<User> lista;
 
-	ListaUsuarios listaUsuarios;
-	ListaCanales listaCanales;
+	UserList listaUsuarios;
+	ChatRoomList listaCanales;
 
 	protected void setUp() throws Exception {
 		super.setUp();
 
 		// Creamos un listado de usuarios
-		lista = new LinkedList<Usuario>();
-		lista.add(new Usuario("127.0.0.1", 50000, "Dennis"));
-		lista.add(new Usuario("127.0.0.1", 50001, "Imanol"));
-		lista.add(new Usuario("127.0.0.1", 50002, "Javier"));
-		lista.add(new Usuario("127.0.0.1", 50003, "JonAn"));
-		lista.add(new Usuario("127.0.0.1", 50004, "Nagore"));
+		lista = new LinkedList<User>();
+		lista.add(new User("127.0.0.1", 50000, "Dennis"));
+		lista.add(new User("127.0.0.1", 50001, "Imanol"));
+		lista.add(new User("127.0.0.1", 50002, "Javier"));
+		lista.add(new User("127.0.0.1", 50003, "JonAn"));
+		lista.add(new User("127.0.0.1", 50004, "Nagore"));
 
 		Collections.sort(lista);
 
-		listaCanales = new ListaCanales();
-		listaUsuarios = new ListaUsuarios(listaCanales);
+		listaCanales = new ChatRoomList();
+		listaUsuarios = new UserList(listaCanales);
 	}
 
 	/**
 	 * Verificamos el funcionamiento de registrar y el iterador
 	 */
 	public void testAñadirUsuario() {
-		listaUsuarios.añadirUsuario(lista.get(0));
-		listaUsuarios.añadirUsuario(lista.get(1));
+		listaUsuarios.add(lista.get(0));
+		listaUsuarios.add(lista.get(1));
 
 		for (int i = 0; i < 2; i++) {
-			assertEquals(lista.get(i), listaUsuarios.getUsuario(i));
+			assertEquals(lista.get(i), listaUsuarios.getUser(i));
 		}
 	}
 
@@ -49,8 +49,8 @@ public class ListaUsuariosTest extends TestCase {
 	 * Comprobamos que dos listas de usuarios con 0 elementos son iguales
 	 */
 	public void testEqualsObject() {
-		ListaUsuarios lista1 = new ListaUsuarios(listaCanales);
-		ListaUsuarios lista2 = new ListaUsuarios(listaCanales);
+		UserList lista1 = new UserList(listaCanales);
+		UserList lista2 = new UserList(listaCanales);
 		assertEquals(lista1, lista2);
 	}
 
@@ -59,10 +59,10 @@ public class ListaUsuariosTest extends TestCase {
 	 * equivalentes
 	 */
 	public void testEqualsObject2() {
-		ListaUsuarios lista1 = new ListaUsuarios(listaCanales);
-		ListaUsuarios lista2 = new ListaUsuarios(listaCanales);
-		lista1.añadirUsuario(lista.get(0));
-		lista2.añadirUsuario(lista.get(0));
+		UserList lista1 = new UserList(listaCanales);
+		UserList lista2 = new UserList(listaCanales);
+		lista1.add(lista.get(0));
+		lista2.add(lista.get(0));
 		assertEquals(lista1, lista2);
 	}
 
@@ -71,10 +71,10 @@ public class ListaUsuariosTest extends TestCase {
 	 * distintas
 	 */
 	public void testEqualsObject3() {
-		ListaUsuarios lista1 = new ListaUsuarios(listaCanales);
-		ListaUsuarios lista2 = new ListaUsuarios(listaCanales);
-		lista1.añadirUsuario(lista.get(0));
-		lista2.añadirUsuario(lista.get(1));
+		UserList lista1 = new UserList(listaCanales);
+		UserList lista2 = new UserList(listaCanales);
+		lista1.add(lista.get(0));
+		lista2.add(lista.get(1));
 		assertFalse(lista1.equals(lista2));
 	}
 }

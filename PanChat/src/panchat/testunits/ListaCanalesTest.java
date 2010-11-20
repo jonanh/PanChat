@@ -3,27 +3,27 @@ package panchat.testunits;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import panchat.data.Canal;
-import panchat.data.ListaCanales;
-import panchat.data.ListaUsuarios;
-import panchat.data.Usuario;
+import panchat.data.ChatRoom;
+import panchat.data.ChatRoomList;
+import panchat.data.UserList;
+import panchat.data.User;
 
 import junit.framework.TestCase;
 
 public class ListaCanalesTest extends TestCase {
 
-	LinkedList<Usuario> listaUsuarios;
+	LinkedList<User> listaUsuarios;
 
 	protected void setUp() throws Exception {
 		super.setUp();
 
 		// Creamos un listado de usuarios
-		listaUsuarios = new LinkedList<Usuario>();
-		listaUsuarios.add(new Usuario("127.0.0.1", 50000, "Dennis"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50001, "Imanol"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50002, "Javier"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50003, "JonAn"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50004, "Nagore"));
+		listaUsuarios = new LinkedList<User>();
+		listaUsuarios.add(new User("127.0.0.1", 50000, "Dennis"));
+		listaUsuarios.add(new User("127.0.0.1", 50001, "Imanol"));
+		listaUsuarios.add(new User("127.0.0.1", 50002, "Javier"));
+		listaUsuarios.add(new User("127.0.0.1", 50003, "JonAn"));
+		listaUsuarios.add(new User("127.0.0.1", 50004, "Nagore"));
 
 		Collections.sort(listaUsuarios);
 	}
@@ -34,17 +34,17 @@ public class ListaCanalesTest extends TestCase {
 	 */
 	public void testGetNumUsuariosConectados() {
 
-		ListaCanales canales = new ListaCanales();
-		ListaUsuarios usuarios = new ListaUsuarios(canales);
+		ChatRoomList canales = new ChatRoomList();
+		UserList usuarios = new UserList(canales);
 
-		usuarios.añadirUsuario(listaUsuarios.get(0));
-		usuarios.añadirUsuario(listaUsuarios.get(1));
-		usuarios.añadirUsuario(listaUsuarios.get(2));
+		usuarios.add(listaUsuarios.get(0));
+		usuarios.add(listaUsuarios.get(1));
+		usuarios.add(listaUsuarios.get(2));
 
-		Canal canal1 = new Canal("Frikis", usuarios);
+		ChatRoom canal1 = new ChatRoom("Frikis", usuarios);
 
-		canales.añadirCanal(canal1);
-		canal1.anyadirUsuarioConectado(listaUsuarios.get(0));
+		canales.addChannel(canal1);
+		canal1.joinUser(listaUsuarios.get(0));
 
 		assertEquals(1, canal1.getNumUsuariosConectados());
 	}
@@ -55,17 +55,17 @@ public class ListaCanalesTest extends TestCase {
 	 */
 	public void testGetNumUsuariosDesconectados() {
 
-		ListaCanales canales = new ListaCanales();
-		ListaUsuarios usuarios = new ListaUsuarios(canales);
+		ChatRoomList canales = new ChatRoomList();
+		UserList usuarios = new UserList(canales);
 
-		usuarios.añadirUsuario(listaUsuarios.get(0));
-		usuarios.añadirUsuario(listaUsuarios.get(1));
-		usuarios.añadirUsuario(listaUsuarios.get(2));
+		usuarios.add(listaUsuarios.get(0));
+		usuarios.add(listaUsuarios.get(1));
+		usuarios.add(listaUsuarios.get(2));
 
-		Canal canal1 = new Canal("Frikis", usuarios);
+		ChatRoom canal1 = new ChatRoom("Frikis", usuarios);
 
-		canales.añadirCanal(canal1);
-		canal1.anyadirUsuarioConectado(listaUsuarios.get(0));
+		canales.addChannel(canal1);
+		canal1.joinUser(listaUsuarios.get(0));
 
 		assertEquals(2, canal1.getNumUsuariosDesconectados());
 	}
@@ -76,17 +76,17 @@ public class ListaCanalesTest extends TestCase {
 	 */
 	public void testGetUsuarioDesconectado() {
 
-		ListaCanales canales = new ListaCanales();
-		ListaUsuarios usuarios = new ListaUsuarios(canales);
+		ChatRoomList canales = new ChatRoomList();
+		UserList usuarios = new UserList(canales);
 
-		usuarios.añadirUsuario(listaUsuarios.get(0));
-		usuarios.añadirUsuario(listaUsuarios.get(1));
-		usuarios.añadirUsuario(listaUsuarios.get(2));
+		usuarios.add(listaUsuarios.get(0));
+		usuarios.add(listaUsuarios.get(1));
+		usuarios.add(listaUsuarios.get(2));
 
-		Canal canal1 = new Canal("Frikis", usuarios);
-		canal1.anyadirUsuarioConectado(listaUsuarios.get(0));
+		ChatRoom canal1 = new ChatRoom("Frikis", usuarios);
+		canal1.joinUser(listaUsuarios.get(0));
 
-		canales.añadirCanal(canal1);
+		canales.addChannel(canal1);
 
 		assertEquals(listaUsuarios.get(0), canal1.getUsuarioConectado(0));
 		assertEquals(listaUsuarios.get(1), canal1.getUsuarioDesconectado(0));
@@ -99,31 +99,31 @@ public class ListaCanalesTest extends TestCase {
 	 */
 	public void testAñadirYEliminar() {
 
-		ListaCanales canales = new ListaCanales();
-		ListaUsuarios usuarios = new ListaUsuarios(canales);
+		ChatRoomList canales = new ChatRoomList();
+		UserList usuarios = new UserList(canales);
 
-		usuarios.añadirUsuario(listaUsuarios.get(0));
-		usuarios.añadirUsuario(listaUsuarios.get(1));
-		usuarios.añadirUsuario(listaUsuarios.get(2));
+		usuarios.add(listaUsuarios.get(0));
+		usuarios.add(listaUsuarios.get(1));
+		usuarios.add(listaUsuarios.get(2));
 
-		Canal canal1 = new Canal("Frikis", usuarios);
-		canales.añadirCanal(canal1);
+		ChatRoom canal1 = new ChatRoom("Frikis", usuarios);
+		canales.addChannel(canal1);
 		
 		// Añadimos el usuario
-		canal1.anyadirUsuarioConectado(listaUsuarios.get(0));
+		canal1.joinUser(listaUsuarios.get(0));
 
 		// Comprobamos que hay un usuario conectado
 		assertEquals(1, canal1.getNumUsuariosConectados());
 		assertEquals(2, canal1.getNumUsuariosDesconectados());
 		
-		canal1.eliminarUsuario(listaUsuarios.get(0));
+		canal1.removeUser(listaUsuarios.get(0));
 		
 		// Comprobamos que se ha desregistrado
 		assertEquals(0, canal1.getNumUsuariosConectados());
 		assertEquals(3, canal1.getNumUsuariosDesconectados());
 		
 		// Eliminamos el usuario
-		usuarios.eliminarUsuario(listaUsuarios.get(0));
+		usuarios.remove(listaUsuarios.get(0));
 
 		assertEquals(0, canal1.getNumUsuariosConectados());
 		assertEquals(2, canal1.getNumUsuariosDesconectados());
@@ -132,14 +132,14 @@ public class ListaCanalesTest extends TestCase {
 		
 		
 		// Lo volvemos a añadir y lo volvemos a eliminar
-		usuarios.añadirUsuario(listaUsuarios.get(0));
-		canal1.anyadirUsuarioConectado(listaUsuarios.get(0));
+		usuarios.add(listaUsuarios.get(0));
+		canal1.joinUser(listaUsuarios.get(0));
 		
 		// Comprobamos que hay un usuario conectado
 		assertEquals(1, canal1.getNumUsuariosConectados());
 		assertEquals(2, canal1.getNumUsuariosDesconectados());
 		
-		usuarios.eliminarUsuario(listaUsuarios.get(0));
+		usuarios.remove(listaUsuarios.get(0));
 		
 		// Y comprobamos el resultado
 		assertEquals(0, canal1.getNumUsuariosConectados());

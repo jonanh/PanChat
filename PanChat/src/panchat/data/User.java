@@ -3,7 +3,7 @@ package panchat.data;
 import java.io.Serializable;
 import java.util.UUID;
 
-public class Usuario implements Serializable, Comparable<Usuario> {
+public class User implements Serializable, Comparable<User> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -12,14 +12,14 @@ public class Usuario implements Serializable, Comparable<Usuario> {
 	public int port;
 	public String nickName;
 
-	public Usuario(String nickName) {
+	public User(String nickName) {
 		this.ip = null;
 		this.port = 0;
 		this.nickName = nickName;
 		this.uuid = UUID.randomUUID();
 	}
 
-	public Usuario(String ip, int port, String nickName) {
+	public User(String ip, int port, String nickName) {
 		this.ip = ip;
 		this.port = port;
 		this.nickName = nickName;
@@ -27,7 +27,7 @@ public class Usuario implements Serializable, Comparable<Usuario> {
 	}
 
 	@Override
-	public int compareTo(Usuario o) {
+	public int compareTo(User o) {
 		return uuid.compareTo(o.uuid);
 	}
 
@@ -43,8 +43,8 @@ public class Usuario implements Serializable, Comparable<Usuario> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Usuario) {
-			Usuario usuario = (Usuario) obj;
+		if (obj instanceof User) {
+			User usuario = (User) obj;
 			return uuid.equals(usuario.uuid);
 		} else
 			return false;

@@ -13,12 +13,12 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
 import panchat.Panchat;
-import panchat.data.Canal;
-import panchat.data.Usuario;
+import panchat.data.ChatRoom;
+import panchat.data.User;
 import panchat.data.models.UsuariosConectadosTableModel;
 import panchat.data.models.UsuariosDesconectadosTableModel;
 
-public class PanelCanal extends JPanel {
+public class ChatRoomPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -28,7 +28,7 @@ public class PanelCanal extends JPanel {
 
 	private UsuariosDesconectadosTableModel usuariosDesconectadosModel;
 
-	private final Canal canal;
+	private final ChatRoom chatroom;
 
 	private Panchat panchat;
 
@@ -36,30 +36,32 @@ public class PanelCanal extends JPanel {
 	 * Crea un nuevo panel canal
 	 * 
 	 * @param panchat
-	 * @param pCanal
+	 * @param chatroom
 	 */
-	public PanelCanal(Panchat pPanchat, Canal pCanal) {
-		this(pCanal);
-		this.panchat = pPanchat;
+	public ChatRoomPanel(Panchat panchat, ChatRoom chatroom) {
+		this(chatroom);
+		this.panchat = panchat;
 	}
 
 	/**
 	 * Crea un nuevo panel canal
 	 * 
-	 * @param pCanal
+	 * @param chatroom
 	 */
-	public PanelCanal(Canal pCanal) {
+	public ChatRoomPanel(ChatRoom pChatroom) {
 
-		canal = pCanal;
+		chatroom = pChatroom;
 
 		// Creamos la tabla con el modelo de datos proporcionado por
 		// DatosTablaFicheros.
 
-		usuariosConectados = new JTable(new UsuariosConectadosTableModel(canal));
+		usuariosConectados = new JTable(new UsuariosConectadosTableModel(
+				chatroom));
 
 		// Guardamos el modelo de los usuarios desconectados para usarlo en el
 		// ActionListener del boton
-		usuariosDesconectadosModel = new UsuariosDesconectadosTableModel(canal);
+		usuariosDesconectadosModel = new UsuariosDesconectadosTableModel(
+				chatroom);
 
 		// Crreamos la tabla de desconectados
 		usuariosDesconectados = new JTable(usuariosDesconectadosModel);
@@ -90,11 +92,11 @@ public class PanelCanal extends JPanel {
 
 				int filaSeleccionada = usuariosDesconectados.getSelectedRow();
 
-				Usuario usuario = (Usuario) usuariosDesconectadosModel
-						.getValueAt(filaSeleccionada, 0);
+				User usuario = (User) usuariosDesconectadosModel.getValueAt(
+						filaSeleccionada, 0);
 
 				if (usuario != null) {
-					panchat.invitarUsuario(canal, usuario);
+					panchat.invitarUsuario(chatroom, usuario);
 				}
 			}
 		});

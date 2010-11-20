@@ -13,15 +13,15 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
 import panchat.Panchat;
-import panchat.data.Canal;
-import panchat.data.ListaCanales;
-import panchat.data.models.ListaCanalesAbstractTableModel;
+import panchat.data.ChatRoom;
+import panchat.data.ChatRoomList;
+import panchat.data.models.ChatRoomListAbstractTableModel;
 
-public class TablaCanales extends JPanel {
+public class ChannelTable extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ListaCanales listaCanales;
+	private final ChatRoomList channelList;
 
 	private JTable table;
 
@@ -32,8 +32,8 @@ public class TablaCanales extends JPanel {
 	 * 
 	 * @param panchat
 	 */
-	public TablaCanales(Panchat panchat) {
-		this(panchat.getListaCanales());
+	public ChannelTable(Panchat panchat) {
+		this(panchat.getChannelList());
 
 		this.panchat = panchat;
 	}
@@ -41,16 +41,16 @@ public class TablaCanales extends JPanel {
 	/**
 	 * Crea un JPanel con una tabla de usuarios
 	 * 
-	 * @param pListaCanales
+	 * @param pChannelList
 	 */
-	public TablaCanales(ListaCanales pListaCanales) {
+	public ChannelTable(ChatRoomList pChannelList) {
 
-		this.listaCanales = pListaCanales;
+		this.channelList = pChannelList;
 
 		// Creamos la tabla con el modelo de datos proporcionado por
 		// DatosTablaFicheros.
 
-		table = new JTable(new ListaCanalesAbstractTableModel(listaCanales));
+		table = new JTable(new ChatRoomListAbstractTableModel(channelList));
 
 		// Establecemos algunos parametros de la tabla.
 
@@ -83,7 +83,7 @@ public class TablaCanales extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Canal canal = listaCanales.getCanal(table.getSelectedRow());
+				ChatRoom canal = channelList.getChannel(table.getSelectedRow());
 
 				if (canal != null)
 					panchat.accionIniciarConversacionCanal(canal);

@@ -10,15 +10,15 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public class Fichero implements Serializable, Comparable<Fichero> {
+public class FileMessage implements Serializable, Comparable<FileMessage> {
 
 	private static final long serialVersionUID = 1L;
 
 	/*
 	 * Atributos
 	 */
-	private String nombre;
-	private long tamanyo;
+	private String name;
+	private long size;
 	private byte[] hash;
 	private transient String path;
 	private transient File file;
@@ -32,7 +32,7 @@ public class Fichero implements Serializable, Comparable<Fichero> {
 	 * @param pFilePath
 	 * @throws IOException
 	 */
-	public Fichero(String pFilePath) throws IOException {
+	public FileMessage(String pFilePath) throws IOException {
 		this(new File(pFilePath));
 	}
 
@@ -44,11 +44,11 @@ public class Fichero implements Serializable, Comparable<Fichero> {
 	 * @param pFile
 	 * @throws IOException
 	 */
-	public Fichero(File pFile) throws IOException {
+	public FileMessage(File pFile) throws IOException {
 		this.hash = md5(pFile);
 		this.path = pFile.getAbsolutePath();
-		this.nombre = pFile.getName();
-		this.tamanyo = pFile.length();
+		this.name = pFile.getName();
+		this.size = pFile.length();
 		this.file = pFile;
 	}
 
@@ -60,18 +60,18 @@ public class Fichero implements Serializable, Comparable<Fichero> {
 	 * @param pFile
 	 * @throws IOException
 	 */
-	public Fichero(byte[] pHash, long pTamanyo) {
+	public FileMessage(byte[] pHash, long pTamanyo) {
 		this.hash = pHash;
-		this.tamanyo = pTamanyo;
+		this.size = pTamanyo;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Fichero) {
+		if (obj instanceof FileMessage) {
 
-			Fichero fichObj = (Fichero) obj;
+			FileMessage fichObj = (FileMessage) obj;
 			return Arrays.equals(this.hash, fichObj.hash)
-					&& this.tamanyo == fichObj.tamanyo;
+					&& this.size == fichObj.size;
 		}
 		return false;
 	}
@@ -81,8 +81,8 @@ public class Fichero implements Serializable, Comparable<Fichero> {
 	 * 
 	 * @return String
 	 */
-	public String getNombre() {
-		return nombre;
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -99,8 +99,8 @@ public class Fichero implements Serializable, Comparable<Fichero> {
 	 * 
 	 * @return long
 	 */
-	public long getTamanyo() {
-		return tamanyo;
+	public long getSize() {
+		return size;
 	}
 
 	/**
@@ -133,7 +133,7 @@ public class Fichero implements Serializable, Comparable<Fichero> {
 
 	@Override
 	public String toString() {
-		return this.getNombre() + "\t " + this.tamanyo + "\t"
+		return this.getName() + "\t " + this.size + "\t"
 				+ this.getHashString();
 	}
 
@@ -182,7 +182,7 @@ public class Fichero implements Serializable, Comparable<Fichero> {
 	}
 
 	@Override
-	public int compareTo(Fichero obj) {
-		return (int) (obj.tamanyo - this.tamanyo);
+	public int compareTo(FileMessage obj) {
+		return (int) (obj.size - this.size);
 	}
 }

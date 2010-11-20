@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 import java.io.*;
 
 import panchat.Panchat;
-import panchat.data.Usuario;
+import panchat.data.User;
 import panchat.messages.CausalMessage;
 
 public class CausalLinker extends Linker {
@@ -14,7 +14,7 @@ public class CausalLinker extends Linker {
 
 	private CausalMatrix matrix;
 
-	private Usuario myId;
+	private User myId;
 
 	private Object mutex = new Object();
 
@@ -47,7 +47,7 @@ public class CausalLinker extends Linker {
 	 * @param msg
 	 */
 	@Override
-	public synchronized void sendMsg(Usuario destId, Object msg) {
+	public synchronized void sendMsg(User destId, Object msg) {
 
 		synchronized (mutex) {
 			printDebug("sendMsg " + destId.nickName + " " + msg.getClass());
@@ -74,13 +74,13 @@ public class CausalLinker extends Linker {
 	 * @param msg
 	 */
 	@Override
-	public synchronized void sendMsg(LinkedList<Usuario> destIds, Object msg) {
+	public synchronized void sendMsg(LinkedList<User> destIds, Object msg) {
 		synchronized (mutex) {
 			printDebug("sendMsg multicast " + destIds + " " + msg.getClass());
 
 			matrix.incrementarDestino(destIds);
 
-			for (Usuario usuario : destIds)
+			for (User usuario : destIds)
 
 				/*
 				 * Si nos estamos enviando un mensaje a nosotros mismos lo
@@ -100,7 +100,7 @@ public class CausalLinker extends Linker {
 	 * @param srcId
 	 * @return
 	 */
-	private boolean okayToRecv(CausalMatrix W, Usuario srcId) {
+	private boolean okayToRecv(CausalMatrix W, User srcId) {
 		// Algoritmo original
 		//
 		// if (W[srcId][myId] > M[srcId][myId] + 1)
@@ -215,7 +215,7 @@ public class CausalLinker extends Linker {
 	 * 
 	 * @param usuario
 	 */
-	public void anyadirUsuario(Usuario usuario) {
+	public void anyadirUsuario(User usuario) {
 		synchronized (mutex) {
 			matrix.anyadirUsuario(usuario);
 		}

@@ -4,15 +4,15 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Observable;
 
-public class Canal extends Observable implements Comparable<Canal>,
+public class ChatRoom extends Observable implements Comparable<ChatRoom>,
 		Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String nombreCanal;
-	private transient LinkedList<Usuario> listadoUsuariosConectados;
-	private transient LinkedList<Usuario> listadoUsuariosDesconectados;
-	private transient ListaUsuarios listadoUsuarios;
+	private String name;
+	private transient LinkedList<User> listadoUsuariosConectados;
+	private transient LinkedList<User> listadoUsuariosDesconectados;
+	private transient UserList userList;
 
 	private transient Object mutex = new Object();
 
@@ -22,31 +22,31 @@ public class Canal extends Observable implements Comparable<Canal>,
 	 * Esta constructora solo debe usarse cuando se desea avisar a traves de un
 	 * socket de la existencia de un nuevo canal.
 	 * 
-	 * @param nombreCanal
+	 * @param name
 	 */
-	public Canal(String nombreCanal) {
-		this.nombreCanal = nombreCanal;
+	public ChatRoom(String name) {
+		this.name = name;
 	}
 
 	/**
 	 * Crea un nuevo canal
 	 * 
-	 * @param nombreCanal
-	 * @param listadoUsuarios
+	 * @param name
+	 * @param userList
 	 */
-	public Canal(String nombreCanal, ListaUsuarios listadoUsuarios) {
-		this.nombreCanal = nombreCanal;
-		this.listadoUsuariosConectados = new LinkedList<Usuario>();
-		this.listadoUsuariosDesconectados = listadoUsuarios
-				.getClonedListaUsuarios();
-		this.listadoUsuarios = listadoUsuarios;
+	public ChatRoom(String name, UserList userList) {
+		this.name = name;
+		this.listadoUsuariosConectados = new LinkedList<User>();
+		this.listadoUsuariosDesconectados = userList
+				.getClonedUserList();
+		this.userList = userList;
 	}
 
 	/**
 	 * Devuelve el nombre del canal
 	 */
-	public String getNombreCanal() {
-		return nombreCanal;
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class Canal extends Observable implements Comparable<Canal>,
 	 * 
 	 * @param usuario
 	 */
-	public void anyadirUsuario(Usuario usuario) {
+	public void addUser(User usuario) {
 		synchronized (mutex) {
 			listadoUsuariosDesconectados.add(usuario);
 
@@ -68,7 +68,7 @@ public class Canal extends Observable implements Comparable<Canal>,
 	 * 
 	 * @param usuario
 	 */
-	public void eliminarUsuario(Usuario usuario) {
+	public void removeUser(User usuario) {
 		synchronized (mutex) {
 			listadoUsuariosDesconectados.remove(usuario);
 			listadoUsuariosConectados.remove(usuario);
@@ -83,7 +83,7 @@ public class Canal extends Observable implements Comparable<Canal>,
 	 * 
 	 * @param usuario
 	 */
-	public void anyadirUsuarioConectado(Usuario usuario) {
+	public void joinUser(User usuario) {
 		synchronized (mutex) {
 			listadoUsuariosConectados.add(usuario);
 			listadoUsuariosDesconectados.remove(usuario);
@@ -98,7 +98,7 @@ public class Canal extends Observable implements Comparable<Canal>,
 	 * 
 	 * @param usuario
 	 */
-	public void eliminarUsuarioConectado(Usuario usuario) {
+	public void leaveUser(User usuario) {
 		synchronized (mutex) {
 			listadoUsuariosConectados.remove(usuario);
 			listadoUsuariosDesconectados.add(usuario);
@@ -114,7 +114,7 @@ public class Canal extends Observable implements Comparable<Canal>,
 	 * @param index
 	 * @return
 	 */
-	public Usuario getUsuarioConectado(int index) {
+	public User getUsuarioConectado(int index) {
 		return listadoUsuariosConectados.get(index);
 	}
 
@@ -124,7 +124,7 @@ public class Canal extends Observable implements Comparable<Canal>,
 	 * @param index
 	 * @return
 	 */
-	public Usuario getUsuarioDesconectado(int index) {
+	public User getUsuarioDesconectado(int index) {
 		return listadoUsuariosDesconectados.get(index);
 	}
 
@@ -143,7 +143,7 @@ public class Canal extends Observable implements Comparable<Canal>,
 	 * @return
 	 */
 	public int getNumUsuariosDesconectados() {
-		return listadoUsuarios.getNumUsuarios()
+		return userList.length()
 				- listadoUsuariosConectados.size();
 	}
 
@@ -153,7 +153,7 @@ public class Canal extends Observable implements Comparable<Canal>,
 	 * @param usuario
 	 * @return
 	 */
-	public boolean contains(Usuario usuario) {
+	public boolean contains(User usuario) {
 		synchronized (mutex) {
 			return listadoUsuariosConectados.contains(usuario);
 		}
@@ -164,7 +164,7 @@ public class Canal extends Observable implements Comparable<Canal>,
 	 * 
 	 * @return
 	 */
-	public LinkedList<Usuario> getListadoUsuarios() {
+	public LinkedList<User> getUserList() {
 		synchronized (mutex) {
 			return this.listadoUsuariosConectados;
 		}
@@ -175,26 +175,26 @@ public class Canal extends Observable implements Comparable<Canal>,
 	 */
 
 	@Override
-	public int compareTo(Canal o) {
-		return nombreCanal.compareTo(o.nombreCanal);
+	public int compareTo(ChatRoom o) {
+		return name.compareTo(o.name);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Canal) {
-			Canal canal = (Canal) obj;
-			return nombreCanal.equals(canal.nombreCanal);
+		if (obj instanceof ChatRoom) {
+			ChatRoom canal = (ChatRoom) obj;
+			return name.equals(canal.name);
 		} else
 			return false;
 	}
 
 	@Override
 	public String toString() {
-		return nombreCanal;
+		return name;
 	}
 
 	@Override
 	public int hashCode() {
-		return this.nombreCanal.hashCode();
+		return this.name.hashCode();
 	}
 }

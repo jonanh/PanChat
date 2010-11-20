@@ -20,10 +20,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import panchat.data.Canal;
-import panchat.data.ListaCanales;
-import panchat.data.ListaUsuarios;
-import panchat.data.Usuario;
+import panchat.data.ChatRoom;
+import panchat.data.ChatRoomList;
+import panchat.data.UserList;
+import panchat.data.User;
 import panchat.data.models.UsuariosConectadosTableModel;
 import panchat.data.models.UsuariosDesconectadosTableModel;
 
@@ -33,7 +33,7 @@ public class ConversacionCanal extends MiPanel implements KeyListener,MouseListe
 	private static final long serialVersionUID = 1L;
 	
 	
-	Canal canal;
+	ChatRoom canal;
 
 	Editor escritura;
 	Editor log;
@@ -52,17 +52,17 @@ public class ConversacionCanal extends MiPanel implements KeyListener,MouseListe
 	
 	static String camino= "/interfaz/imagenes/";
 	
-	public ConversacionCanal(Canal canal) {
+	public ConversacionCanal(ChatRoom canal) {
 		super();
 		construir(canal);
 	}
 
-	public ConversacionCanal(String ruta,ListaUsuarios usuarios) {
+	public ConversacionCanal(String ruta,UserList usuarios) {
 		super(camino+ruta);
 		construir(canal);
 	}
 
-	private void construir(Canal canal) {
+	private void construir(ChatRoom canal) {
 
 		this.canal=canal;
 		modeloConectados= new UsuariosConectadosTableModel(canal);
@@ -165,33 +165,33 @@ public class ConversacionCanal extends MiPanel implements KeyListener,MouseListe
 		e.put("nubes", "nubes.jpg");
 		e.put("pizarra", "pizarra.png");
 		
-		ListaCanales listaCanal = new ListaCanales();
+		ChatRoomList listaCanal = new ChatRoomList();
 		
 		// Obtenemos referencias a las clases Singleton
-		ListaUsuarios usuarios = new ListaUsuarios(listaCanal);
+		UserList usuarios = new UserList(listaCanal);
 		
 		// Creamos un listado de usuarios
-		LinkedList<Usuario> listaUsuarios = new LinkedList<Usuario>();
-		listaUsuarios.add(new Usuario("127.0.0.1", 50000, "JonAn"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50001, "Javier"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50002, "Dennis"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50003, "Imanol"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50004, "Nagore"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50008, "Paco"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50004, "Loles"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50005, "Luis mari"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50006, "G"));
-		listaUsuarios.add(new Usuario("127.0.0.1", 50007, "JonAn"));
+		LinkedList<User> listaUsuarios = new LinkedList<User>();
+		listaUsuarios.add(new User("127.0.0.1", 50000, "JonAn"));
+		listaUsuarios.add(new User("127.0.0.1", 50001, "Javier"));
+		listaUsuarios.add(new User("127.0.0.1", 50002, "Dennis"));
+		listaUsuarios.add(new User("127.0.0.1", 50003, "Imanol"));
+		listaUsuarios.add(new User("127.0.0.1", 50004, "Nagore"));
+		listaUsuarios.add(new User("127.0.0.1", 50008, "Paco"));
+		listaUsuarios.add(new User("127.0.0.1", 50004, "Loles"));
+		listaUsuarios.add(new User("127.0.0.1", 50005, "Luis mari"));
+		listaUsuarios.add(new User("127.0.0.1", 50006, "G"));
+		listaUsuarios.add(new User("127.0.0.1", 50007, "JonAn"));
 		
 		// Registramos el listado de usuarios en la clase Singleton Conexiones
-		for (Usuario address : listaUsuarios)
-			usuarios.añadirUsuario(address);
+		for (User address : listaUsuarios)
+			usuarios.add(address);
 		
-		Canal canal=new Canal("cacas",usuarios);
+		ChatRoom canal=new ChatRoom("cacas",usuarios);
 		
 		// Añadimos los usuarios al canal
-		for (Usuario usuario : listaUsuarios.subList(0, 5))
-			canal.anyadirUsuarioConectado(usuario);
+		for (User usuario : listaUsuarios.subList(0, 5))
+			canal.joinUser(usuario);
 		
 		
 

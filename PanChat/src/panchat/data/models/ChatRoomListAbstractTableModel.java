@@ -5,21 +5,21 @@ import java.util.Observer;
 
 import javax.swing.table.AbstractTableModel;
 
-import panchat.data.ListaCanales;
+import panchat.data.ChatRoomList;
 
-public class ListaCanalesAbstractTableModel extends AbstractTableModel
+public class ChatRoomListAbstractTableModel extends AbstractTableModel
 		implements Observer {
 
 	private static final long serialVersionUID = 1L;
 
-	private ListaCanales listaCanales;
+	private ChatRoomList listaCanales;
 
 	/**
 	 * Crea una nueva clase con el modelo de datos de una lista de canales
 	 * 
 	 * @param listaCanales
 	 */
-	public ListaCanalesAbstractTableModel(ListaCanales listaCanales) {
+	public ChatRoomListAbstractTableModel(ChatRoomList listaCanales) {
 		this.listaCanales = listaCanales;
 		this.listaCanales.addObserver(this);
 	}
@@ -41,7 +41,7 @@ public class ListaCanalesAbstractTableModel extends AbstractTableModel
 
 	@Override
 	public int getRowCount() {
-		return listaCanales.getNumCanales();
+		return listaCanales.length();
 	}
 
 	@Override
@@ -50,9 +50,9 @@ public class ListaCanalesAbstractTableModel extends AbstractTableModel
 		if (rowIndex >= 0 && rowIndex < getRowCount()) {
 			switch (columnIndex) {
 			case 0:
-				return listaCanales.getCanal(rowIndex).getNombreCanal();
+				return listaCanales.getChannel(rowIndex).getName();
 			default:
-				return listaCanales.getCanal(rowIndex)
+				return listaCanales.getChannel(rowIndex)
 						.getNumUsuariosConectados();
 			}
 		} else

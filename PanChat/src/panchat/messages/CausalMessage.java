@@ -1,6 +1,6 @@
 package panchat.messages;
 
-import panchat.data.Usuario;
+import panchat.data.User;
 import panchat.linker.CausalMatrix;
 
 /**
@@ -21,7 +21,7 @@ public class CausalMessage extends SimpleMessage {
 	 * @param pCausalMatrix
 	 *            La MatrixClock asociada al mensaje.
 	 */
-	public CausalMessage(Object pMessage, Usuario pUsuario, CausalMatrix pCausalMatrix) {
+	public CausalMessage(Object pMessage, User pUsuario, CausalMatrix pCausalMatrix) {
 		super(pMessage, pUsuario);
 		causalMatrix = pCausalMatrix;
 	}

@@ -2,7 +2,7 @@ package panchat.messages;
 
 import java.io.Serializable;
 
-import panchat.data.Canal;
+import panchat.data.ChatRoom;
 
 public class MessageChat implements Serializable {
 
@@ -10,10 +10,10 @@ public class MessageChat implements Serializable {
 
 	public String mensaje;
 
-	public Canal canal;
+	public ChatRoom chatroom;
 
-	public MessageChat(Canal pCanal, String pMensaje) {
-		this.canal = pCanal;
-		this.mensaje = pMensaje;
+	public MessageChat(ChatRoom pChatRoom, String pMessage) {
+		this.chatroom = pChatRoom;
+		this.mensaje = pMessage;
 	}
 }

@@ -6,15 +6,15 @@ import java.util.LinkedList;
 import java.util.Observable;
 import java.util.UUID;
 
-public class ListaUsuarios extends Observable {
+public class UserList extends Observable {
 
 	private static final long serialVersionUID = 1L;
 
-	private ListaCanales listaCanales;
+	private ChatRoomList listaCanales;
 
-	private LinkedList<Usuario> listaUsuarios;
+	private LinkedList<User> userList;
 
-	private HashMap<UUID, Usuario> hashtableUsuarios;
+	private HashMap<UUID, User> hashtableUsuarios;
 
 	private Object mutex = new Object();
 
@@ -23,10 +23,10 @@ public class ListaUsuarios extends Observable {
 	 * 
 	 * @param listaCanales
 	 */
-	public ListaUsuarios(ListaCanales listaCanales) {
+	public UserList(ChatRoomList listaCanales) {
 		this.listaCanales = listaCanales;
-		this.listaUsuarios = new LinkedList<Usuario>();
-		this.hashtableUsuarios = new HashMap<UUID, Usuario>();
+		this.userList = new LinkedList<User>();
+		this.hashtableUsuarios = new HashMap<UUID, User>();
 	}
 
 	/**
@@ -34,14 +34,14 @@ public class ListaUsuarios extends Observable {
 	 * 
 	 * @param usuario
 	 */
-	public void añadirUsuario(Usuario usuario) {
+	public void add(User usuario) {
 		synchronized (mutex) {
 			if (!contains(usuario)) {
 				hashtableUsuarios.put(usuario.uuid, usuario);
 
-				listaUsuarios.add(usuario);
-				Collections.sort(listaUsuarios);
-				listaCanales.anyadirUsuario(usuario);
+				userList.add(usuario);
+				Collections.sort(userList);
+				listaCanales.addUser(usuario);
 				super.setChanged();
 				super.notifyObservers();
 			}
@@ -53,12 +53,12 @@ public class ListaUsuarios extends Observable {
 	 * 
 	 * @param usuario
 	 */
-	public void eliminarUsuario(Usuario usuario) {
+	public void remove(User usuario) {
 		synchronized (mutex) {
 			hashtableUsuarios.remove(usuario.uuid);
 
-			listaUsuarios.remove(usuario);
-			listaCanales.eliminarUsuario(usuario);
+			userList.remove(usuario);
+			listaCanales.deleteUser(usuario);
 			super.setChanged();
 			super.notifyObservers();
 		}
@@ -70,9 +70,9 @@ public class ListaUsuarios extends Observable {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public LinkedList<Usuario> getClonedListaUsuarios() {
+	public LinkedList<User> getClonedUserList() {
 		synchronized (mutex) {
-			return (LinkedList<Usuario>) listaUsuarios.clone();
+			return (LinkedList<User>) userList.clone();
 		}
 	}
 
@@ -82,8 +82,8 @@ public class ListaUsuarios extends Observable {
 	 * @param Index
 	 * @return
 	 */
-	public Usuario getUsuario(int index) {
-		return listaUsuarios.get(index);
+	public User getUser(int index) {
+		return userList.get(index);
 	}
 
 	/**
@@ -92,18 +92,18 @@ public class ListaUsuarios extends Observable {
 	 * @param Index
 	 * @return
 	 */
-	public Usuario getUsuario(UUID nombre) {
+	public User getUser(UUID nombre) {
 		return hashtableUsuarios.get(nombre);
 	}
 
 	/**
 	 * Contiene el usuario en la lista de usuarios
 	 * 
-	 * @param usuario
+	 * @param user
 	 * @return
 	 */
-	public boolean contains(Usuario usuario) {
-		return hashtableUsuarios.containsKey(usuario.uuid);
+	public boolean contains(User user) {
+		return hashtableUsuarios.containsKey(user.uuid);
 	}
 
 	/**
@@ -111,8 +111,8 @@ public class ListaUsuarios extends Observable {
 	 * 
 	 * @return
 	 */
-	public int getNumUsuarios() {
-		return listaUsuarios.size();
+	public int length() {
+		return userList.size();
 	}
 
 	/**
@@ -120,8 +120,8 @@ public class ListaUsuarios extends Observable {
 	 * 
 	 * @return
 	 */
-	public LinkedList<Usuario> getListaUsuarios() {
-		return this.listaUsuarios;
+	public LinkedList<User> getUserList() {
+		return this.userList;
 	}
 
 	/*
@@ -130,14 +130,14 @@ public class ListaUsuarios extends Observable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof ListaUsuarios)
-			return listaUsuarios.equals(((ListaUsuarios) obj).listaUsuarios);
+		if (obj instanceof UserList)
+			return userList.equals(((UserList) obj).userList);
 		else
 			return false;
 	}
 
 	@Override
 	public String toString() {
-		return listaUsuarios.toString();
+		return userList.toString();
 	}
 }
