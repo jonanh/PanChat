@@ -1,17 +1,10 @@
 package panchat.messages;
 
 import panchat.data.User;
-import panchat.linker.CausalMatrix;
+import panchat.linker.ordering.CausalMatrix;
 
-/**
- * Mensaje genérico causal.
- * 
- * @author Jon Ander Hernández
- * 
- */
-public class CausalMessage extends SimpleMessage {
-
-	private static final long serialVersionUID = 1L;
+@SuppressWarnings("serial")
+public class TotalMessage extends Message {
 
 	private CausalMatrix causalMatrix;
 
@@ -21,7 +14,9 @@ public class CausalMessage extends SimpleMessage {
 	 * @param pCausalMatrix
 	 *            La MatrixClock asociada al mensaje.
 	 */
-	public CausalMessage(Object pMessage, User pUsuario, CausalMatrix pCausalMatrix) {
+	public TotalMessage(Object pMessage, User pUsuario,
+			CausalMatrix pCausalMatrix) {
+
 		super(pMessage, pUsuario);
 		causalMatrix = pCausalMatrix;
 	}
