@@ -1,4 +1,4 @@
-package panchat.messages;
+package panchat.protocol;
 
 import java.io.Serializable;
 import java.util.LinkedList;

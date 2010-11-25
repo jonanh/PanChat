@@ -9,9 +9,9 @@ import panchat.data.ChatRoomList;
 import panchat.data.User;
 import panchat.linker.CausalLinker;
 import panchat.messages.CausalMessage;
-import panchat.messages.JoinChannel;
 import panchat.messages.MessageChat;
-import panchat.messages.SaludoListaCanales;
+import panchat.protocol.JoinChannel;
+import panchat.protocol.SaludoListaCanales;
 
 public class CausalLinkerThread extends Thread {
 

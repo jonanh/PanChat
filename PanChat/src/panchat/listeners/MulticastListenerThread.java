@@ -6,8 +6,8 @@ import java.net.MulticastSocket;
 import panchat.Panchat;
 import panchat.connector.Connector;
 import panchat.data.User;
-import panchat.messages.SaludoListaCanales;
-import panchat.messages.SaludoUsuario;
+import panchat.protocol.SaludoListaCanales;
+import panchat.protocol.SaludoUsuario;
 
 public class MulticastListenerThread extends Thread {
 

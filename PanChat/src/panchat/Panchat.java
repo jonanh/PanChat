@@ -8,8 +8,8 @@ import panchat.data.UserList;
 import panchat.data.User;
 import panchat.linker.CausalLinker;
 import panchat.linker.Linker;
-import panchat.messages.JoinChannel;
 import panchat.messages.MessageChat;
+import panchat.protocol.JoinChannel;
 import panchat.ui.main.PanchatUI;
 
 public class Panchat {
