@@ -7,7 +7,7 @@ import panchat.Panchat;
 import panchat.data.ChatRoom;
 import panchat.data.ChatRoomList;
 import panchat.data.User;
-import panchat.linker.CausalLinker;
+import panchat.linker.ordering.CausalMatrixLinker;
 import panchat.messages.CausalMessage;
 import panchat.messages.MessageChat;
 import panchat.protocol.JoinChannel;
@@ -21,7 +21,7 @@ public class CausalLinkerThread extends Thread {
 
 	private Panchat panchat;
 
-	private CausalLinker causalLinker;
+	private CausalMatrixLinker causalLinker;
 
 	public CausalLinkerThread(MulticastSocket pSocket, Panchat pPanchat) {
 		this.socket = pSocket;

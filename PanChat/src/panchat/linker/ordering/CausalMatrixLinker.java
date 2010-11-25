@@ -1,4 +1,4 @@
-package panchat.linker;
+package panchat.linker.ordering;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -6,9 +6,12 @@ import java.io.*;
 
 import panchat.Panchat;
 import panchat.data.User;
+import panchat.linker.Linker;
+import panchat.messages.CausalMatrixMessage;
 import panchat.messages.CausalMessage;
+import panchat.messages.clocks.CausalMatrix;
 
-public class CausalLinker extends Linker {
+public class CausalMatrixLinker extends Linker {
 
 	private static final boolean DEBUG = false;
 
@@ -21,19 +24,19 @@ public class CausalLinker extends Linker {
 	/*
 	 * Cola de mensajes de entrega.
 	 */
-	LinkedList<CausalMessage> deliveryQ = new LinkedList<CausalMessage>();
+	LinkedList<CausalMatrixMessage> deliveryQ = new LinkedList<CausalMatrixMessage>();
 
 	/*
 	 * Cola de mensajes pendientes.
 	 */
-	LinkedList<CausalMessage> pendingQ = new LinkedList<CausalMessage>();
+	LinkedList<CausalMatrixMessage> pendingQ = new LinkedList<CausalMatrixMessage>();
 
 	/**
 	 * 
 	 * @param panchat
 	 * @throws Exception
 	 */
-	public CausalLinker(Panchat pPanchat) {
+	public CausalMatrixLinker(Panchat pPanchat) {
 		super(pPanchat);
 		this.myId = pPanchat.getUsuario();
 		this.matrix = new CausalMatrix(myId);
@@ -60,10 +63,10 @@ public class CausalLinker extends Linker {
 			 */
 			if (destId.equals(myId)) {
 				mutex.notifyAll();
-				pendingQ.add(new CausalMessage(msg, myId, matrix));
+				pendingQ.add(new CausalMatrixMessage(msg, myId, matrix));
 			} else
-				super.socketSendMsg(destId,
-						new CausalMessage(msg, myId, matrix));
+				super.socketSendMsg(destId, new CausalMatrixMessage(msg, myId,
+						matrix));
 		}
 	}
 
@@ -87,9 +90,10 @@ public class CausalLinker extends Linker {
 				 * añadimos directamente a la lista de pendientes
 				 */
 				if (usuario.equals(myId))
-					pendingQ.add(new CausalMessage(msg, myId, matrix));
+					pendingQ.add(new CausalMatrixMessage(msg, myId, matrix));
 				else
-					socketSendMsg(usuario, new CausalMessage(msg, myId, matrix));
+					socketSendMsg(usuario, new CausalMatrixMessage(msg, myId,
+							matrix));
 		}
 	}
 
@@ -140,14 +144,14 @@ public class CausalLinker extends Linker {
 	 */
 	private void checkPendingQ() {
 
-		Iterator<CausalMessage> iter = pendingQ.iterator();
+		Iterator<CausalMatrixMessage> iter = pendingQ.iterator();
 
 		while (iter.hasNext()) {
-			CausalMessage cm = iter.next();
+			CausalMatrixMessage cm = iter.next();
 
 			printDebug("comprobando mensaje " + cm.getContent().getClass());
 
-			if (okayToRecv(cm.getMatrix(), cm.getUsuario())) {
+			if (okayToRecv(cm.getCausalMatrix(), cm.getUsuario())) {
 
 				printDebug("mensaje añadido a la cola de delivery "
 						+ cm.getContent().getClass());
@@ -167,7 +171,7 @@ public class CausalLinker extends Linker {
 	 * Si no hay un paquete disponible, realiza un wait hasta que lo esté.
 	 */
 	@Override
-	public CausalMessage handleMsg() throws IOException {
+	public CausalMatrixMessage handleMsg() throws IOException {
 
 		// tratamos la lista de pendientes
 		synchronized (mutex) {
@@ -199,12 +203,12 @@ public class CausalLinker extends Linker {
 			/*
 			 * Obtenemos el primer elemento de pendientes.
 			 */
-			CausalMessage cm = deliveryQ.poll();
+			CausalMatrixMessage cm = deliveryQ.poll();
 
 			/*
 			 * Actualizamos la matrix
 			 */
-			matrix.maxMatrix(cm.getMatrix());
+			matrix.maxMatrix(cm.getCausalMatrix());
 
 			return cm;
 		}
@@ -224,7 +228,7 @@ public class CausalLinker extends Linker {
 	/**
 	 * Añadimos un nuevo mensaje a la cola de mensajes
 	 */
-	public void anyadirMensaje(CausalMessage msg) {
+	public void anyadirMensaje(CausalMatrixMessage msg) {
 		synchronized (mutex) {
 			printDebug("Elemento añadido a la cola de pendientes");
 

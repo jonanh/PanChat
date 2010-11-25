@@ -1,4 +1,4 @@
-package panchat.clocks;
+package panchat.messages.clocks;
 
 import java.io.Serializable;
 import java.util.Hashtable;

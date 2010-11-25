@@ -4,7 +4,7 @@ import panchat.data.User;
 import panchat.messages.clocks.CausalMatrix;
 
 @SuppressWarnings("serial")
-public class TotalMessage extends Message {
+public class CausalMatrixMessage extends Message {
 
 	private CausalMatrix causalMatrix;
 
@@ -12,9 +12,9 @@ public class TotalMessage extends Message {
 	 * @param pMessage
 	 *            El contenido del mensaje
 	 * @param pCausalMatrix
-	 *            La MatrixClock asociada al mensaje.
+	 *            El reloj de Lamport del mensaje.
 	 */
-	public TotalMessage(Object pMessage, User pUsuario,
+	public CausalMatrixMessage(Object pMessage, User pUsuario,
 			CausalMatrix pCausalMatrix) {
 
 		super(pMessage, pUsuario);
@@ -24,7 +24,7 @@ public class TotalMessage extends Message {
 	/**
 	 * @return La MatrixClock asociada al mensaje.
 	 */
-	public CausalMatrix getMatrix() {
+	public CausalMatrix getCausalMatrix() {
 		return causalMatrix;
 	}
 }
