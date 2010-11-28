@@ -18,7 +18,7 @@ import panchat.protocol.SaludoUsuario;
  * @author Jon Ander Hernández & Javier Mediavilla
  * 
  */
-public class Connector {
+public class MulticastSocketConnector {
 
 	public final static boolean DEBUG = false;
 
@@ -39,13 +39,6 @@ public class Connector {
 
 	private ServerSocket listener;
 
-	private Hashtable<UUID, Socket> link;
-	private Hashtable<UUID, ObjectInputStream> hashOIS;
-	private Hashtable<UUID, ObjectOutputStream> hashOOS;
-
-	// Pool de threads
-	private Hashtable<UUID, Thread> threadPool;
-
 	// Multicast thread
 	private MulticastListenerThread multicastThread;
 
@@ -59,18 +52,10 @@ public class Connector {
 	 * @param user
 	 * @throws Exception
 	 */
-	public Connector(Panchat panchat) {
+	public MulticastSocketConnector(Panchat panchat) {
 
 		this.panchat = panchat;
 		this.usuario = panchat.getUsuario();
-
-		// Inicializamos link
-		link = new Hashtable<UUID, Socket>();
-		hashOIS = new Hashtable<UUID, ObjectInputStream>();
-		hashOOS = new Hashtable<UUID, ObjectOutputStream>();
-
-		// Inicializamos la threadPool
-		threadPool = new Hashtable<UUID, Thread>();
 
 		// Inicializamos los sockets.
 		inicializarSockets();
@@ -85,36 +70,7 @@ public class Connector {
 		/*
 		 * Creamos un server Socket
 		 */
-		printDebug("Creando ServerSocket");
-
-		int port;
-		for (port = LOCALPORT; port < PORTMAX && listener == null; port++) {
-			try {
-				// Probamos a ver si el socket está disponible
-				listener = new ServerSocket(port);
-			} catch (IOException e) {
-				// Si se libera una excepción es que estaba ocupado
-				printDebug("Puerto [" + port + "] Ocupado");
-			}
-		}
-
-		if (listener != null) {
-			// Intentamos conseguir la IP del equipo local
-			try {
-				usuario.ip = InetAddress.getLocalHost().getHostAddress();
-				usuario.port = port - 1;
-			} catch (UnknownHostException e) {
-				// No se ha podido, luego soltamos una excepcion de tiempo de
-				// ejecución
-				System.out
-						.println("Su ordenación no tiene configurada una conexion de internet, y terminará");
-				System.exit(0);
-			}
-		} else {
-			System.out
-					.println("No hemos conseguido encontrar un puerto disponible para su equipo, y la aplicación terminará");
-			System.exit(0);
-		}
+		printDebug("Creando SocketMulticast");
 
 		/*
 		 * Creamos el Socket multicast
@@ -267,49 +223,7 @@ public class Connector {
 	 * Cerramos los sockets del cliente.
 	 */
 	public void closeSockets() {
-		printDebug("Cerrando Sockets");
-
-		// Cerramos los Socket con el resto de clientes.
-		Iterator<Entry<UUID, Socket>> iter = link.entrySet().iterator();
-
-		while (iter.hasNext()) {
-			// Por cada socket guardado intentamos cerrarlo (por si no está
-			// cerrado ya)
-			try {
-				Entry<UUID, Socket> entry = iter.next();
-				printDebug("Cerrando socket de " + usuario + " a "
-						+ entry.getKey());
-				entry.getValue().close();
-			} catch (Exception e) {
-				printDebug("Fallo el cierre :-P");
-			}
-		}
-
-		printDebug("Cerrados todos los sockets abiertos");
-
-		Iterator<Entry<UUID, Thread>> iter2 = threadPool.entrySet().iterator();
-		while (iter2.hasNext())
-			// Esperamos a que termine el multicastThread
-			try {
-				Entry<UUID, Thread> entry = iter2.next();
-				printDebug("Esperando a parar ListenerThread de " + usuario
-						+ " a " + entry.getKey());
-				entry.getValue().join();
-			} catch (InterruptedException e) {
-				printDebug("Fallo al esperar :-P");
-			}
-
-		printDebug("Parados todos los hilos de la thread pool");
-
-		try {
-
-			// Cerramos el ServerSocket
-			listener.close();
-
-		} catch (Exception e) {
-		}
-
-		printDebug("Cerrado ServerSocket");
+		printDebug("Cerrando Socket multicast");
 
 		try {
 
@@ -408,40 +322,6 @@ public class Connector {
 
 		// Si algo ha salido mal, devolvemos null
 		return null;
-	}
-
-	/*
-	 * Getters
-	 */
-
-	/**
-	 * Obtener el Socket
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public Socket getSocket(UUID uuid) {
-		return link.get(uuid);
-	}
-
-	/**
-	 * Obtener el ObjectInputStream
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public ObjectInputStream getOIS(UUID uuid) {
-		return hashOIS.get(uuid);
-	}
-
-	/**
-	 * Obtener el ObjectOutputStream
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public ObjectOutputStream getOOS(UUID uuid) {
-		return hashOOS.get(uuid);
 	}
 
 	/*

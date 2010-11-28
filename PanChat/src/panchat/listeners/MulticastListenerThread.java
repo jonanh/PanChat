@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.MulticastSocket;
 
 import panchat.Panchat;
-import panchat.connector.Connector;
+import panchat.connector.SocketConnector;
 import panchat.data.User;
 import panchat.protocol.SaludoListaCanales;
 import panchat.protocol.SaludoUsuario;
@@ -17,7 +17,7 @@ public class MulticastListenerThread extends Thread {
 
 	private Panchat panchat;
 
-	private Connector connector;
+	private SocketConnector connector;
 
 	public MulticastListenerThread(MulticastSocket socket, Panchat panchat) {
 		this.socket = socket;

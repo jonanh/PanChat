@@ -17,8 +17,8 @@ public class SocketListenerThread extends Thread {
 	private Socket socket;
 	private User usuario;
 
-	public SocketListenerThread(Panchat panchat, User usuario,
-			Socket socket, ObjectInputStream ois) {
+	public SocketListenerThread(Panchat panchat, User usuario, Socket socket,
+			ObjectInputStream ois) {
 		this.panchat = panchat;
 		this.ois = ois;
 		this.usuario = usuario;

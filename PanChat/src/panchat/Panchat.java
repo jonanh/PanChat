@@ -1,6 +1,6 @@
 package panchat;
 
-import panchat.connector.Connector;
+import panchat.connector.SocketConnector;
 import panchat.data.ChatRoom;
 import panchat.data.ChatRoomList;
 import panchat.data.ChatList;
@@ -15,7 +15,7 @@ import panchat.ui.main.PanchatUI;
 public class Panchat {
 
 	// Connector
-	private Connector connector;
+	private SocketConnector connector;
 
 	// Datos
 	private User usuario;
@@ -53,7 +53,7 @@ public class Panchat {
 		// Nos añadimos a nuestra propia lista de usuarios
 		this.listaUsuarios.add(usuario);
 
-		this.connector = new Connector(this);
+		this.connector = new SocketConnector(this);
 		this.causalLinker = new CausalMatrixLinker(this);
 		this.linker = new Linker(this);
 
@@ -126,7 +126,7 @@ public class Panchat {
 	 * 
 	 * @return
 	 */
-	public Connector getConnector() {
+	public SocketConnector getConnector() {
 		return connector;
 	}
 

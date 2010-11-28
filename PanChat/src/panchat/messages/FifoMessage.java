@@ -20,7 +20,7 @@ public class FifoMessage extends Message {
 	}
 
 	/**
-	 * @return La MatrixClock asociada al mensaje.
+	 * @return El número del mensaje.
 	 */
 	public int getMessageNum() {
 		return num;

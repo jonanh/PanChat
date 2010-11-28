@@ -1,7 +1,7 @@
 package panchat.messages;
 
+import panchat.clocks.CausalMatrix;
 import panchat.data.User;
-import panchat.messages.clocks.CausalMatrix;
 
 @SuppressWarnings("serial")
 public class TotalMessage extends Message {

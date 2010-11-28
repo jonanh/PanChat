@@ -1,116 +1,75 @@
 package panchat.linker;
 
-import java.util.*;
-import java.io.*;
+import java.util.LinkedList;
+import java.util.Observable;
+import java.util.Observer;
 
-import panchat.Panchat;
-import panchat.connector.Connector;
 import panchat.data.User;
-import panchat.messages.SimpleMessage;
+import panchat.messages.Message;
 
-public class Linker {
-
-	private static final boolean DEBUG = false;
-
-	private Connector connector;
-
-	private Panchat panchat;
-
-	private Object mutex = new Object();
+public abstract class Linker extends Observable implements Observer {
 
 	/*
-	 * Cola de mensajes de entrega.
+	 * 
 	 */
-	LinkedList<SimpleMessage> deliveryQ = new LinkedList<SimpleMessage>();
+	protected LinkedList<Linker> linker = new LinkedList<Linker>();
 
-	public Linker(Panchat pPanchat) {
-		this.panchat = pPanchat;
-		this.connector = pPanchat.getConnector();
+	protected User myId;
+
+	/*
+	 * Cola de mensajes pendientes y mensajes de entrega.
+	 */
+	protected LinkedList<? extends Message> deliveryQ;
+	protected LinkedList<? extends Message> pendingQ;
+
+	/**
+	 * Crear capa de ordenacion
+	 * 
+	 * @param user
+	 * @param upLinkers
+	 */
+	public Linker(User user, Linker... upLinkers) {
+		for (Linker elem : upLinkers) {
+			linker.add(elem);
+		}
+		this.myId = user;
 	}
 
 	/**
-	 * Función a nivel de paquete para mandar objetos
+	 * Enviar mensaje a un usuario
 	 * 
-	 * @param destId
+	 * @param user
 	 * @param msg
 	 */
-	void socketSendMsg(User destId, Object msg) {
-		try {
-			ObjectOutputStream oos = connector.getOOS(destId.uuid);
-			oos.writeObject(msg);
-			oos.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	public abstract void sendMsg(User user, Object msg);
 
 	/**
-	 * Envio de mensaje
+	 * Enviar mensaje a multiples usuarios
 	 * 
-	 * @param destId
+	 * @param users
 	 * @param msg
 	 */
-	public synchronized void sendMsg(User destId, Object msg) {
-		socketSendMsg(destId, new SimpleMessage(msg, panchat.getUsuario()));
+	public abstract void sendMsg(LinkedList<User> users, Object msg);
+
+	/**
+	 * Recibir mensajes
+	 */
+	public LinkedList<? extends Message> receive() {
+		return deliveryQ;
 	}
 
 	/**
-	 * Envio de mensaje multicast
+	 * Añadir usuario
 	 * 
-	 * @param destIds
-	 * @param msg
+	 * @param user
 	 */
-	public synchronized void sendMsg(LinkedList<User> destIds, Object msg) {
-		for (User usuario : destIds)
-			sendMsg(usuario, msg);
-	}
+	public abstract void addUser(User user);
 
 	/**
-	 * Recibe un mensaje
+	 * Eliminar usuario
 	 * 
-	 * @throws IOException
+	 * @param user
 	 */
-	public Object handleMsg() throws IOException {
+	public abstract void removeUser(User user);
 
-		synchronized (mutex) {
-
-			printDebug("invocado handleMsg");
-
-			/*
-			 * Esperamos mientras no hayamos recibido ningún elemento
-			 */
-			try {
-				while (deliveryQ.isEmpty())
-					deliveryQ.wait();
-
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
-			printDebug("Un objeto encontrado");
-
-			/*
-			 * Hacemos riguroso el acceso a la lista
-			 */
-			return deliveryQ.poll();
-		}
-	}
-
-	/**
-	 * Añadimos un nuevo mensaje a la cola de mensajes
-	 */
-	public synchronized void anyadirMensaje(SimpleMessage msg) {
-		synchronized (mutex) {
-			printDebug("Mensaje añadido a la cola del Linker");
-
-			deliveryQ.add(msg);
-			mutex.notifyAll();
-		}
-	}
-
-	private void printDebug(String string) {
-		String msgClase = "ListenerThread.java: ";
-		if (DEBUG)
-			System.out.println(msgClase + string);
-	}
 }

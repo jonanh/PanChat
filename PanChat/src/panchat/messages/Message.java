@@ -7,7 +7,25 @@ import panchat.data.User;
 @SuppressWarnings("serial")
 public class Message implements Serializable {
 
-	private User address;
+	/*
+	 * Tipos de mensaje
+	 */
+	public enum type {
+		FIFO, CAUSAL, TOTAL, CAUSALTOTAL
+	}
+
+	/**
+	 * 
+	 * El mensaje es enviado usando un socket unicast o un socket multicast.
+	 */
+	public enum channel {
+		UNICAST, MULTICAST
+	}
+
+	/*
+	 * Atributos del mensaje
+	 */
+	private User user;
 
 	private Object content;
 
@@ -15,15 +33,15 @@ public class Message implements Serializable {
 	 * 
 	 * @param pMessage
 	 *            El contenido del mensaje.
-	 * @param pAddress
-	 *            La Dirección del destinatario.
+	 * @param pUser
+	 *            El usuario de origen.
 	 */
-	public Message(Object pMessage, User pAddress) {
-		this.address = pAddress;
+	public Message(Object pMessage, User pUser) {
+		this.user = pUser;
 	}
 
 	public User getUsuario() {
-		return address;
+		return user;
 	}
 
 	/**

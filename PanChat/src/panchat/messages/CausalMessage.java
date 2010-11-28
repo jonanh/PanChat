@@ -1,7 +1,7 @@
 package panchat.messages;
 
+import panchat.clocks.LamportClock;
 import panchat.data.User;
-import panchat.messages.clocks.LamportClock;
 
 @SuppressWarnings("serial")
 public class CausalMessage extends Message {

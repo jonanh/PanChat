@@ -5,19 +5,17 @@ import java.util.Map.Entry;
 import java.io.*;
 
 import panchat.Panchat;
+import panchat.clocks.CausalMatrix;
 import panchat.data.User;
 import panchat.linker.Linker;
 import panchat.messages.CausalMatrixMessage;
 import panchat.messages.CausalMessage;
-import panchat.messages.clocks.CausalMatrix;
 
 public class CausalMatrixLinker extends Linker {
 
 	private static final boolean DEBUG = false;
 
 	private CausalMatrix matrix;
-
-	private User myId;
 
 	private Object mutex = new Object();
 
@@ -36,11 +34,9 @@ public class CausalMatrixLinker extends Linker {
 	 * @param panchat
 	 * @throws Exception
 	 */
-	public CausalMatrixLinker(Panchat pPanchat) {
-		super(pPanchat);
-		this.myId = pPanchat.getUsuario();
+	public CausalMatrixLinker(Linker linker, User myId) {
+		super(linker, myId);
 		this.matrix = new CausalMatrix(myId);
-
 	}
 
 	/**
@@ -50,7 +46,7 @@ public class CausalMatrixLinker extends Linker {
 	 * @param msg
 	 */
 	@Override
-	public synchronized void sendMsg(User destId, Object msg) {
+	public void sendMsg(User destId, Object msg) {
 
 		synchronized (mutex) {
 			printDebug("sendMsg " + destId.nickName + " " + msg.getClass());
@@ -77,7 +73,7 @@ public class CausalMatrixLinker extends Linker {
 	 * @param msg
 	 */
 	@Override
-	public synchronized void sendMsg(LinkedList<User> destIds, Object msg) {
+	public void sendMsg(LinkedList<User> destIds, Object msg) {
 		synchronized (mutex) {
 			printDebug("sendMsg multicast " + destIds + " " + msg.getClass());
 

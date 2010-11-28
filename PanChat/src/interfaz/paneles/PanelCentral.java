@@ -17,7 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import panchat.Panchat;
-import panchat.connector.Connector;
+import panchat.connector.SocketConnector;
 import panchat.data.ChatList;
 import panchat.data.User;
 import panchat.data.models.UserTableModel;
@@ -182,7 +182,7 @@ public class PanelCentral extends MiPanel implements MouseListener {
 			
 			
 			
-			Connector conector =panchat.getConnector();
+			SocketConnector conector =panchat.getConnector();
 			ventana.add( conversacion);
 		}
 

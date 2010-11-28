@@ -1,4 +1,4 @@
-package panchat.messages.clocks;
+package panchat.clocks;
 
 /**
  * Implementación de un reloj lógico de Lamport.
