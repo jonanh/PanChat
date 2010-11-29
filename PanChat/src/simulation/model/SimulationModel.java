@@ -11,6 +11,7 @@ import panchat.data.User;
 
 import simulation.arrows.MessageArrow;
 import simulation.view.CellPosition;
+import simulation.view.Position;
 
 /**
  * Clase que representa los datos del simulador :
@@ -37,7 +38,7 @@ public class SimulationModel extends Observable implements Serializable {
 	private BitSet cutList = new BitSet();
 
 	// Lista de flechas
-	private ArrayList<? extends MessageArrow> listaFlechas = new ArrayList<MessageArrow>();
+	private ArrayList<MessageArrow> listaFlechas = new ArrayList<MessageArrow>();
 	private HashMap<CellPosition, MessageArrow> arrowHastTable = new HashMap<CellPosition, MessageArrow>();
 
 	// Lista de procesos/usuarios
@@ -84,7 +85,7 @@ public class SimulationModel extends Observable implements Serializable {
 	/*
 	 * Número de procesos
 	 */
-	
+
 	/**
 	 * @return Obtenemos el número de procesos
 	 */
@@ -192,6 +193,7 @@ public class SimulationModel extends Observable implements Serializable {
 	 */
 	public void addArrow(MessageArrow messageArrow) {
 		synchronized (mutex) {
+			listaFlechas.add(messageArrow);
 			arrowHastTable.put(messageArrow.getInitialPos(), messageArrow);
 			arrowHastTable.put(messageArrow.getFinalPos(), messageArrow);
 		}
@@ -202,7 +204,22 @@ public class SimulationModel extends Observable implements Serializable {
 	 * @param position
 	 *            Borramos una flecha de esta posicion.
 	 */
-	public void deleteArrow(CellPosition position) {
+	public MessageArrow getArrow(Position position) {
+		synchronized (mutex) {
+
+			if (!(position instanceof CellPosition))
+				return null;
+
+			return arrowHastTable.get((CellPosition) position);
+		}
+	}
+
+	/**
+	 * 
+	 * @param position
+	 *            Borramos una flecha de esta posicion.
+	 */
+	public MessageArrow deleteArrow(CellPosition position) {
 		synchronized (mutex) {
 			MessageArrow arrow = arrowHastTable.remove(position);
 			if (arrow != null) {
@@ -215,6 +232,7 @@ public class SimulationModel extends Observable implements Serializable {
 
 				listaFlechas.remove(arrow);
 			}
+			return arrow;
 		}
 	}
 
@@ -227,7 +245,22 @@ public class SimulationModel extends Observable implements Serializable {
 	 */
 	public boolean isValidArrow(MessageArrow messageArrow) {
 		synchronized (mutex) {
-			return arrowHastTable.containsKey(messageArrow.getFinalPos());
+			CellPosition initialPos = messageArrow.getInitialPos();
+			CellPosition finalPos = messageArrow.getFinalPos();
+
+			// Una flecha no puede ir de a el mismo proceso
+			if (initialPos.process == finalPos.process)
+				return false;
+
+			// Una flecha no puede ir hacia atrás
+			if (initialPos.tick >= finalPos.tick)
+				return false;
+
+			// Si el destino de la fecha apunta a una celda ya ocupada
+			if (arrowHastTable.containsKey(messageArrow.getFinalPos()))
+				return false;
+
+			return true;
 		}
 	}
 }

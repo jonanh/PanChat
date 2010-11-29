@@ -4,20 +4,23 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 import simulation.arrows.Arrow;
 import simulation.arrows.MessageArrow;
 import simulation.model.SimulationModel;
+import simulation.view.listener.CreateListener;
 import simulation.view.listener.ViewListener;
 
 @SuppressWarnings("serial")
-public class SimulationView extends JComponent implements Observer {
+public class SimulationView extends JPanel implements Observer {
 
 	public static enum State {
 		OVER, CREATE, MOVE, DELETE
@@ -67,6 +70,7 @@ public class SimulationView extends JComponent implements Observer {
 	// Flecha de dibujo
 	private MessageArrow drawingArrow;
 
+	BufferedImage backBuffer;
 
 	/**
 	 * Crea un nuevo tablero con las dimensiones establecidas por defecto.
@@ -82,9 +86,24 @@ public class SimulationView extends JComponent implements Observer {
 	}
 
 	public void setState(State state) {
-		ViewListener listener = new ViewListener(this);
+		ViewListener listener = new CreateListener(this);
 		this.addMouseListener(listener);
 		this.addMouseMotionListener(listener);
+	}
+
+	/**
+	 * @return the drawingArrow
+	 */
+	public MessageArrow getDrawingArrow() {
+		return drawingArrow;
+	}
+
+	/**
+	 * @param drawingArrow
+	 *            the drawingArrow to set
+	 */
+	public void setDrawingArrow(MessageArrow drawingArrow) {
+		this.drawingArrow = drawingArrow;
 	}
 
 	/**
@@ -137,7 +156,8 @@ public class SimulationView extends JComponent implements Observer {
 		int x = paddingX + position.tick * cellWidth + cellWidth / 2;
 
 		// Espacio de arriba + celda * proceso + mitad celda
-		int y = paddingY + position.process * cellHeight + cellHeight / 2;
+		int y = paddingY + position.process * (cellHeight + paddingY)
+				+ cellHeight / 2;
 
 		return new Point2D.Float(x, y);
 	}
@@ -154,10 +174,16 @@ public class SimulationView extends JComponent implements Observer {
 	 */
 	@Override
 	public void paint(Graphics g) {
-		Graphics2D g2 = (Graphics2D) g;
+
+		Graphics2D g2 = (Graphics2D) backBuffer.getGraphics();
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+
 		paintColumns(g2);
 		paintProcesses(g2);
-		paintArrows(g);
+		paintArrows(g2);
+
+		g.drawImage(backBuffer, 0, 0, this);
 	}
 
 	/**
@@ -249,10 +275,12 @@ public class SimulationView extends JComponent implements Observer {
 	 * @param g
 	 *            el contexto grafico en el cual se pinta.
 	 */
-	private void paintArrows(Graphics g) {
+	private void paintArrows(Graphics2D g) {
 		for (Arrow flecha : simulationModel.getArrowList()) {
-			flecha.draw((Graphics2D) g);
+			flecha.draw(g);
 		}
+		if (this.drawingArrow != null)
+			drawingArrow.draw(g);
 	}
 
 	/**
@@ -304,6 +332,9 @@ public class SimulationView extends JComponent implements Observer {
 
 		width = (ticks + 1) * cellWidth + 2 * paddingX;
 		height = (processes + 1) * (cellHeight + paddingY) + paddingY;
+
+		this.backBuffer = new BufferedImage(width, height,
+				BufferedImage.TYPE_INT_ARGB);
 
 		this.setPreferredSize(new Dimension(width, height));
 		this.repaint();

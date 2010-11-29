@@ -18,6 +18,9 @@ public class MessageArrow extends Arrow implements Serializable {
 	}
 
 	private void update(CellPosition initialPos, CellPosition finalPos) {
+		this.initialPos = initialPos;
+		this.finalPos = finalPos;
+
 		Point2D.Float pos1 = SimulationView.PositionCoords(initialPos);
 		Point2D.Float pos2 = SimulationView.PositionCoords(finalPos);
 
