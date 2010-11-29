@@ -1,24 +1,51 @@
 package simulation.arrows;
+
+import java.awt.geom.Point2D;
 import java.io.Serializable;
 
+import simulation.view.CellPosition;
+import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
 public class MessageArrow extends Arrow implements Serializable {
 
-	int Process;
+	CellPosition initialPos;
+	CellPosition finalPos;
 
-	// int[] time = new int[2];
+	public MessageArrow(CellPosition initialPos, CellPosition finalPos) {
+		super(0f, 0f, 0f, 0f);
+		update(initialPos, finalPos);
+	}
 
-	public MessageArrow(int time1, int time2) {
-		// Construimos la linea sin saber aún las coordenadas
-		super(0, 0, 0, 0);
+	private void update(CellPosition initialPos, CellPosition finalPos) {
+		Point2D.Float pos1 = SimulationView.PositionCoords(initialPos);
+		Point2D.Float pos2 = SimulationView.PositionCoords(finalPos);
 
-		// Calculamos las coordenadas
-		// Point2D p1 = InformationCanvas.time2Point2D(time1);
-		// Point2D p2 = InformationCanvas.time2Point2D(time2);
+		super.setLine(pos1, pos2);
+	}
 
-		// Establecemos los valores
-		// this.setLine(p1, p2);
+	/**
+	 * @return the finalPos
+	 */
+	public CellPosition getFinalPos() {
+		return finalPos;
+	}
+
+	/**
+	 * @param finalPos
+	 *            the finalPos to set
+	 */
+	public void setFinalPos(CellPosition finalPos) {
+		this.finalPos = finalPos;
+
+		update(initialPos, finalPos);
+	}
+
+	/**
+	 * @return the initialPos
+	 */
+	public CellPosition getInitialPos() {
+		return initialPos;
 	}
 
 }

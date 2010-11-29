@@ -13,20 +13,20 @@ public class AddListener implements MouseListener, MouseMotionListener {
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		over = true;
-		setCursorAt(e.getX(), e.getY());
+		// over = true;
+		// setCursorAt(e.getX(), e.getY());
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		over = false;
-		repaint();
+		// over = false;
+		// repaint();
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// clickeado(calcularPosicion(e));
-		setCursorAt(e.getX(), e.getY());
+		// setCursorAt(e.getX(), e.getY());
 	}
 
 	@Override
@@ -36,12 +36,12 @@ public class AddListener implements MouseListener, MouseMotionListener {
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// clickeado(calcularPosicion(e));
-		setCursorAt(e.getX(), e.getY());
+		// setCursorAt(e.getX(), e.getY());
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		setCursorAt(e.getX(), e.getY());
+		// setCursorAt(e.getX(), e.getY());
 	}
 
 }

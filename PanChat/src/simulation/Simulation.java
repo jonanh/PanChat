@@ -9,25 +9,25 @@ import simulation.model.SimulationModel;
 import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
-public class SimulationUI extends JFrame {
+public class Simulation extends JFrame {
 
 	SimulationModel model;
 	SimulationView view;
 	ToolbarPanel menu;
 
-	public SimulationUI() {
+	public Simulation() {
 		super("Simulación paso de mensajes");
 		this.setVisible(true);
 		this.setSize(1200, 500);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		model = new SimulationModel();
-		// view = new SimulationView(model);
+		view = new SimulationView(model);
 		menu = new ToolbarPanel(model);
 
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(menu, BorderLayout.NORTH);
-		// this.add(view, BorderLayout.CENTER);
+		this.add(view, BorderLayout.CENTER);
 		this.pack();
 	}
 
@@ -38,6 +38,6 @@ public class SimulationUI extends JFrame {
 		} catch (Exception e) {
 		}
 
-		new SimulationUI();
+		new Simulation();
 	}
 }

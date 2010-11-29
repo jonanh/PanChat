@@ -1,10 +1,13 @@
 package simulation.view;
+
 import java.awt.BorderLayout;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
+import simulation.model.SimulationModel;
 
 /**
  * Interfaz grafica de una aplicacion
@@ -20,7 +23,7 @@ public class SimulationViewTest extends JFrame {
 	private JButton operarButton = new JButton("Do it");
 	private JButton finButton = new JButton("Fin");
 
-	private SimulationView tablero = new SimulationView();
+	private SimulationView tablero = new SimulationView(new SimulationModel());
 
 	/**
 	 * Construye una nueva ventana
