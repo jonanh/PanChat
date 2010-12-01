@@ -39,8 +39,6 @@ public class MessageArrow extends Arrow implements Serializable {
 	 *            the finalPos to set
 	 */
 	public void setFinalPos(CellPosition finalPos) {
-		this.finalPos = finalPos;
-
 		update(initialPos, finalPos);
 	}
 
@@ -51,4 +49,11 @@ public class MessageArrow extends Arrow implements Serializable {
 		return initialPos;
 	}
 
+	/**
+	 * @param initialPos
+	 *            the finalPos to set
+	 */
+	public void setInitialPos(CellPosition initialPos) {
+		update(initialPos, finalPos);
+	}
 }

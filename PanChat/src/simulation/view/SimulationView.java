@@ -17,6 +17,8 @@ import simulation.arrows.Arrow;
 import simulation.arrows.MessageArrow;
 import simulation.model.SimulationModel;
 import simulation.view.listener.CreateListener;
+import simulation.view.listener.DeleteListener;
+import simulation.view.listener.MoveListener;
 import simulation.view.listener.ViewListener;
 
 @SuppressWarnings("serial")
@@ -56,8 +58,8 @@ public class SimulationView extends JPanel implements Observer {
 	private SimulationModel simulationModel;
 
 	// Numero de procesos y de ticks
-	private int processes = SimulationModel.DEFAULT_NUM_PROCESSES;
-	private int ticks = SimulationModel.DEFAULT_NUM_TICKS;
+	private int processes;
+	private int ticks;
 
 	// Dimensiones del tablero (en pixels)
 	private int width = ticks * cellWidth + paddingX + 1;
@@ -75,9 +77,16 @@ public class SimulationView extends JPanel implements Observer {
 	// el buffer, y después volcando la imagen sobre el contexto del panel.
 	BufferedImage backBuffer;
 
+	// Cuando redimensionamos nuestra vista necesitamos ejecutar super.paint()
+	// para limpiar la ventana.
+	private boolean screenResized;
+
 	// Guardamos en una lista, los listeners que controlan el comportamiento de
 	// la vista.
 	private ViewListener[] listViewListeners = new ViewListener[State.values().length];
+
+	// Guardamos una referencia al listener actual para poder cambiarlo por otro
+	private ViewListener actualViewListener;
 
 	/**
 	 * Crea un nuevo tablero con el simulation model.
@@ -92,7 +101,7 @@ public class SimulationView extends JPanel implements Observer {
 		// Por defecto el comportamiento es moverse con el ratón.
 		this.setState(State.OVER);
 
-		update();
+		updateData();
 	}
 
 	/**
@@ -102,6 +111,8 @@ public class SimulationView extends JPanel implements Observer {
 	private void createViewListeners() {
 		listViewListeners[State.OVER.ordinal()] = new ViewListener(this);
 		listViewListeners[State.CREATE.ordinal()] = new CreateListener(this);
+		listViewListeners[State.MOVE.ordinal()] = new MoveListener(this);
+		listViewListeners[State.DELETE.ordinal()] = new DeleteListener(this);
 	}
 
 	/**
@@ -116,9 +127,13 @@ public class SimulationView extends JPanel implements Observer {
 	 * @param state
 	 */
 	public void setState(State state) {
-		ViewListener listener = listViewListeners[state.ordinal()];
-		this.addMouseListener(listener);
-		this.addMouseMotionListener(listener);
+		if (actualViewListener != null) {
+			this.removeMouseListener(actualViewListener);
+			this.removeMouseMotionListener(actualViewListener);
+		}
+		actualViewListener = listViewListeners[state.ordinal()];
+		this.addMouseListener(actualViewListener);
+		this.addMouseMotionListener(actualViewListener);
 	}
 
 	/**
@@ -226,6 +241,9 @@ public class SimulationView extends JPanel implements Observer {
 		paintColumns(g2);
 		paintProcesses(g2);
 		paintArrows(g2);
+
+		if (screenResized)
+			super.paint(g);
 
 		g.drawImage(backBuffer, 0, 0, this);
 	}
@@ -362,7 +380,7 @@ public class SimulationView extends JPanel implements Observer {
 		for (ViewListener view : listViewListeners) {
 			view.updateModel();
 		}
-		update();
+		updateData();
 	}
 
 	/*
@@ -374,20 +392,30 @@ public class SimulationView extends JPanel implements Observer {
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
-		update();
+		updateData();
 	}
 
-	public void update() {
-		ticks = simulationModel.getTimeTicks();
-		processes = simulationModel.getNumProcesses();
+	public void updateData() {
+		int ticks = simulationModel.getTimeTicks();
+		int processes = simulationModel.getNumProcesses();
 
-		width = (ticks + 1) * cellWidth + 2 * paddingX;
-		height = (processes + 1) * (cellHeight + paddingY) + paddingY;
+		// Solo cambiar el tamaño de la ventana si han cambiado el número de
+		// ticks y el número de procesos.
+		if (this.ticks != ticks || this.processes != processes) {
+			this.ticks = ticks;
+			this.processes = processes;
 
-		this.backBuffer = new BufferedImage(width, height,
-				BufferedImage.TYPE_INT_ARGB);
+			width = (ticks + 1) * cellWidth + 2 * paddingX;
+			height = (processes + 1) * (cellHeight + paddingY) + paddingY;
 
-		this.setPreferredSize(new Dimension(width, height));
+			this.backBuffer = new BufferedImage(width, height,
+					BufferedImage.TYPE_INT_ARGB);
+
+			this.screenResized = true;
+
+			this.setPreferredSize(new Dimension(width, height));
+		}
+
 		this.repaint();
 	}
 }

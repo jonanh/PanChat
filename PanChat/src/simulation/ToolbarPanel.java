@@ -4,6 +4,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -12,11 +13,21 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import simulation.model.SimulationModel;
+import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
 public class ToolbarPanel extends JPanel {
 
-	private SimulationModel simulationData;
+	// Constantes iconos
+	private static final String path = "/simulation/icons/";
+	private static final String create = "go-jump";
+	private static final String delete = "edit-delete";
+	private static final String move = "view-fullscreen";
+	private static final String cut = "edit-cut";
+	private static final String open = "document-open";
+	private static final String save = "document-save";
+
+	private SimulationView simulationView;
 
 	private JLabel numProcessLabel = new JLabel("Nº process:");
 	private JLabel timeUnitLabel = new JLabel("Time unit: ");
@@ -24,49 +35,73 @@ public class ToolbarPanel extends JPanel {
 	private JCheckBox fifoCheck = new JCheckBox("FIFO");
 	private JCheckBox causalCheck = new JCheckBox("Causal");
 	private JCheckBox totalCheck = new JCheckBox("Total");
-	private JCheckBox noneCheck = new JCheckBox("none");
+	private JCheckBox multicastCheck = new JCheckBox("Multicast");
 
 	private JTextField numProcessText = new JTextField();
 	private JTextField timeUnitText = new JTextField();
 
-	private JButton cutButton = new JButton("Cut");
-	private JButton snapshotButton = new JButton("Snapshot");
-	private JButton eventButton = new JButton("Events");
-	private JButton startButton = new JButton("Start");
-	private JButton moveSLButton = new JButton("Move Snapshot");
-	private JButton stopMovingSLButton = new JButton("Stop Moving Snapshot");
+	private JButton stateButton[] = new JButton[6];
 
-	public ToolbarPanel(SimulationModel simulationData) {
-		this.simulationData = simulationData;
+	public ToolbarPanel(SimulationView simulation) {
+		
+		this.simulationView = simulation;
 
 		numProcessText.setColumns(4);
 		timeUnitText.setColumns(6);
 
+		stateButton[0] = new JButton(loadIcon(create));
+		stateButton[1] = new JButton(loadIcon(move));
+		stateButton[2] = new JButton(loadIcon(delete));
+		stateButton[3] = new JButton(loadIcon(cut));
+		stateButton[4] = new JButton(loadIcon(open));
+		stateButton[5] = new JButton(loadIcon(save));
+
+		for (JButton button : stateButton)
+			this.add(button);
+		
 		this.setLayout(new FlowLayout());
 		this.add(fifoCheck);
 		this.add(causalCheck);
 		this.add(totalCheck);
-		this.add(noneCheck);
-		this.add(cutButton);
+		this.add(multicastCheck);
+
 		this.add(numProcessLabel);
 		this.add(numProcessText);
 		this.add(timeUnitLabel);
 		this.add(timeUnitText);
-		this.add(snapshotButton);
-		this.add(eventButton);
-		this.add(startButton);
-		this.add(moveSLButton);
-		this.add(stopMovingSLButton);
 
 		subscribeEvents();
 
 	}
 
+	public ImageIcon loadIcon(String name) {
+		return new ImageIcon(this.getClass().getResource(path + name + ".png"));
+	}
+
 	public void subscribeEvents() {
+		stateButton[0].addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				simulationView.setState(SimulationView.State.CREATE);
+			}
+		});
+		stateButton[1].addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				simulationView.setState(SimulationView.State.MOVE);
+			}
+		});
+		stateButton[2].addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				simulationView.setState(SimulationView.State.DELETE);
+			}
+		});
+		
 		fifoCheck.addActionListener(null);
 		causalCheck.addActionListener(null);
 		totalCheck.addActionListener(null);
-		noneCheck.addActionListener(null);
+		multicastCheck.addActionListener(null);
 
 		numProcessText.addActionListener(new ActionListener() {
 
@@ -80,7 +115,7 @@ public class ToolbarPanel extends JPanel {
 				numero = Integer.parseInt(texto);
 
 				// cambiar el numero de procesos
-				numero = simulationData.setNumProcesses(numero);
+				numero = simulationView.getSimulationModel().setNumProcesses(numero);
 
 				// indicar en el textbox el numero de procesos establecidos
 				texto = String.valueOf(numero);
@@ -99,70 +134,21 @@ public class ToolbarPanel extends JPanel {
 				numero = Integer.parseInt(texto);
 
 				// cambiar el numero de procesos
-				numero = simulationData.setTimeTicks(numero);
+				numero = simulationView.getSimulationModel().setTimeTicks(numero);
 
 				// indicar en el textbox el numero de procesos establecidos
 				texto = String.valueOf(numero);
 				timeUnitText.setText(texto);
 			}
 		});
-
-		cutButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// simulationData.setState(SimulationData.CUT);
-				// simulationData.setIsCut(true);
-				// simulationData.getCutLine().add(new Line(0, 0));
-				// simulationData.getCutLine().lastElement().setColor(Color.RED);
-			}
-
-		});
-		snapshotButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// if (simulationData.getIsFixSnapshot() == true) {
-				// simulationData.setFixSnapshot(false);
-				// simulationData.setSnapshotEmpty();
-				// }
-				// simulationData.setState(SimulationData.SNAPSHOT);
-			}
-		});
-		eventButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// simulationData.setState(SimulationData.EVENT);
-			}
-
-		});
-
-		startButton.addActionListener(null);
-
-		moveSLButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// simulationData.setState(SimulationData.MOVE);
-			}
-
-		});
-		stopMovingSLButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// simulationData.setState(SimulationData.EVENT);
-			}
-
-		});
 	}
 
 	public static void main(String[] args) {
 		JFrame ventana = new JFrame("prueba de los menus");
 		ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		ventana.add(new ToolbarPanel(new SimulationModel()));
+		ventana.add(new ToolbarPanel(new SimulationView(new SimulationModel())));
 
 		ventana.setVisible(true);
-		ventana.setSize(300, 300);
+		ventana.setSize(850, 60);
 	}
 }

@@ -129,7 +129,7 @@ public class SimulationModel extends Observable implements Serializable {
 			for (int i = getNumProcesses(); i > pNumProcesses; i++)
 				listaProcesos.remove(i);
 
-			this.hasChanged();
+			super.setChanged();
 			this.notifyObservers();
 		}
 		return getNumProcesses();
@@ -155,7 +155,7 @@ public class SimulationModel extends Observable implements Serializable {
 		if (pTimeTicks > numTicks) {
 			this.numTicks = pTimeTicks;
 
-			this.hasChanged();
+			super.setChanged();
 			this.notifyObservers();
 
 		} else if (pTimeTicks < numTicks) {
@@ -166,7 +166,7 @@ public class SimulationModel extends Observable implements Serializable {
 			 * intentando eliminarlo.
 			 */
 			this.numTicks = Math.max(pTimeTicks, lastArrow().tick);
-			this.hasChanged();
+			super.setChanged();
 			this.notifyObservers();
 		}
 		return numTicks;
@@ -202,7 +202,7 @@ public class SimulationModel extends Observable implements Serializable {
 			arrowHastTable.put(messageArrow.getInitialPos(), messageArrow);
 			arrowHastTable.put(messageArrow.getFinalPos(), messageArrow);
 		}
-		this.hasChanged();
+		super.setChanged();
 		this.notifyObservers();
 	}
 
@@ -241,8 +241,9 @@ public class SimulationModel extends Observable implements Serializable {
 				listaFlechas.remove(arrow);
 			}
 		}
-		this.hasChanged();
+		super.setChanged();
 		this.notifyObservers();
+		System.out.println("eliminado");
 		return arrow;
 	}
 

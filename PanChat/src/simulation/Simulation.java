@@ -24,7 +24,7 @@ public class Simulation extends JFrame {
 
 		model = new SimulationModel();
 		view = new SimulationView(model);
-		menu = new ToolbarPanel(model);
+		menu = new ToolbarPanel(view);
 
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(menu, BorderLayout.NORTH);
