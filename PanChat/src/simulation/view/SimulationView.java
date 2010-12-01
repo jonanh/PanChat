@@ -67,26 +67,56 @@ public class SimulationView extends JPanel implements Observer {
 	// de la pantalla)
 	private Position overPosition;
 
-	// Flecha de dibujo
+	// Flecha que estamos modificando sobre la vista. Como no es una flecha
+	// definitiva, trabajamos directamente sobre la vista en vez del modelo.
 	private MessageArrow drawingArrow;
 
+	// Implementamos un doble buffer, realizando las operaciones de dibujo sobre
+	// el buffer, y después volcando la imagen sobre el contexto del panel.
 	BufferedImage backBuffer;
 
+	// Guardamos en una lista, los listeners que controlan el comportamiento de
+	// la vista.
+	private ViewListener[] listViewListeners = new ViewListener[State.values().length];
+
 	/**
-	 * Crea un nuevo tablero con las dimensiones establecidas por defecto.
+	 * Crea un nuevo tablero con el simulation model.
 	 */
 	public SimulationView(SimulationModel simulationModel) {
 
 		this.simulationModel = simulationModel;
 		this.simulationModel.addObserver(this);
 
+		createViewListeners();
+
+		// Por defecto el comportamiento es moverse con el ratón.
 		this.setState(State.OVER);
 
 		update();
 	}
 
+	/**
+	 * Creamos los listeners que controlan el comportamiento de la vista.
+	 * 
+	 */
+	private void createViewListeners() {
+		listViewListeners[State.OVER.ordinal()] = new ViewListener(this);
+		listViewListeners[State.CREATE.ordinal()] = new CreateListener(this);
+	}
+
+	/**
+	 * Cambiamos el modo de comportamiento de la vista :
+	 * <ul>
+	 * <li>Type.Over = Moverse sin hacer nada</li>
+	 * <li>Type.Create = Crear flechas, y mover los puntos del final</li>
+	 * <li>Type.Move = Mover flechas</li>
+	 * <li>Type.Delete = Eliminar flechas</li>
+	 * </ul>
+	 * 
+	 * @param state
+	 */
 	public void setState(State state) {
-		ViewListener listener = new CreateListener(this);
+		ViewListener listener = listViewListeners[state.ordinal()];
 		this.addMouseListener(listener);
 		this.addMouseMotionListener(listener);
 	}
@@ -139,18 +169,32 @@ public class SimulationView extends JPanel implements Observer {
 	}
 
 	/**
-	 * Establecemos el position over
+	 * Establecemos la posición sobre la que esta el cursor. Sólo si cambiamos
+	 * el estado actualizamos y repintamos la pantalla.
 	 * 
-	 * @param position
+	 * @param newPosition
 	 */
-	public void setPosition(Position position) {
-		if ((this.overPosition != null && position == null)
-				|| (position != null && !position.equals(this.overPosition))) {
-			this.overPosition = position;
+	public void setPosition(Position newPosition) {
+		// - Si la posicion antigua era distinta de null y ahora es null, ya
+		// no estamos encima de la pantalla. (evitamos el null pointer)
+		// - Si la posicion antigua es distinta de null, comprobamos que la
+		// posicion nueva sea distinta de la antigua.
+		if ((this.overPosition != null && newPosition == null)
+				|| (newPosition != null && !newPosition
+						.equals(this.overPosition))) {
+
+			this.overPosition = newPosition;
 			this.repaint();
 		}
 	}
 
+	/**
+	 * Calcula la posicion centrada en una celda según la posicion de una celda.
+	 * 
+	 * @param position
+	 * 
+	 * @return Punto centrado en la celda position
+	 */
 	public static Point2D.Float PositionCoords(CellPosition position) {
 		// Espacio de la izquierda + celda * tick + mitad celda
 		int x = paddingX + position.tick * cellWidth + cellWidth / 2;
@@ -215,6 +259,8 @@ public class SimulationView extends JPanel implements Observer {
 			g.drawRect(x0, y0, x1, y1);
 		}
 
+		// Dibujamos el efecto over de iluminación. Osea iluminamos toda la
+		// columna.
 		if (overPosition instanceof CutPosition) {
 
 			CutPosition pos = (CutPosition) overPosition;
@@ -249,6 +295,8 @@ public class SimulationView extends JPanel implements Observer {
 			}
 		}
 
+		// Dibujamos el efecto over de iluminación. Iluminamos la celda cuando
+		// pasamos por encima.
 		if (overPosition instanceof CellPosition) {
 
 			CellPosition pos = (CellPosition) overPosition;
@@ -311,6 +359,9 @@ public class SimulationView extends JPanel implements Observer {
 	 */
 	public void setSimulationModel(SimulationModel simulationModel) {
 		this.simulationModel = simulationModel;
+		for (ViewListener view : listViewListeners) {
+			view.updateModel();
+		}
 		update();
 	}
 

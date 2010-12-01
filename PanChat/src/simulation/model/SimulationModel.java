@@ -24,7 +24,7 @@ import simulation.view.Position;
 public class SimulationModel extends Observable implements Serializable {
 
 	/*
-	 * Numero de casillas del tablero
+	 * Constantes por defecto
 	 */
 	public static final int DEFAULT_NUM_PROCESSES = 4;
 	public static final int DEFAULT_NUM_TICKS = 14;
@@ -34,11 +34,16 @@ public class SimulationModel extends Observable implements Serializable {
 	 */
 	private int numTicks = DEFAULT_NUM_TICKS;
 
-	// Lista de cortes
+	// Lista de cortes (usando un bitset, para evitar usar un array de
+	// booleanos. Es dinamico e internamente permite usar operaciones a nivel de
+	// bit).
 	private BitSet cutList = new BitSet();
 
+	// Flechas
 	// Lista de flechas
 	private ArrayList<MessageArrow> listaFlechas = new ArrayList<MessageArrow>();
+
+	// Matriz de flechas, donde CellPosition almacena (Proceso,Tick)
 	private HashMap<CellPosition, MessageArrow> arrowHastTable = new HashMap<CellPosition, MessageArrow>();
 
 	// Lista de procesos/usuarios
@@ -197,6 +202,8 @@ public class SimulationModel extends Observable implements Serializable {
 			arrowHastTable.put(messageArrow.getInitialPos(), messageArrow);
 			arrowHastTable.put(messageArrow.getFinalPos(), messageArrow);
 		}
+		this.hasChanged();
+		this.notifyObservers();
 	}
 
 	/**
@@ -220,8 +227,9 @@ public class SimulationModel extends Observable implements Serializable {
 	 *            Borramos una flecha de esta posicion.
 	 */
 	public MessageArrow deleteArrow(CellPosition position) {
+		MessageArrow arrow;
 		synchronized (mutex) {
-			MessageArrow arrow = arrowHastTable.remove(position);
+			arrow = arrowHastTable.remove(position);
 			if (arrow != null) {
 				// Borramos de la tabla hash la flecha referenciada desde el
 				// otro extemo (inicio o final)
@@ -232,16 +240,25 @@ public class SimulationModel extends Observable implements Serializable {
 
 				listaFlechas.remove(arrow);
 			}
-			return arrow;
 		}
+		this.hasChanged();
+		this.notifyObservers();
+		return arrow;
 	}
 
 	/**
+	 * Verificamos si messageArrow es una flecha que se encuentra en un lugar
+	 * válido y/o libre :
+	 * 
+	 * <ul>
+	 * <li>Una flecha no puede ir de a el mismo proceso.</li>
+	 * <li>Una flecha no puede ir hacia atrás.</li>
+	 * <li>Una flecha no puede apuntar a una celda ya ocupada.</li>
+	 * </ul>
 	 * 
 	 * @param messageArrow
 	 * 
-	 * @return Verificamos si messageArrow es una flecha que se encuentra en un
-	 *         lugar válido y/o libre.
+	 * @return Si es valida la flecha
 	 */
 	public boolean isValidArrow(MessageArrow messageArrow) {
 		synchronized (mutex) {
