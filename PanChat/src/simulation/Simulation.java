@@ -3,6 +3,7 @@ package simulation;
 import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 
 import simulation.model.SimulationModel;
@@ -27,7 +28,7 @@ public class Simulation extends JFrame {
 
 		this.getContentPane().setLayout(new BorderLayout());
 		this.getContentPane().add(menu, BorderLayout.NORTH);
-		this.add(view, BorderLayout.CENTER);
+		this.add(new JScrollPane(view), BorderLayout.CENTER);
 		this.pack();
 	}
 
