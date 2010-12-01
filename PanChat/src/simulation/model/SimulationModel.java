@@ -243,7 +243,6 @@ public class SimulationModel extends Observable implements Serializable {
 		}
 		super.setChanged();
 		this.notifyObservers();
-		System.out.println("eliminado");
 		return arrow;
 	}
 
