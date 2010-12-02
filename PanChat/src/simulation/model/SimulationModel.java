@@ -257,7 +257,7 @@ public class SimulationModel extends Observable implements Serializable {
 	public synchronized MessageArrow deleteArrow(CellPosition position) {
 		MessageArrow arrow;
 
-		MultipleArrow multipleArrow = getMultipleArrow(position);
+		MultipleArrow multipleArrow = arrowMatrix.remove(position);
 
 		if (multipleArrow == null)
 			return null;
