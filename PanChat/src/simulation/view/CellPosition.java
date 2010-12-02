@@ -1,6 +1,9 @@
 package simulation.view;
 
-public class CellPosition implements Position {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class CellPosition implements Serializable, Position {
 
 	public int process;
 	public int tick;
@@ -26,5 +29,10 @@ public class CellPosition implements Position {
 			return (tick == other.tick && process == other.process);
 		}
 		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "(" + process + "," + tick + ")";
 	}
 }

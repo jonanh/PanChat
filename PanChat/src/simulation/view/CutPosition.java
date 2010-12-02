@@ -1,6 +1,9 @@
 package simulation.view;
 
-public class CutPosition implements Position {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class CutPosition implements Serializable, Position {
 
 	public int tick;
 

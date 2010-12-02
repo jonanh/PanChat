@@ -3,14 +3,15 @@ package simulation.view.listener;
 import java.awt.event.MouseEvent;
 
 import simulation.arrows.MessageArrow;
+import simulation.arrows.SingleArrow;
 import simulation.view.CellPosition;
 import simulation.view.Position;
 import simulation.view.SimulationView;
 
 public class CreateListener extends ViewListener {
 
-	private MessageArrow moveArrow;
-	private MessageArrow drawingArrow;
+	private SingleArrow moveArrow;
+	private SingleArrow drawingArrow;
 
 	public CreateListener(SimulationView simulationView) {
 		super(simulationView);
@@ -25,22 +26,21 @@ public class CreateListener extends ViewListener {
 		if (pos instanceof CellPosition) {
 
 			CellPosition cell = (CellPosition) pos;
-			drawingArrow = simulationModel.getArrow(pos);
+			MessageArrow arrow = simulationModel.getArrow(pos);
 
 			// Si no existe ninguna flecha, o si hemos pinchado en el comienzo
 			// de la flecha, creamos una nueva flecha :
-			if (drawingArrow == null
-					|| cell.equals(drawingArrow.getInitialPos())) {
+			if (arrow == null || cell.equals(arrow.getInitialPos())) {
 
-				drawingArrow = new MessageArrow(cell, cell);
+				drawingArrow = new SingleArrow(cell, cell);
 				simulationView.setDrawingArrow(drawingArrow);
 
 			}
 			// Si hemos pinchado en una flecha del extremo final, nos permite
 			// mover el final de la flecha.
 			else {
-				moveArrow = simulationModel.deleteArrow(cell);
-				drawingArrow = new MessageArrow(moveArrow.getInitialPos(), cell);
+				moveArrow = (SingleArrow) simulationModel.deleteArrow(cell);
+				drawingArrow = new SingleArrow(moveArrow.getInitialPos(), cell);
 				simulationView.setDrawingArrow(drawingArrow);
 			}
 		}
@@ -48,7 +48,7 @@ public class CreateListener extends ViewListener {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		MessageArrow arrow = simulationView.getDrawingArrow();
+		SingleArrow arrow = simulationView.getDrawingArrow();
 
 		// Eliminamos la flecha en dibujo
 		simulationView.setDrawingArrow(null);

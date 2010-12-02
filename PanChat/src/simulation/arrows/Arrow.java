@@ -24,13 +24,13 @@ public class Arrow extends Line2D.Float implements Serializable {
 	private transient static final Point2D.Float arrowPoint = new Point2D.Float(
 			10, 5);
 
-	private transient final Path2D.Float arrowPath = new Path2D.Float();
+	private transient static Path2D.Float arrowPath;
 
 	/*
 	 * Optimizaciones
 	 */
-	private transient AffineTransform tx = new AffineTransform();
-	private transient BasicStroke stroke = new BasicStroke(2.0f,
+	private AffineTransform tx = new AffineTransform();
+	private static transient BasicStroke stroke = new BasicStroke(2.0f,
 			BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
 
 	/*
@@ -62,9 +62,12 @@ public class Arrow extends Line2D.Float implements Serializable {
 	}
 
 	public void inicializar() {
-		arrowPath.moveTo(-arrowPoint.x, arrowPoint.y);
-		arrowPath.lineTo(0.0f, 0.0f);
-		arrowPath.lineTo(-arrowPoint.x, -arrowPoint.y);
+		if (arrowPath == null) {
+			arrowPath = new Path2D.Float();
+			arrowPath.moveTo(-arrowPoint.x, arrowPoint.y);
+			arrowPath.lineTo(0.0f, 0.0f);
+			arrowPath.lineTo(-arrowPoint.x, -arrowPoint.y);
+		}
 		actualizar();
 	}
 

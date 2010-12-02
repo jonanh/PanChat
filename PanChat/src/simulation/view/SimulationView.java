@@ -13,8 +13,8 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
-import simulation.arrows.Arrow;
-import simulation.arrows.MessageArrow;
+import simulation.arrows.MultipleArrow;
+import simulation.arrows.SingleArrow;
 import simulation.model.SimulationModel;
 import simulation.view.listener.CreateListener;
 import simulation.view.listener.DeleteListener;
@@ -71,7 +71,7 @@ public class SimulationView extends JPanel implements Observer {
 
 	// Flecha que estamos modificando sobre la vista. Como no es una flecha
 	// definitiva, trabajamos directamente sobre la vista en vez del modelo.
-	private MessageArrow drawingArrow;
+	private SingleArrow drawingArrow;
 
 	// Implementamos un doble buffer, realizando las operaciones de dibujo sobre
 	// el buffer, y después volcando la imagen sobre el contexto del panel.
@@ -99,7 +99,7 @@ public class SimulationView extends JPanel implements Observer {
 		createViewListeners();
 
 		// Por defecto el comportamiento es moverse con el ratón.
-		this.setState(State.OVER);
+		this.setState(State.CREATE);
 
 		updateData();
 	}
@@ -139,7 +139,7 @@ public class SimulationView extends JPanel implements Observer {
 	/**
 	 * @return the drawingArrow
 	 */
-	public MessageArrow getDrawingArrow() {
+	public SingleArrow getDrawingArrow() {
 		return drawingArrow;
 	}
 
@@ -147,7 +147,7 @@ public class SimulationView extends JPanel implements Observer {
 	 * @param drawingArrow
 	 *            the drawingArrow to set
 	 */
-	public void setDrawingArrow(MessageArrow drawingArrow) {
+	public void setDrawingArrow(SingleArrow drawingArrow) {
 		this.drawingArrow = drawingArrow;
 	}
 
@@ -168,7 +168,7 @@ public class SimulationView extends JPanel implements Observer {
 		int columna = (x - paddingX) / cellWidth;
 
 		// // Si está en el margen izquierdo null
-		if (x < paddingX || columna > ticks || y > height)
+		if (x < paddingX || columna >= ticks || y > height)
 			return null;
 
 		// Sino, puede ser o bien una celda o una columna.
@@ -263,7 +263,7 @@ public class SimulationView extends JPanel implements Observer {
 
 		boolean even = true;
 
-		for (int i = 0; i <= ticks; i++) {
+		for (int i = 0; i < ticks; i++) {
 			x0 = i * cellWidth + paddingX;
 
 			if (!simulationModel.isCut(i)) {
@@ -303,7 +303,7 @@ public class SimulationView extends JPanel implements Observer {
 		for (int i = 0; i <= processes; i++) {
 			int y0 = i * (cellHeight + paddingY) + paddingY;
 
-			for (int j = 0; j <= ticks; j++) {
+			for (int j = 0; j < ticks; j++) {
 				int x0 = paddingX + cellWidth * j;
 
 				g.setColor(Color.getHSBColor(i * .10f % 1, .20f, 1f));
@@ -342,7 +342,7 @@ public class SimulationView extends JPanel implements Observer {
 	 *            el contexto grafico en el cual se pinta.
 	 */
 	private void paintArrows(Graphics2D g) {
-		for (Arrow flecha : simulationModel.getArrowList()) {
+		for (MultipleArrow flecha : simulationModel.getArrowList()) {
 			flecha.draw(g);
 		}
 		if (this.drawingArrow != null)
@@ -376,7 +376,9 @@ public class SimulationView extends JPanel implements Observer {
 	 * @param simulationModel
 	 */
 	public void setSimulationModel(SimulationModel simulationModel) {
+
 		this.simulationModel = simulationModel;
+
 		for (ViewListener view : listViewListeners) {
 			view.updateModel();
 		}
@@ -405,8 +407,8 @@ public class SimulationView extends JPanel implements Observer {
 			this.ticks = ticks;
 			this.processes = processes;
 
-			width = (ticks + 1) * cellWidth + 2 * paddingX;
-			height = (processes + 1) * (cellHeight + paddingY) + paddingY;
+			width = ticks * cellWidth + 2 * paddingX;
+			height = processes * (cellHeight + paddingY) + paddingY;
 
 			this.backBuffer = new BufferedImage(width, height,
 					BufferedImage.TYPE_INT_ARGB);

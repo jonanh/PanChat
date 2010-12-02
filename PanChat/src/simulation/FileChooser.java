@@ -63,13 +63,14 @@ public class FileChooser extends JFileChooser {
 			int returnVal = chooser.showOpenDialog(parent);
 
 			if (returnVal != JFileChooser.APPROVE_OPTION) {
-				System.out.println("You chose to open this file: "
-						+ chooser.getSelectedFile().getName());
 				return null;
 			}
+
+			// System.out.println("You chose to open this file: "
+			// + chooser.getSelectedFile());
+
 			InputStream is = new FileInputStream(chooser.getSelectedFile());
 			ObjectInputStream ois = new ObjectInputStream(is);
-
 			Object obj = ois.readObject();
 			ois.close();
 			is.close();
@@ -78,6 +79,7 @@ public class FileChooser extends JFileChooser {
 				return (SimulationModel) obj;
 
 		} catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
 		return null;
 	}
@@ -96,18 +98,21 @@ public class FileChooser extends JFileChooser {
 			int returnVal = chooser.showSaveDialog(parent);
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				System.out.println("You chose to save this file: "
-						+ chooser.getSelectedFile().getName());
+
+				// System.out.println("You chose to save this file: "
+				// + chooser.getSelectedFile().getName());
+
+				OutputStream os = new FileOutputStream(chooser
+						.getSelectedFile());
+				ObjectOutputStream oos = new ObjectOutputStream(os);
+
+				oos.writeObject(simulationData);
+				oos.close();
+				os.close();
 			}
-
-			OutputStream os = new FileOutputStream(chooser.getSelectedFile());
-			ObjectOutputStream oos = new ObjectOutputStream(os);
-
-			oos.writeObject(simulationData);
-			oos.close();
-			os.close();
-
 		} catch (Exception e) {
+			System.out.println(e.getStackTrace());
+			e.printStackTrace();
 		}
 
 	}

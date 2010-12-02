@@ -10,6 +10,8 @@ import java.util.Observable;
 import panchat.data.User;
 
 import simulation.arrows.MessageArrow;
+import simulation.arrows.MultipleArrow;
+import simulation.arrows.SingleArrow;
 import simulation.view.CellPosition;
 import simulation.view.Position;
 
@@ -41,15 +43,13 @@ public class SimulationModel extends Observable implements Serializable {
 
 	// Flechas
 	// Lista de flechas
-	private ArrayList<MessageArrow> listaFlechas = new ArrayList<MessageArrow>();
+	private ArrayList<MultipleArrow> listaFlechas = new ArrayList<MultipleArrow>();
 
 	// Matriz de flechas, donde CellPosition almacena (Proceso,Tick)
-	private HashMap<CellPosition, MessageArrow> arrowHastTable = new HashMap<CellPosition, MessageArrow>();
+	private HashMap<CellPosition, MultipleArrow> arrowMatrix = new HashMap<CellPosition, MultipleArrow>();
 
 	// Lista de procesos/usuarios
 	private ArrayList<User> listaProcesos = new ArrayList<User>();
-
-	private Object mutex = new Object();
 
 	/**
 	 * Construimos el objeto de datos de simulacion
@@ -69,19 +69,19 @@ public class SimulationModel extends Observable implements Serializable {
 
 		CellPosition last = new CellPosition(0, 0);
 
-		CellPosition arrowCellPosition;
+		for (MultipleArrow arrow : listaFlechas) {
+			for (CellPosition arrowCellPosition : arrow.getFinalPos()) {
 
-		for (MessageArrow arrow : listaFlechas) {
-			arrowCellPosition = arrow.getFinalPos();
-			if (last.tick < arrowCellPosition.tick)
-				last.tick = arrowCellPosition.tick;
+				if (last.tick < arrowCellPosition.tick)
+					last.tick = arrowCellPosition.tick;
 
-			if (last.process < arrowCellPosition.process)
-				last.process = arrowCellPosition.process;
+				if (last.process < arrowCellPosition.process)
+					last.process = arrowCellPosition.process;
 
-			arrowCellPosition = arrow.getInitialPos();
-			if (last.process < arrowCellPosition.process)
-				last.process = arrowCellPosition.process;
+				arrowCellPosition = arrow.getInitialPos();
+				if (last.process < arrowCellPosition.process)
+					last.process = arrowCellPosition.process;
+			}
 		}
 
 		return last;
@@ -110,9 +110,9 @@ public class SimulationModel extends Observable implements Serializable {
 
 		// Si hay que añadir nuevos procesos :
 		if (numProcesses > 0) {
-			for (int i = 0; i < numProcesses; i++) {
+			for (int i = getNumProcesses(); i < pNumProcesses; i++)
 				listaProcesos.add(new User(null));
-			}
+
 			this.hasChanged();
 			this.notifyObservers();
 
@@ -126,9 +126,10 @@ public class SimulationModel extends Observable implements Serializable {
 			 */
 			pNumProcesses = Math.max(pNumProcesses, lastArrow().process);
 
-			for (int i = getNumProcesses(); i > pNumProcesses; i++)
+			for (int i = getNumProcesses(); i > pNumProcesses; i--) {
+				arrowMatrix.remove(i);
 				listaProcesos.remove(i);
-
+			}
 			super.setChanged();
 			this.notifyObservers();
 		}
@@ -185,10 +186,8 @@ public class SimulationModel extends Observable implements Serializable {
 	/**
 	 * @return El listado de flechas
 	 */
-	public List<? extends MessageArrow> getArrowList() {
-		synchronized (mutex) {
-			return listaFlechas;
-		}
+	public synchronized List<MultipleArrow> getArrowList() {
+		return listaFlechas;
 	}
 
 	/**
@@ -196,49 +195,92 @@ public class SimulationModel extends Observable implements Serializable {
 	 * @param messageArrow
 	 *            Añadimos esta fecla
 	 */
-	public void addArrow(MessageArrow messageArrow) {
-		synchronized (mutex) {
-			listaFlechas.add(messageArrow);
-			arrowHastTable.put(messageArrow.getInitialPos(), messageArrow);
-			arrowHastTable.put(messageArrow.getFinalPos(), messageArrow);
+	public synchronized void addArrow(SingleArrow messageArrow) {
+		CellPosition initialPos = messageArrow.getInitialPos();
+		CellPosition finalPos = messageArrow.getFinalPos();
+
+		MultipleArrow arrow = getMultipleArrow(initialPos);
+
+		// Si no existe el MultipleArrow, lo creamos y añadimos la flecha
+		if (arrow == null) {
+			arrow = new MultipleArrow(initialPos, messageArrow);
+			arrowMatrix.put(initialPos, arrow);
+			listaFlechas.add(arrow);
+		} // Añadimos la flecha
+		else {
+			CellPosition removeArrow = arrow.addArrow(messageArrow);
+			// Si al añadir eliminamos una flecha que va al mismo proceso
+			if (removeArrow != null)
+				arrowMatrix.remove(removeArrow);
 		}
+		arrowMatrix.put(finalPos, arrow);
 		super.setChanged();
 		this.notifyObservers();
 	}
 
-	/**
-	 * 
-	 * @param position
-	 *            Borramos una flecha de esta posicion.
-	 */
-	public MessageArrow getArrow(Position position) {
-		synchronized (mutex) {
+	public MultipleArrow getMultipleArrow(CellPosition position) {
+		return this.arrowMatrix.get(position);
+	}
 
-			if (!(position instanceof CellPosition))
-				return null;
+	public synchronized MessageArrow getArrow(Position position) {
 
-			return arrowHastTable.get((CellPosition) position);
-		}
+		if (!(position instanceof CellPosition))
+			return null;
+
+		CellPosition pos = (CellPosition) position;
+
+		MultipleArrow arrow = getMultipleArrow(pos);
+
+		// Si no existe la flecha devolvemos null
+		if (arrow == null)
+			return null;
+
+		// Si la posicion era la flecha inicial devolvemos todo el
+		// MultipleArrow
+		if (arrow.getInitialPos().equals(pos))
+			return arrow;
+
+		// Sino devolvemos la SingleArrow del destino
+		else
+			return arrow.getArrow(pos);
 	}
 
 	/**
 	 * 
+	 * Borramos una flecha de la posicion position. Si la posición es el origen
+	 * de la flecha multiple se borra toda la flecha, en cambio si la posición
+	 * es el destino de alguna de las flechas, se borra de la flecha multiple
+	 * esa flecha.
+	 * 
 	 * @param position
-	 *            Borramos una flecha de esta posicion.
 	 */
-	public MessageArrow deleteArrow(CellPosition position) {
+	public synchronized MessageArrow deleteArrow(CellPosition position) {
 		MessageArrow arrow;
-		synchronized (mutex) {
-			arrow = arrowHastTable.remove(position);
-			if (arrow != null) {
-				// Borramos de la tabla hash la flecha referenciada desde el
-				// otro extemo (inicio o final)
-				if (!arrow.getInitialPos().equals(position))
-					arrowHastTable.remove(arrow.getFinalPos());
-				else
-					arrowHastTable.remove(arrow.getFinalPos());
 
-				listaFlechas.remove(arrow);
+		MultipleArrow multipleArrow = getMultipleArrow(position);
+
+		if (multipleArrow == null)
+			return null;
+
+		// Si la posicion es la posicion inicial debemos borrar además
+		// las referencias desde los nodos finales.
+		if (multipleArrow.getInitialPos().equals(position)) {
+			for (CellPosition pos : multipleArrow.getFinalPos())
+				arrowMatrix.remove(pos);
+
+			arrow = multipleArrow;
+
+			listaFlechas.remove(multipleArrow);
+		} // Si la posicion es la posicion de destino de una flecha entonces
+		// eliminamos dicha flecha de la MultipleArrow
+		else {
+			arrow = multipleArrow.deleteArrow(position);
+
+			// Si hemos borrado la ultima flecha del grupo, borrar también
+			// el MultiArrow
+			if (multipleArrow.getFinalPos().size() == 0) {
+				arrowMatrix.remove(multipleArrow.getInitialPos());
+				listaFlechas.remove(multipleArrow);
 			}
 		}
 		super.setChanged();
@@ -260,24 +302,24 @@ public class SimulationModel extends Observable implements Serializable {
 	 * 
 	 * @return Si es valida la flecha
 	 */
-	public boolean isValidArrow(MessageArrow messageArrow) {
-		synchronized (mutex) {
-			CellPosition initialPos = messageArrow.getInitialPos();
-			CellPosition finalPos = messageArrow.getFinalPos();
+	public synchronized boolean isValidArrow(SingleArrow messageArrow) {
 
-			// Una flecha no puede ir de a el mismo proceso
-			if (initialPos.process == finalPos.process)
-				return false;
+		CellPosition initialPos = messageArrow.getInitialPos();
+		CellPosition finalPos = messageArrow.getFinalPos();
 
-			// Una flecha no puede ir hacia atrás
-			if (initialPos.tick >= finalPos.tick)
-				return false;
+		// Una flecha no puede ir de a el mismo proceso
+		if (initialPos.process == finalPos.process)
+			return false;
 
-			// Si el destino de la fecha apunta a una celda ya ocupada
-			if (arrowHastTable.containsKey(messageArrow.getFinalPos()))
-				return false;
+		// Una flecha no puede ir hacia atrás
+		if (initialPos.tick >= finalPos.tick)
+			return false;
 
-			return true;
-		}
+		// Si el destino de la fecha apunta a una celda ya ocupada
+		if (getMultipleArrow(finalPos) != null)
+			return false;
+
+		return true;
+
 	}
 }

@@ -1,5 +1,6 @@
 package simulation;
 
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,7 +44,7 @@ public class ToolbarPanel extends JPanel {
 	private JButton stateButton[] = new JButton[6];
 
 	public ToolbarPanel(SimulationView simulation) {
-		
+
 		this.simulationView = simulation;
 
 		numProcessText.setColumns(4);
@@ -58,7 +59,7 @@ public class ToolbarPanel extends JPanel {
 
 		for (JButton button : stateButton)
 			this.add(button);
-		
+
 		this.setLayout(new FlowLayout());
 		this.add(fifoCheck);
 		this.add(causalCheck);
@@ -79,25 +80,53 @@ public class ToolbarPanel extends JPanel {
 	}
 
 	public void subscribeEvents() {
+
+		final Component parent = this;
+
+		// Create
 		stateButton[0].addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				simulationView.setState(SimulationView.State.CREATE);
 			}
 		});
+
+		// Move
 		stateButton[1].addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				simulationView.setState(SimulationView.State.MOVE);
 			}
 		});
+
+		// Delete
 		stateButton[2].addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				simulationView.setState(SimulationView.State.DELETE);
 			}
 		});
-		
+
+		// Abrir
+		stateButton[4].addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SimulationModel simulationModel = FileChooser.getFile(parent);
+				if (simulationModel != null)
+					simulationView.setSimulationModel(simulationModel);
+			}
+		});
+
+		// Salvar
+		stateButton[5].addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SimulationModel simulationModel = simulationView
+						.getSimulationModel();
+				FileChooser.saveFile(parent, simulationModel);
+			}
+		});
+
 		fifoCheck.addActionListener(null);
 		causalCheck.addActionListener(null);
 		totalCheck.addActionListener(null);
@@ -115,7 +144,8 @@ public class ToolbarPanel extends JPanel {
 				numero = Integer.parseInt(texto);
 
 				// cambiar el numero de procesos
-				numero = simulationView.getSimulationModel().setNumProcesses(numero);
+				numero = simulationView.getSimulationModel().setNumProcesses(
+						numero);
 
 				// indicar en el textbox el numero de procesos establecidos
 				texto = String.valueOf(numero);
@@ -134,7 +164,8 @@ public class ToolbarPanel extends JPanel {
 				numero = Integer.parseInt(texto);
 
 				// cambiar el numero de procesos
-				numero = simulationView.getSimulationModel().setTimeTicks(numero);
+				numero = simulationView.getSimulationModel().setTimeTicks(
+						numero);
 
 				// indicar en el textbox el numero de procesos establecidos
 				texto = String.valueOf(numero);
@@ -146,7 +177,8 @@ public class ToolbarPanel extends JPanel {
 	public static void main(String[] args) {
 		JFrame ventana = new JFrame("prueba de los menus");
 		ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		ventana.add(new ToolbarPanel(new SimulationView(new SimulationModel())));
+		ventana
+				.add(new ToolbarPanel(new SimulationView(new SimulationModel())));
 
 		ventana.setVisible(true);
 		ventana.setSize(850, 60);
