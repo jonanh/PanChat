@@ -157,9 +157,8 @@ public class InformationCanvas extends Canvas {
 	}
 
 	public void setSnapshot(int x, int y) {
-		int ancho = processWidth;
-		snapshotX = x - 8;
-		snapshotY = y - 8;
+		snapshotX = x;
+		snapshotY = y;
 	}
 
 	public void setIsFixSnapshot(boolean bool) {
@@ -209,8 +208,9 @@ public class InformationCanvas extends Canvas {
 		xLength = bounds.width;
 		yLength = bounds.height;
 
-		// BufferedImage imagen = new
-		// BufferedImage(xLength,yLength,BufferedImage.TYPE_INT_ARGB);
+		 BufferedImage imagen = new
+		 BufferedImage(xLength,yLength,BufferedImage.TYPE_INT_ARGB);
+		 
 
 		dibujarFondo(g);
 
@@ -224,7 +224,7 @@ public class InformationCanvas extends Canvas {
 		dibujarFlechas(snapshotLine, g);
 		dibujarTimeLine(g);
 		if (isCut == true)
-			dibujarFlechas(cutLine, g);
+			dibujarCorte(cutLine, g);
 		dibujarSnapshot(g);
 
 	}
@@ -266,6 +266,17 @@ public class InformationCanvas extends Canvas {
 		}
 
 	}
+	
+	public void dibujarCorte(Vector<Line> flechasMensajes, Graphics g) {
+		iterator = flechasMensajes.iterator();
+		Line next;
+		while (iterator.hasNext()) {
+			next = iterator.next();
+			g.setColor(next.getColor());
+			g.fillRect(next.getInitX(), next.getInitY(), timeUnit,yLength-yLength/5);
+			g.setColor(Color.BLACK);
+		}
+	}
 
 	// dibuja la linea de tiempo
 	public void dibujarTimeLine(Graphics g) {
@@ -294,7 +305,7 @@ public class InformationCanvas extends Canvas {
 	public void dibujarSnapshot(Graphics g) {
 		if (state == State.SNAPSHOT || isFixSnapshot == true) {
 			g.setColor(Color.BLACK);
-			g.fillOval(snapshotX, snapshotY, processWidth, processWidth);
+			g.fillOval(snapshotX, snapshotY, timeUnit, processWidth);
 		}
 	}
 
@@ -381,14 +392,27 @@ public class InformationCanvas extends Canvas {
 	Line arrowTo(int origin, int end, int iniX, int finalX) {
 		int iniY, finalY;
 		int color[];
+		GridPosition pos;
+		pos = new GridPosition(this);
+		pos.setXPos(iniX);
+		
 		Line line = new Line(iniX, 0);
-		line.setFinalX(finalX);
+		//line.setFinalX(finalX);
 
 		iniY = yLength / 10 + origin * (gap + processWidth) + processWidth / 2;
 		finalY = iniY + (end - origin) * (gap + processWidth);
-
-		line.setInitY(iniY);
-		line.setFinalY(finalY);
+		
+		//valores de inicio de la flecha
+		pos.calculateMiddleGrid(iniX,iniY);
+		line.setInitX(pos.getReverseXGrid());
+		line.setInitY(pos.getReverseYGrid());
+		//line.setInitY(iniY);
+		//line.setFinalY(finalY);
+		
+		//valores finales de la flecha
+		pos.calculateMiddleGrid(finalX,finalY);
+		line.setFinalX(pos.getReverseXGrid());
+		line.setFinalY(pos.getReverseYGrid());
 
 		line.setArrow(true);
 		if (origin < 9)

@@ -34,7 +34,7 @@ public class UserActionListener implements ActionListener,KeyListener{
 			canvas.setState(InformationCanvas.State.CUT);
 			canvas.setIsCut(true);
 			canvas.getCutLine().add(new Line(0,0));
-			canvas.getCutLine().lastElement().setColor(Color.RED);
+			canvas.getCutLine().lastElement().setColor(new Color(255,0,0,50));
 		}
 		else if(arg0.getSource()==options.getSnapshotButton()){
 			if(canvas.getIsFixSnapshot() == true){
@@ -52,8 +52,18 @@ public class UserActionListener implements ActionListener,KeyListener{
 		else if(arg0.getSource()==options.getMoveSLButton()){
 			canvas.setState(InformationCanvas.State.MOVE);
 		}
-		else if(arg0.getSource()==options.getStopMovingSLButton()){
-			canvas.setState(InformationCanvas.State.EVENT);	
+		else if(arg0.getSource()==options.getShowCutPanelButton()){
+			System.out.println("mostrando corte");
+			options.setCutPanel();
+		}
+		else if(arg0.getSource()==options.getShowEventPanelButton()){
+			options.setEventPanel();
+		}
+		else if(arg0.getSource()==options.getShowSimulationPanelButton()){
+			options.setSimulationPanel();
+		}
+		else if(arg0.getSource()==options.getShowSnapshotPanelButton()){
+			options.setSnapshotPanel();
 		}
 	}
 

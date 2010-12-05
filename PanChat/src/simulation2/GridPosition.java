@@ -75,6 +75,12 @@ public class GridPosition {
 	public void setYPos(float y) {
 		yPos = y;
 	}
+	public void setReverseXGrid(int x){
+		reverseXGrid = x;
+	}
+	public void setReverseYGrid(int y){
+		reverseYGrid = y;
+	}
 
 	public void setCanvas(InformationCanvas canvas) {
 		this.canvas = canvas;
@@ -92,5 +98,15 @@ public class GridPosition {
 			reverseYGrid = yGrid * canvas.getProcessWidth()
 					+ canvas.getYLength() / 10;
 		}
+	}
+	
+	//calcula la posicion correspondiente a la mitad de la cuadricula donde
+	//se encuentran x e y
+	public void calculateMiddleGrid(int x,int y){
+		setXPos(x);
+		setYPos(y);
+		calculateGrid();
+		setReverseXGrid(getReverseXGrid()+canvas.getTimeUnit()/2);
+		setReverseYGrid(getReverseYGrid()+canvas.getProcessWidth()/2);
 	}
 }
