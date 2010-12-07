@@ -14,6 +14,8 @@ import simulation.arrows.MultipleArrow;
 import simulation.arrows.SingleArrow;
 import simulation.view.CellPosition;
 import simulation.view.Position;
+import simulation.view.order.FifoOrderView;
+import simulation.view.order.OrderI;
 
 /**
  * Clase que representa los datos del simulador :
@@ -35,6 +37,7 @@ public class SimulationModel extends Observable implements Serializable {
 	 * Atributos
 	 */
 	private int numTicks = DEFAULT_NUM_TICKS;
+	public static int numProcesses = DEFAULT_NUM_PROCESSES;
 
 	// Lista de cortes (usando un bitset, para evitar usar un array de
 	// booleanos. Es dinamico e internamente permite usar operaciones a nivel de
@@ -50,6 +53,9 @@ public class SimulationModel extends Observable implements Serializable {
 
 	// Lista de procesos/usuarios
 	private ArrayList<User> listaProcesos = new ArrayList<User>();
+	
+	//capa que se encarga de la ordenacion
+	public OrderI fifo = new FifoOrderView();
 
 	/**
 	 * Construimos el objeto de datos de simulacion
@@ -107,6 +113,7 @@ public class SimulationModel extends Observable implements Serializable {
 	public int setNumProcesses(int pNumProcesses) {
 
 		int numProcesses = pNumProcesses - getNumProcesses();
+		SimulationModel.numProcesses = pNumProcesses;
 
 		// Si hay que añadir nuevos procesos :
 		if (numProcesses > 0) {
@@ -206,6 +213,9 @@ public class SimulationModel extends Observable implements Serializable {
 			arrow = new MultipleArrow(initialPos, messageArrow);
 			arrowMatrix.put(initialPos, arrow);
 			listaFlechas.add(arrow);
+			
+			//se introduce el correspondiente vector logico
+			fifo.addLogicalOrder(messageArrow);
 		} // Añadimos la flecha
 		else {
 			CellPosition removeArrow = arrow.addArrow(messageArrow);
