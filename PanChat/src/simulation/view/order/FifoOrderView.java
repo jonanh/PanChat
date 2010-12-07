@@ -39,6 +39,7 @@ public class FifoOrderView implements OrderI{
 		addLogicalOrder(arrow.getInitialPos(),arrow.getFinalPos(),true);
 		correctness = addLogicalOrder(arrow.getInitialPos(),arrow.getFinalPos(),false);
 		VectorClock.print = true;
+		System.out.println("Correctness: "+correctness);
 		return correctness;
 	}
 	
@@ -60,10 +61,8 @@ public class FifoOrderView implements OrderI{
 		//si se ha encontrado un vector anterior, se copia e incrementa
 		if(lastVector!=null){
 			newVector.setVector(lastVector);
-			System.out.println("hemos encontrado vector para: "+newVector.drawingPos.process+", "+newVector.drawingPos.tick);
 		}
 		else{
-			System.out.println("no hemos encontrado vector para: "+newVector.drawingPos.process+", "+newVector.drawingPos.tick);
 			newVector.initialize();
 		}
 		
@@ -77,7 +76,6 @@ public class FifoOrderView implements OrderI{
 		
 		//si es correcto se introduce en la tabla
 		if(correctness == true){
-			System.out.println("Introduciendo en la tabla");
 			clockTable.put(newVector.drawingPos,newVector);
 			/*
 			 * si el origen o destino de esta flecha es anterior a la llegada de otros mensajes
