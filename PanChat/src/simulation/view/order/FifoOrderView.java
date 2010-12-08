@@ -27,7 +27,7 @@ public class FifoOrderView implements OrderI{
 		//posClock = new Vector<VectorClock>();
 	}
 	@Override
-	public boolean addLogicalOrder(SingleArrow arrow) {
+	public boolean addLogicalOrder(SingleArrow arrow,boolean isMultiple) {
 		/*
 		 * Dada una flecha, se aniade sus correspondientes marcas de tiempo
 		 * tanto en origen como en destino
@@ -36,16 +36,16 @@ public class FifoOrderView implements OrderI{
 		 */
 		boolean correctness = true;
 		
-		addLogicalOrder(arrow.getInitialPos(),arrow.getFinalPos(),true);
-		correctness = addLogicalOrder(arrow.getInitialPos(),arrow.getFinalPos(),false);
-		VectorClock.print = true;
+		addLogicalOrder(arrow.getInitialPos(),arrow.getFinalPos(),true,isMultiple);
+		correctness = addLogicalOrder(arrow.getInitialPos(),arrow.getFinalPos(),false,false);
+		//VectorClock.print = true;
 		System.out.println("Correctness: "+correctness);
 		return correctness;
 	}
 	
 	
 	
-	public boolean addLogicalOrder (CellPosition origin,CellPosition position,boolean isOrigin){
+	public boolean addLogicalOrder (CellPosition origin,CellPosition position,boolean isOrigin,boolean isMultiple){
 		/*
 		 * se encarga de añadir en destino (position) un nuevo vector logico
 		 * procedente de origin
@@ -53,7 +53,7 @@ public class FifoOrderView implements OrderI{
 		boolean correctness = true;
 		VectorClock lastVector;
 		VectorClock newVector;
-		newVector = new VectorClock(origin,position,isOrigin);
+		newVector = new VectorClock(origin,position,isOrigin,isMultiple);
 		
 		//tenemos que encontrar el ultimo vector para ese proceso
 		lastVector = locateVector(newVector);
@@ -86,7 +86,7 @@ public class FifoOrderView implements OrderI{
 			if(newVector.isOrigin == false){
 				if(newVector.origin.tick < lastTick || newVector.finalPos.tick < lastTick){
 					//solo se recalcula si no estamos recalculando ya
-					recalculateVectors(newVector);
+					recalculateVectors(newVector.origin.tick);
 				}
 				else
 					lastTick = Math.max(newVector.origin.tick , newVector.finalPos.tick );
@@ -99,14 +99,14 @@ public class FifoOrderView implements OrderI{
 		return correctness;
 	}
 	
-	public void recalculateVectors(VectorClock newVector){
+	public void recalculateVectors(int originalTick){
 		//solo se recalcula si no lo haciamos ya para evitar ciclos
 		if(isRecalculating == false){
 			isRecalculating = true;
 			/*
 			 * se recalculan todos los relojes a partir del tickOrigen +1
 			 */
-			int originTick = newVector.origin.tick + 1;
+			int originTick = originalTick + 1;
 			CellPosition origin = new CellPosition(SimulationModel.numProcesses,0);
 			VectorClock actualVector;
 			
@@ -120,8 +120,8 @@ public class FifoOrderView implements OrderI{
 					 */
 					actualVector = clockTable.get(origin);
 					if(actualVector != null && actualVector.isOrigin){	
-						addLogicalOrder(actualVector.origin,actualVector.finalPos,true);
-						addLogicalOrder(actualVector.origin,actualVector.finalPos,false);
+						addLogicalOrder(actualVector.origin,actualVector.finalPos,true,actualVector.isMultiple);
+						addLogicalOrder(actualVector.origin,actualVector.finalPos,false,false);
 					}
 				}
 			}
@@ -133,7 +133,12 @@ public class FifoOrderView implements OrderI{
 	
 	public VectorClock locateVector(VectorClock newVector){
 		VectorClock vectorFound = null;
-		CellPosition actualPosition = new CellPosition(newVector.drawingPos.process,newVector.drawingPos.tick-1);
+		CellPosition actualPosition;
+		if(newVector.isMultiple)
+			//si es multiple hay que contar el propio vector, para que no borre los numeros ya obtenidos
+			actualPosition = new CellPosition(newVector.drawingPos.process,newVector.drawingPos.tick);
+		else
+			actualPosition = new CellPosition(newVector.drawingPos.process,newVector.drawingPos.tick-1);
 		
 		while(actualPosition.tick>=0 && vectorFound == null){
 			if(clockTable.containsKey(actualPosition)){
@@ -162,16 +167,29 @@ public class FifoOrderView implements OrderI{
 	}
 
 	@Override
-	public boolean removeLogicalOrder(SingleArrow arrow) {
+	public void removeLogicalOrder(CellPosition finalPos) {
 		// TODO Auto-generated method stub
-		return false;
+		VectorClock removedVector;
+		removedVector = clockTable.remove(finalPos);
+		clockTable.remove(removedVector.origin);
+		recalculateVectors(-1);
+	}
+	
+	/**
+	 * elimina solo el vector que se le pasas por parametro
+	 * @param finalPos
+	 */
+	@Override
+	public void removeOnlyLogicalOrder(CellPosition finalPos) {
+		// TODO Auto-generated method stub
+		clockTable.remove(finalPos);
+		recalculateVectors(-1);
 	}
 	
 	public Vector<VectorClock> getVectorClocks(){
 		Collection<VectorClock> colec = clockTable.values();
 		Iterator<VectorClock> iter = colec.iterator();
 		Vector<VectorClock> vectorClock = new Vector<VectorClock>();
-		System.out.println("el tamanio del vector en clock es: "+clockTable.size());
 		
 		while(iter.hasNext()){
 			vectorClock.add(iter.next());
