@@ -203,27 +203,40 @@ public class SimulationModel extends Observable implements Serializable {
 	 *            Añadimos esta fecla
 	 */
 	public synchronized void addArrow(SingleArrow messageArrow) {
+		boolean correctness = true;
+		
 		CellPosition initialPos = messageArrow.getInitialPos();
 		CellPosition finalPos = messageArrow.getFinalPos();
 
 		MultipleArrow arrow = getMultipleArrow(initialPos);
+		
+		
 
 		// Si no existe el MultipleArrow, lo creamos y añadimos la flecha
 		if (arrow == null) {
 			arrow = new MultipleArrow(initialPos, messageArrow);
 			arrowMatrix.put(initialPos, arrow);
 			listaFlechas.add(arrow);
-			
 			//se introduce el correspondiente vector logico
-			fifo.addLogicalOrder(messageArrow);
+			correctness = fifo.addLogicalOrder(messageArrow,false);
+			
 		} // Añadimos la flecha
 		else {
 			CellPosition removeArrow = arrow.addArrow(messageArrow);
 			// Si al añadir eliminamos una flecha que va al mismo proceso
-			if (removeArrow != null)
+			if (removeArrow != null){
 				arrowMatrix.remove(removeArrow);
+				fifo.removeOnlyLogicalOrder(removeArrow);
+			}
+			
+			//se introduce el correspondiente vector logico
+			correctness = fifo.addLogicalOrder(messageArrow,true);
 		}
 		arrowMatrix.put(finalPos, arrow);
+		//si no es correcto de acuerdo al orden acutal se borra
+		if(correctness == false){
+			deleteArrow(finalPos);
+		}
 		super.setChanged();
 		this.notifyObservers();
 	}
@@ -275,8 +288,13 @@ public class SimulationModel extends Observable implements Serializable {
 		// Si la posicion es la posicion inicial debemos borrar además
 		// las referencias desde los nodos finales.
 		if (multipleArrow.getInitialPos().equals(position)) {
-			for (CellPosition pos : multipleArrow.getFinalPos())
+			for (CellPosition pos : multipleArrow.getFinalPos()){
 				arrowMatrix.remove(pos);
+				//se borran los relojes correspondientes
+				if(fifo!=null){
+					fifo.removeLogicalOrder(pos);
+				}
+			}
 
 			arrow = multipleArrow;
 
@@ -291,6 +309,13 @@ public class SimulationModel extends Observable implements Serializable {
 			if (multipleArrow.getFinalPos().size() == 0) {
 				arrowMatrix.remove(multipleArrow.getInitialPos());
 				listaFlechas.remove(multipleArrow);
+			}
+			
+			
+			//se borran los relojes correspondientes
+			if(fifo!=null){
+				System.out.println("eliminando");
+				fifo.removeOnlyLogicalOrder(position);
 			}
 		}
 		super.setChanged();
