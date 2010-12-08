@@ -24,6 +24,9 @@ public class Arrow extends Line2D.Float implements Serializable {
 	private transient static final Point2D.Float arrowPoint = new Point2D.Float(
 			10, 5);
 
+	/*
+	 * variable que contiene la cabeza de la flecha genérica con punta en el (0,0)
+	 */
 	private transient static Path2D.Float arrowPath;
 
 	/*
