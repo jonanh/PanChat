@@ -10,6 +10,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Vector;
 
 import javax.swing.JPanel;
 
@@ -20,6 +21,7 @@ import simulation.view.listener.CreateListener;
 import simulation.view.listener.DeleteListener;
 import simulation.view.listener.MoveListener;
 import simulation.view.listener.ViewListener;
+import simulation.view.order.VectorClock;
 
 @SuppressWarnings("serial")
 public class SimulationView extends JPanel implements Observer {
@@ -238,9 +240,11 @@ public class SimulationView extends JPanel implements Observer {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 
+		
 		paintColumns(g2);
 		paintProcesses(g2);
 		paintArrows(g2);
+		paintVectorClock(g2);
 
 		if (screenResized)
 			super.paint(g);
@@ -347,6 +351,21 @@ public class SimulationView extends JPanel implements Observer {
 		}
 		if (this.drawingArrow != null)
 			drawingArrow.draw(g);
+	}
+	
+	/**
+	 * se dibuja los vectores logicos
+	 */
+	public void paintVectorClock(Graphics2D g2){
+		//if(VectorClock.print){
+		Vector<VectorClock> clock;
+		clock = simulationModel.fifo.getVectorClocks();
+		
+		for(VectorClock iter:clock){
+			iter.draw(g2);
+		}
+		//VectorClock.print = false;
+		//}
 	}
 
 	/**
