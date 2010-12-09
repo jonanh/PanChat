@@ -53,8 +53,8 @@ public class SimulationModel extends Observable implements Serializable {
 
 	// Lista de procesos/usuarios
 	private ArrayList<User> listaProcesos = new ArrayList<User>();
-	
-	//capa que se encarga de la ordenacion
+
+	// capa que se encarga de la ordenacion
 	public OrderI fifo = new FifoOrderView();
 
 	/**
@@ -66,8 +66,8 @@ public class SimulationModel extends Observable implements Serializable {
 
 	/**
 	 * Rutina ayudante para setNumProcesses y setTimeTicks. Busca en las
-	 * flechas, el proceso más lejano desde el cual salga o llegue una flecha, y
-	 * el tick más lejano hasta donde llegue una flecha.
+	 * flechas, el proceso más lejano desde el cual salga o llegue una flecha,
+	 * y el tick más lejano hasta donde llegue una flecha.
 	 * 
 	 * @return
 	 */
@@ -89,7 +89,6 @@ public class SimulationModel extends Observable implements Serializable {
 					last.process = arrowCellPosition.process;
 			}
 		}
-
 		return last;
 	}
 
@@ -120,7 +119,7 @@ public class SimulationModel extends Observable implements Serializable {
 			for (int i = getNumProcesses(); i < pNumProcesses; i++)
 				listaProcesos.add(new User(null));
 
-			this.hasChanged();
+			this.setChanged();
 			this.notifyObservers();
 
 		} // Si hay que eliminar nuevos procesos
@@ -173,7 +172,7 @@ public class SimulationModel extends Observable implements Serializable {
 			 * último tick con una flecha y comprobamos que no estamos
 			 * intentando eliminarlo.
 			 */
-			this.numTicks = Math.max(pTimeTicks, lastArrow().tick);
+			this.numTicks = Math.max(pTimeTicks, lastArrow().tick + 1);
 			super.setChanged();
 			this.notifyObservers();
 		}
@@ -204,37 +203,35 @@ public class SimulationModel extends Observable implements Serializable {
 	 */
 	public synchronized void addArrow(SingleArrow messageArrow) {
 		boolean correctness = true;
-		
+
 		CellPosition initialPos = messageArrow.getInitialPos();
 		CellPosition finalPos = messageArrow.getFinalPos();
 
 		MultipleArrow arrow = getMultipleArrow(initialPos);
-		
-		
 
 		// Si no existe el MultipleArrow, lo creamos y añadimos la flecha
 		if (arrow == null) {
 			arrow = new MultipleArrow(initialPos, messageArrow);
 			arrowMatrix.put(initialPos, arrow);
 			listaFlechas.add(arrow);
-			//se introduce el correspondiente vector logico
-			correctness = fifo.addLogicalOrder(messageArrow,false);
-			
+			// se introduce el correspondiente vector logico
+			correctness = fifo.addLogicalOrder(messageArrow, false);
+
 		} // Añadimos la flecha
 		else {
 			CellPosition removeArrow = arrow.addArrow(messageArrow);
 			// Si al añadir eliminamos una flecha que va al mismo proceso
-			if (removeArrow != null){
+			if (removeArrow != null) {
 				arrowMatrix.remove(removeArrow);
 				fifo.removeOnlyLogicalOrder(removeArrow);
 			}
-			
-			//se introduce el correspondiente vector logico
-			correctness = fifo.addLogicalOrder(messageArrow,true);
+
+			// se introduce el correspondiente vector logico
+			correctness = fifo.addLogicalOrder(messageArrow, true);
 		}
 		arrowMatrix.put(finalPos, arrow);
-		//si no es correcto de acuerdo al orden acutal se borra
-		if(correctness == false){
+		// si no es correcto de acuerdo al orden acutal se borra
+		if (correctness == false) {
 			deleteArrow(finalPos);
 		}
 		super.setChanged();
@@ -288,10 +285,10 @@ public class SimulationModel extends Observable implements Serializable {
 		// Si la posicion es la posicion inicial debemos borrar además
 		// las referencias desde los nodos finales.
 		if (multipleArrow.getInitialPos().equals(position)) {
-			for (CellPosition pos : multipleArrow.getFinalPos()){
+			for (CellPosition pos : multipleArrow.getFinalPos()) {
 				arrowMatrix.remove(pos);
-				//se borran los relojes correspondientes
-				if(fifo!=null){
+				// se borran los relojes correspondientes
+				if (fifo != null) {
 					fifo.removeLogicalOrder(pos);
 				}
 			}
@@ -300,7 +297,7 @@ public class SimulationModel extends Observable implements Serializable {
 
 			listaFlechas.remove(multipleArrow);
 		} // Si la posicion es la posicion de destino de una flecha entonces
-		// eliminamos dicha flecha de la MultipleArrow
+			// eliminamos dicha flecha de la MultipleArrow
 		else {
 			arrow = multipleArrow.deleteArrow(position);
 
@@ -310,10 +307,9 @@ public class SimulationModel extends Observable implements Serializable {
 				arrowMatrix.remove(multipleArrow.getInitialPos());
 				listaFlechas.remove(multipleArrow);
 			}
-			
-			
-			//se borran los relojes correspondientes
-			if(fifo!=null){
+
+			// se borran los relojes correspondientes
+			if (fifo != null) {
 				System.out.println("eliminando");
 				fifo.removeOnlyLogicalOrder(position);
 			}
