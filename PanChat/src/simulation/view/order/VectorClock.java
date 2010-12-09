@@ -22,7 +22,7 @@ public class VectorClock {
 	public static final int X_PAINT = 0;
 	public static final int Y_PAINT = -2;
 	public static final int CHARATER_WIDTH = 4;
-	public static final int SPECIAL_CHARATER_WIDTH = 0;
+	public static final int SPECIAL_CHARATER_WIDTH = 1;
 	
 	CellPosition origin;
 	CellPosition finalPos;
