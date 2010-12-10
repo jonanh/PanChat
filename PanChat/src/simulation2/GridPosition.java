@@ -100,6 +100,13 @@ public class GridPosition {
 		}
 	}
 	
+	/*
+	 * indica a partir del gridX si es un proceso
+	 */
+	public boolean isProcess(){
+		System.out.println("yGrid: "+yGrid+" modulo: "+ (yGrid%5==0));
+		return yGrid%5==0;
+	}
 	//calcula la posicion correspondiente a la mitad de la cuadricula donde
 	//se encuentran x e y
 	public void calculateMiddleGrid(int x,int y){
@@ -108,5 +115,7 @@ public class GridPosition {
 		calculateGrid();
 		setReverseXGrid(getReverseXGrid()+canvas.getTimeUnit()/2);
 		setReverseYGrid(getReverseYGrid()+canvas.getProcessWidth()/2);
+		System.out.println("S"+canvas.getProcessWidth());
+		
 	}
 }

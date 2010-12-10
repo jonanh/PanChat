@@ -55,12 +55,12 @@ public class DrawingListener implements MouseMotionListener, MouseListener {
 				gridPos.calculateMiddleGrid(e.getX(),e.getY());
 				finX = gridPos.getReverseXGrid();// e.getX();
 				finY = gridPos.getReverseYGrid();//e.getY();
+				
+				last.setFinalX(finX);
+				last.setFinalY(finY);
 
 				iniX = last.getInitX();
 				iniY = last.getInitY();
-
-				last.setFinalX(finX);
-				last.setFinalY(finY);
 
 				if (paint != PINTAR)
 					paint++;
@@ -118,12 +118,13 @@ public class DrawingListener implements MouseMotionListener, MouseListener {
 
 		else if (canvas.getState() == InformationCanvas.State.SNAPSHOT) {
 			canvas.setIsFixSnapshot(true);
-			canvas.setState(InformationCanvas.State.EVENT);
+			//canvas.setState(InformationCanvas.State.EVENT);
 			gridPos.setXPos(arg0.getX());
 			gridPos.setYPos(arg0.getY());
 			gridPos.calculateGrid();
 			canvas.setSnapshot(gridPos.getReverseXGrid(), gridPos.getReverseYGrid());
 			canvas.startSnapshot();
+			canvas.setState(InformationCanvas.State.EVENT);
 			canvas.repaint();
 		} else if (canvas.getState() == InformationCanvas.State.CUT) {
 			canvas.setState(InformationCanvas.State.EVENT);
