@@ -12,4 +12,5 @@ public interface OrderI {
 	public boolean moveLogicalOrder(SingleArrow arrow);
 	public void removeOnlyLogicalOrder(CellPosition finalPos);
 	public Vector<VectorClock> getVectorClocks();
+	public void recalculateVectors(int originalTick);
 }

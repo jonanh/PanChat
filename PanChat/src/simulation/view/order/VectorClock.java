@@ -3,6 +3,7 @@ package simulation.view.order;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.Arrays;
@@ -22,11 +23,13 @@ public class VectorClock {
 	public static final int X_PAINT = 0;
 	public static final int Y_PAINT = -2;
 	public static final int CHARATER_WIDTH = 4;
-	public static final int SPECIAL_CHARATER_WIDTH = 1;
+	public static final int SPECIAL_CHARATER_WIDTH = 2;
+	public static final int EVEN_ELEVATION = 14;	
 	
 	CellPosition origin;
 	CellPosition finalPos;
 	CellPosition drawingPos;
+	
 	
 	boolean isMultiple;
 	
@@ -113,6 +116,11 @@ public class VectorClock {
 		return correctness;
 	}
 	
+	//reduce en 1 el escalar de tiempos de dicho proceso
+	public void decrease (int process){
+		vector[process]--;
+	}
+	
 	public void draw(Graphics2D g){
 		int process = drawingPos.process;
 		int tick = drawingPos.tick;
@@ -154,21 +162,30 @@ public class VectorClock {
 		
 		//firstPart = vectorS.substring(1,3);
 		//System.out.println(firstPart + specialPart + finalPart);
+			
 		xDraw = tick*SimulationView.cellWidth + SimulationView.paddingX + X_PAINT;
 		yDraw = process*(SimulationView.cellHeight+SimulationView.paddingY) 
 								+ SimulationView.paddingY+ Y_PAINT;
 		
+		//se elevan las columnas pares para que no se solape con la anterior
+		if(drawingPos.tick %2 == 0)
+			yDraw -= EVEN_ELEVATION;
+		
+		FontServer.boldFont(g);
+		g.setColor(Color.BLUE);
 		g.drawString(firstPart, xDraw, yDraw);
-		xDraw += firstPart.length()*CHARATER_WIDTH+SPECIAL_CHARATER_WIDTH;
+		
+		FontMetrics font = g.getFontMetrics();
+		xDraw += font.stringWidth(firstPart);
 		
 		g.setColor(Color.RED);
-		FontServer.boldFont(g);
 		g.drawString(specialPart,xDraw,yDraw);
-		FontServer.restoreFont(g);
-		xDraw += specialPart.length()*CHARATER_WIDTH+SPECIAL_CHARATER_WIDTH;
+		//FontServer.restoreFont(g);
+		xDraw += font.stringWidth(specialPart);
 		
-		g.setColor(Color.BLACK);
+		g.setColor(Color.BLUE);
 		g.drawString(finalPart,xDraw,yDraw);
+		g.setColor(Color.BLACK);
 		
 	}
 	

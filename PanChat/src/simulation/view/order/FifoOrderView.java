@@ -11,6 +11,7 @@ import simulation.model.SimulationModel;
 import simulation.view.CellPosition;
 
 public class FifoOrderView implements OrderI{
+	public static boolean debug = false;
 	HashMap <CellPosition,VectorClock> clockTable;
 	
 	//indica que el ultimo tick en el que hay un vector
@@ -119,9 +120,17 @@ public class FifoOrderView implements OrderI{
 					 *se eliminan y se pide que se calculen de nuevo 
 					 */
 					actualVector = clockTable.get(origin);
-					if(actualVector != null && actualVector.isOrigin){	
-						addLogicalOrder(actualVector.origin,actualVector.finalPos,true,actualVector.isMultiple);
-						addLogicalOrder(actualVector.origin,actualVector.finalPos,false,false);
+					if(actualVector != null){
+						if(actualVector.isOrigin){
+							System.out.println("Tamanio antes de anadir: "+clockTable.size());
+							addLogicalOrder(actualVector.origin,actualVector.finalPos,true,actualVector.isMultiple);
+							System.out.println("Tamanio despues de anadir: "+clockTable.size());
+							debug = true;
+							addLogicalOrder(actualVector.origin,actualVector.finalPos,false,false);
+							System.out.println("Tamanio despues de la pos final de anadir: "+clockTable.size());
+						}
+						else
+							addLogicalOrder(actualVector.origin,actualVector.finalPos,false,false);
 					}
 				}
 			}
@@ -182,8 +191,20 @@ public class FifoOrderView implements OrderI{
 	@Override
 	public void removeOnlyLogicalOrder(CellPosition finalPos) {
 		// TODO Auto-generated method stub
-		clockTable.remove(finalPos);
+		System.out.println("eliminado: "+finalPos);
+		VectorClock origin;
+		VectorClock removed;
+		removed = clockTable.remove(finalPos);
+		//hay que disminuir en 1 la posicion correspondiente en el origne
+		//ESTRICTAMENTE NECESARIO
+		origin = clockTable.get(removed.origin);
+		//decrementamos el que quitamos y las otra flechas que habia
+		origin.decrease(removed.finalPos.process);
+		origin.decrease(origin.finalPos.process);
+		clockTable.put(removed.origin, origin);
+		
 		recalculateVectors(-1);
+		System.out.println("tamanio de la tabla de relojes: "+clockTable.size());
 	}
 	
 	public Vector<VectorClock> getVectorClocks(){
@@ -194,6 +215,7 @@ public class FifoOrderView implements OrderI{
 		while(iter.hasNext()){
 			vectorClock.add(iter.next());
 		}
+		System.out.println("tamanio del vectorClock: "+vectorClock.size());
 		return vectorClock;
 	}
 
