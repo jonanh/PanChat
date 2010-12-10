@@ -119,6 +119,8 @@ public class SimulationModel extends Observable implements Serializable {
 			for (int i = getNumProcesses(); i < pNumProcesses; i++)
 				listaProcesos.add(new User(null));
 
+			//se pide que se recalculen los vectores
+			fifo.recalculateVectors(-1);
 			this.setChanged();
 			this.notifyObservers();
 
@@ -289,6 +291,7 @@ public class SimulationModel extends Observable implements Serializable {
 				arrowMatrix.remove(pos);
 				// se borran los relojes correspondientes
 				if (fifo != null) {
+					System.out.println("por aqui no paso");
 					fifo.removeLogicalOrder(pos);
 				}
 			}
