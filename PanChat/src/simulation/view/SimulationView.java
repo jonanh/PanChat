@@ -13,6 +13,7 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
+import simulation.arrows.MessageArrow;
 import simulation.arrows.MultipleArrow;
 import simulation.arrows.SingleArrow;
 import simulation.model.SimulationModel;
@@ -72,7 +73,7 @@ public class SimulationView extends JPanel implements Observer {
 
 	// Flecha que estamos modificando sobre la vista. Como no es una flecha
 	// definitiva, trabajamos directamente sobre la vista en vez del modelo.
-	private SingleArrow drawingArrow;
+	private MessageArrow drawingArrow;
 
 	// Implementamos un doble buffer, realizando las operaciones de dibujo sobre
 	// el buffer, y después volcando la imagen sobre el contexto del panel.
@@ -140,7 +141,7 @@ public class SimulationView extends JPanel implements Observer {
 	/**
 	 * @return the drawingArrow
 	 */
-	public SingleArrow getDrawingArrow() {
+	public MessageArrow getDrawingArrow() {
 		return drawingArrow;
 	}
 
@@ -148,7 +149,7 @@ public class SimulationView extends JPanel implements Observer {
 	 * @param drawingArrow
 	 *            the drawingArrow to set
 	 */
-	public void setDrawingArrow(SingleArrow drawingArrow) {
+	public void setDrawingArrow(MessageArrow drawingArrow) {
 		this.drawingArrow = drawingArrow;
 	}
 

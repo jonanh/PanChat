@@ -3,14 +3,15 @@ package simulation.arrows;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 
+import simulation.model.SimulationModel;
 import simulation.view.CellPosition;
 import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
 public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 
-	CellPosition initialPos;
-	CellPosition finalPos;
+	private CellPosition initialPos;
+	private CellPosition finalPos;
 
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos) {
 		super(0f, 0f, 0f, 0f);
@@ -57,8 +58,47 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 		update(initialPos, finalPos);
 	}
 
+	/**
+	 * Verificamos si messageArrow es una flecha que se encuentra en un lugar
+	 * válido y/o libre :
+	 * 
+	 * <ul>
+	 * <li>Una flecha no puede ir de a el mismo proceso.</li>
+	 * <li>Una flecha no puede ir hacia atrás.</li>
+	 * <li>Una flecha no puede apuntar a una celda ya ocupada.</li>
+	 * </ul>
+	 * 
+	 * @param messageArrow
+	 * 
+	 * @return Si es valida la flecha
+	 */
+	public boolean isValid(SimulationModel simulationModel) {
+
+		// Una flecha no puede ir de a el mismo proceso
+		if (initialPos.process == finalPos.process)
+			return isValid = false;
+
+		// Una flecha no puede ir hacia atrás
+		if (initialPos.tick >= finalPos.tick)
+			return isValid = false;
+
+		// Si el destino de la fecha apunta a una celda ya ocupada
+		if (simulationModel.getMultipleArrow(finalPos) != null)
+			return isValid = false;
+
+		return isValid = true;
+	}
+
 	@Override
 	public String toString() {
 		return "Flecha[ " + initialPos + finalPos + " ]";
+	}
+
+	/**
+	 * Rutina para clonar MultipleArrows
+	 */
+	@Override
+	public MessageArrow clone() {
+		return new SingleArrow(initialPos, finalPos);
 	}
 }

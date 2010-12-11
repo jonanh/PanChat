@@ -25,7 +25,8 @@ public class Arrow extends Line2D.Float implements Serializable {
 			10, 5);
 
 	/*
-	 * variable que contiene la cabeza de la flecha genérica con punta en el (0,0)
+	 * variable que contiene la cabeza de la flecha genï¿½rica con punta en el
+	 * (0,0)
 	 */
 	private transient static Path2D.Float arrowPath;
 
@@ -40,6 +41,8 @@ public class Arrow extends Line2D.Float implements Serializable {
 	 * Atributos
 	 */
 	private Color color = Color.black;
+
+	boolean isValid = true;
 
 	/*
 	 * Constructores
@@ -87,7 +90,11 @@ public class Arrow extends Line2D.Float implements Serializable {
 	}
 
 	public void draw(Graphics2D g) {
-		g.setColor(color);
+		if (isValid)
+			g.setColor(color);
+		else
+			g.setColor(Color.red);
+
 		g.setStroke(stroke);
 
 		g.draw(this);

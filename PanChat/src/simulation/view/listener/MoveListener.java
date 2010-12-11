@@ -38,8 +38,8 @@ public class MoveListener extends ViewListener {
 				initialOrFinal = moveArrow.getInitialPos().equals(pos);
 
 				// Creamos una nueva flecha igual que la que estamos moviendo
-				drawingArrow = new MessageArrow(moveArrow.getInitialPos(),
-						moveArrow.getFinalPos());
+				drawingArrow = moveArrow.clone();
+
 				simulationView.setDrawingArrow(drawingArrow);
 			}
 		}
@@ -53,11 +53,12 @@ public class MoveListener extends ViewListener {
 		simulationView.setDrawingArrow(null);
 
 		// si la nueva posicion es valida la añadimos a la lista de flechas.
-		if (simulationModel.isValidArrow(arrow)) {
+		if (arrow.isValid(simulationModel)) {
 
 			simulationModel.addArrow(arrow);
 
-		} // Si no es valida, y estabamos moviendo una flecha que ya existía,
+		} 
+		// Si no es valida, y estabamos moviendo una flecha que ya existía,
 		// volvemos a incluir la copia antigua que teniamos de la flecha
 		// antes de moverla.
 		else if (moveArrow != null) {
@@ -83,45 +84,12 @@ public class MoveListener extends ViewListener {
 			if (initialOrFinal) {
 				drawingArrow.setInitialPos(cell);
 			} else {
-				drawingArrow.setFinalPos(cell);
+				SingleArrow arrow = (SingleArrow) drawingArrow;
+				arrow.setFinalPos(cell);
 			}
 			// Actualizamos la posicion de la SimulationView, de manera que
 			// dibuje la iluminación cuando pasa el cursor por encima
 			super.mouseDragged(e);
 		}
-	}
-
-	/**
-	 * Verificamos si messageArrow es una flecha que se encuentra en un lugar
-	 * válido y/o libre :
-	 * 
-	 * <ul>
-	 * <li>Una flecha no puede ir de a el mismo proceso.</li>
-	 * <li>Una flecha no puede ir hacia atrás.</li>
-	 * <li>Una flecha no puede apuntar a una celda ya ocupada.</li>
-	 * </ul>
-	 * 
-	 * @param messageArrow
-	 * 
-	 * @return Si es valida la flecha
-	 */
-	public boolean isValidArrow(SingleArrow messageArrow) {
-
-		CellPosition initialPos = messageArrow.getInitialPos();
-		CellPosition finalPos = messageArrow.getFinalPos();
-
-		// Una flecha no puede ir de a el mismo proceso
-		if (initialPos.process == finalPos.process)
-			return false;
-
-		// Una flecha no puede ir hacia atrás
-		if (initialPos.tick >= finalPos.tick)
-			return false;
-
-		// Si el destino de la fecha apunta a una celda ya ocupada
-		if (this.simulationModel.getMultipleArrow(finalPos) != null)
-			return false;
-
-		return true;
 	}
 }

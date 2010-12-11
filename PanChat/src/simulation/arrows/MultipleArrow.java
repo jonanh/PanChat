@@ -3,8 +3,10 @@ package simulation.arrows;
 import java.awt.Graphics2D;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import simulation.model.SimulationModel;
 import simulation.view.CellPosition;
 
 @SuppressWarnings("serial")
@@ -18,6 +20,10 @@ public class MultipleArrow implements MessageArrow, Serializable {
 
 	// Lista de posiciones finales
 	private ArrayList<SingleArrow> arrowList = new ArrayList<SingleArrow>();
+
+	public MultipleArrow(CellPosition initialPos) {
+		this.initialPos = initialPos;
+	}
 
 	public MultipleArrow(CellPosition initialPos, SingleArrow arrow) {
 		this.initialPos = initialPos;
@@ -38,7 +44,7 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	public void setInitialPos(CellPosition initialPos) {
 
 		for (SingleArrow arrow : arrowList)
-			arrow.initialPos = initialPos;
+			arrow.setInitialPos(initialPos);
 
 		this.initialPos = initialPos;
 	}
@@ -71,7 +77,7 @@ public class MultipleArrow implements MessageArrow, Serializable {
 		int i = 0, index = -1;
 		CellPosition cell = null;
 		for (CellPosition pos : finalPos) {
-			if (arrow.finalPos.process == pos.process) {
+			if (arrow.getFinalPos().process == pos.process) {
 				// Guardamos la posición
 				index = i;
 				cell = pos;
@@ -82,11 +88,11 @@ public class MultipleArrow implements MessageArrow, Serializable {
 		// Si no existía una flecha que vaya a ese proceso, la añadimos
 		if (index == -1) {
 			arrowList.add(arrow);
-			finalPos.add(arrow.finalPos);
+			finalPos.add(arrow.getFinalPos());
 		} else {
 			// Sino la reemplazamos
 			arrowList.set(index, arrow);
-			finalPos.set(index, arrow.finalPos);
+			finalPos.set(index, arrow.getFinalPos());
 		}
 		return cell;
 	}
@@ -109,6 +115,7 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	 * 
 	 * @param g
 	 */
+	@Override
 	public void draw(Graphics2D g) {
 		for (SingleArrow arrow : arrowList)
 			arrow.draw(g);
@@ -117,5 +124,61 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	@Override
 	public String toString() {
 		return "Flechas[[ " + arrowList + " ]]";
+	}
+
+	/**
+	 * Verificamos si se encuentra en un lugar válido y/o libre :
+	 * 
+	 * <ul>
+	 * <li>Una flecha no puede tener flechas que vayan hacia atrás.</li>
+	 * <li>Una flecha no puede apuntar a una celda ya ocupada.</li>
+	 * </ul>
+	 * 
+	 * @param messageArrow
+	 * 
+	 * @return Si es valida la flecha
+	 */
+	public boolean isValid(SimulationModel simulationModel) {
+
+		// Una flecha no puede ir hacia atrás
+		for (CellPosition pos : finalPos)
+			if (initialPos.tick >= pos.tick)
+				return false;
+
+		// Si el destino de la fecha apunta a una celda ya ocupada
+		if (simulationModel.getMultipleArrow(initialPos) != null)
+			return false;
+
+		return true;
+	}
+
+	/**
+	 * Añadimos la flecha a la simulacion y borramos las flechas invalidas.
+	 * 
+	 * @param simulationModel
+	 */
+	public void move(SimulationModel simulationModel) {
+
+		Iterator<SingleArrow> iter = arrowList.iterator();
+		while (iter.hasNext()) {
+			SingleArrow arrow = iter.next();
+
+			if (arrow.isValid == false)
+				deleteArrow(arrow.getFinalPos());
+		}
+
+		simulationModel.addArrow(this);
+	}
+
+	/**
+	 * Rutina para clonar MultipleArrows
+	 */
+	@Override
+	public MessageArrow clone() {
+		MultipleArrow newArrow = new MultipleArrow(initialPos);
+		for (SingleArrow arrow : arrowList)
+			newArrow.addArrow(new SingleArrow(initialPos, arrow.getFinalPos()));
+
+		return newArrow;
 	}
 }

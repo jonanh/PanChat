@@ -202,6 +202,32 @@ public class SimulationModel extends Observable implements Serializable {
 	 * @param messageArrow
 	 *            Añadimos esta fecla
 	 */
+	public synchronized void addArrow(MessageArrow messageArrow) {
+
+		// Si la flecha es una MultipleArrow
+		if (messageArrow instanceof MultipleArrow) {
+
+			// FIXME lo ideal sería no tener que añadir una a una cada flecha
+			// :-P
+
+			// Añadir una a una cada SingleArrow
+			MultipleArrow mArrow = (MultipleArrow) messageArrow;
+			for (CellPosition pos : mArrow.getFinalPos())
+				addArrow(mArrow.getArrow(pos));
+			
+			super.setChanged();
+			this.notifyObservers();
+		}
+		// Si es una SingleArrow llamar al método con un cast
+		else if (messageArrow instanceof SingleArrow)
+			addArrow((SingleArrow) messageArrow);
+	}
+
+	/**
+	 * 
+	 * @param messageArrow
+	 *            Añadimos esta fecla
+	 */
 	public synchronized void addArrow(SingleArrow messageArrow) {
 		boolean correctness = true;
 
@@ -216,6 +242,7 @@ public class SimulationModel extends Observable implements Serializable {
 			arrow = new MultipleArrow(initialPos, messageArrow);
 			arrowMatrix.put(initialPos, arrow);
 			listaFlechas.add(arrow);
+			System.out.println(listaFlechas);
 
 			// se introduce el correspondiente vector logico
 			correctness = fifo.addLogicalOrder(messageArrow, false);
