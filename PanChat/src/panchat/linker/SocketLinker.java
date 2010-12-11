@@ -7,14 +7,13 @@ import panchat.Panchat;
 import panchat.connector.SocketConnector;
 import panchat.data.User;
 import panchat.messages.Message;
+import panchat.order.OrderLayer;
 
-public class SocketLinker extends Linker {
+public class SocketLinker extends OrderLayer {
 
 	private static final boolean DEBUG = false;
 
 	private SocketConnector connector;
-
-	private Panchat panchat;
 
 	private Object mutex = new Object();
 
@@ -23,10 +22,6 @@ public class SocketLinker extends Linker {
 	 */
 	LinkedList<Message> deliveryQ = new LinkedList<Message>();
 
-	public SocketLinker(Panchat pPanchat) {
-		this.panchat = pPanchat;
-		this.connector = pPanchat.getConnector();
-	}
 
 	/**
 	 * Función a nivel de paquete para mandar objetos

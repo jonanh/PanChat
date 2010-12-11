@@ -10,17 +10,18 @@ import panchat.data.ChatRoomList;
 import panchat.data.User;
 import panchat.messages.Message;
 import panchat.messages.MessageChat;
+import panchat.order.OrderLayer;
 import panchat.protocol.SaludoUsuario;
 import panchat.protocol.JoinChannel;
 import panchat.protocol.SaludoListaCanales;
 
-public class PanchatLinker extends Linker {
+public class PanchatLinker extends OrderLayer {
 
 	public final static boolean DEBUG = false;
 	
 	Panchat panchat;
 	
-	public PanchatLinker(Panchat panchat, User myId, Linker[] pLinker) {
+	public PanchatLinker(Panchat panchat, User myId, OrderLayer[] pLinker) {
 		super(myId, pLinker);
 		
 		this.panchat = panchat;
@@ -383,7 +384,7 @@ public class PanchatLinker extends Linker {
 		 */
 		printDebug("Añadimos elementos a los Linkers");
 
-		panchat.getCausalLinker().anyadirUsuario(pUsuario);
+		panchat.getCausalLinker().addUser(pUsuario);
 
 		/*
 		 * Enviamos al usuario la información que tenemos sobre los canales.

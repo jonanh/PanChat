@@ -6,10 +6,11 @@ import java.util.Observable;
 
 import panchat.data.User;
 import panchat.messages.Message;
+import panchat.order.OrderLayer;
 
-public class VirtualSocketLinker extends Linker {
+public class VirtualSocketLinker extends OrderLayer {
 
-	public VirtualSocketLinker(User myId, Linker[] pLinker) {
+	public VirtualSocketLinker(User myId, OrderLayer[] pLinker) {
 		super(myId, pLinker);
 		// TODO Auto-generated constructor stub
 	}

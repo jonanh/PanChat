@@ -6,9 +6,9 @@ import panchat.data.ChatRoomList;
 import panchat.data.ChatList;
 import panchat.data.UserList;
 import panchat.data.User;
-import panchat.linker.Linker;
-import panchat.linker.ordering.CausalMatrixLinker;
 import panchat.messages.MessageChat;
+import panchat.order.CausalMatrixLayer;
+import panchat.order.OrderLayer;
 import panchat.protocol.JoinChannel;
 import panchat.ui.main.PanchatUI;
 
@@ -24,8 +24,8 @@ public class Panchat {
 	private ChatList listaConversaciones;
 
 	// Linkers
-	private Linker linker;
-	private CausalMatrixLinker causalLinker;
+	private OrderLayer linker;
+	private CausalMatrixLayer causalLinker;
 
 	/**
 	 * Crea nueva instancia de panchat
@@ -54,8 +54,8 @@ public class Panchat {
 		this.listaUsuarios.add(usuario);
 
 		this.connector = new SocketConnector(this);
-		this.causalLinker = new CausalMatrixLinker(this);
-		this.linker = new Linker(this);
+		this.causalLinker = new CausalMatrixLayer(this);
+		this.linker = new OrderLayer(this);
 
 		// Como el hilo MulticastListenerThread depende de causalLinker, lo
 		// arrancamos después para evitar una condicción de carrera al
@@ -108,7 +108,7 @@ public class Panchat {
 	 * 
 	 * @return
 	 */
-	public CausalMatrixLinker getCausalLinker() {
+	public CausalMatrixLayer getCausalLinker() {
 		return causalLinker;
 	}
 
@@ -117,7 +117,7 @@ public class Panchat {
 	 * 
 	 * @return
 	 */
-	public Linker getLinker() {
+	public OrderLayer getLinker() {
 		return linker;
 	}
 

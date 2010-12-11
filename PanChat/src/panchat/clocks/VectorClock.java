@@ -52,8 +52,8 @@ public class VectorClock implements Serializable {
 	/**
 	 * Evento al enviar
 	 */
-	public void sendAction() {
-		tick();
+	public void send(User user) {
+		clock.get(myId).tick();
 	}
 
 	/**
@@ -100,7 +100,25 @@ public class VectorClock implements Serializable {
 	 * 
 	 * @return
 	 */
-	public int getValue(int i) {
+	public int getValue(User i) {
 		return clock.get(i).getValue();
+	}
+
+	/**
+	 * Añadir usuario
+	 * 
+	 * @param user
+	 */
+	public void addUser(User user) {
+		clock.put(user, new LamportClock());
+	}
+
+	/**
+	 * Eliminar usuario
+	 * 
+	 * @param user
+	 */
+	public void removeUser(User user) {
+		clock.remove(user);
 	}
 }

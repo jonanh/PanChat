@@ -33,7 +33,7 @@ public class LamportClock {
 	/**
 	 * Evento al enviar
 	 */
-	public void sendAction() {
+	public void send() {
 		tick();
 	}
 

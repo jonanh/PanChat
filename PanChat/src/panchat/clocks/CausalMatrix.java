@@ -24,7 +24,7 @@ public class CausalMatrix implements Serializable {
 	 * información de la MatrixClock cuando esta matrix sea dinámica, es decir
 	 * que sea modificable y admita insertar y eliminar antiguos usuarios.
 	 */
-	Hashtable<UUID, Hashtable<UUID, Integer>> HashMatrix;
+	public Hashtable<UUID, Hashtable<UUID, Integer>> HashMatrix;
 
 	public CausalMatrix(User usuario) {
 
@@ -34,7 +34,7 @@ public class CausalMatrix implements Serializable {
 
 		HashMatrix = new Hashtable<UUID, Hashtable<UUID, Integer>>();
 
-		anyadirUsuario(usuario);
+		addUser(usuario);
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class CausalMatrix implements Serializable {
 	 * 
 	 * @param nuevoUsuario
 	 */
-	public void anyadirUsuario(User nuevoUsuario) {
+	public void addUser(User nuevoUsuario) {
 
 		if (DEBUG) {
 			System.out

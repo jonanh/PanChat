@@ -118,7 +118,7 @@ public class MulticastListenerThread extends Thread {
 		 */
 		printDebug("Añadimos elementos a los Linkers");
 
-		panchat.getCausalLinker().anyadirUsuario(pUsuario);
+		panchat.getCausalLinker().addUser(pUsuario);
 
 		/*
 		 * Enviamos al usuario la información que tenemos sobre los canales.
