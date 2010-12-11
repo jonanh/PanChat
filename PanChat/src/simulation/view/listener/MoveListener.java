@@ -9,10 +9,42 @@ import simulation.view.CutPosition;
 import simulation.view.Position;
 import simulation.view.SimulationView;
 
+/**
+ * Esta clase controla el comportamiento del View cuando hay que mover toda la
+ * clase de flechas.
+ * 
+ * Durante el movimiento de flechas, se permite :
+ * 
+ * - Mover los puntos de una flecha. Si una flecha se mueve a una posición
+ * inválida, esta volverá tal y como estaba.
+ * 
+ * Cuando movemos una flecha, en realidad lo que hacemos es quitar dicha flecha
+ * del Model y guardarla de manera especial en el View. Cuando finalmente
+ * fijamos la flecha, destruimos la flecha en dibujo y la añadimos
+ * definitivamente al model.
+ * 
+ * Notas :
+ * 
+ * Cada flecha define si la nueva posición es válida o no mediante su método
+ * isValid(SimulationData). De este modo cada tipo de flecha puede determinar si
+ * en la posición nueva sería o válida.
+ * 
+ * La encarga de fijarse definitivamente sobre el Model es la propia flecha
+ * mediante el método move(SimulationData), de este modo flechas con un
+ * comportamiento más complejo pueden gestionar como quieren moverse.
+ * 
+ */
 public class MoveListener extends ViewListener {
 
+	// Flecha de backup, si movemos a una posicion invalida, volveremos sobre
+	// esta flecha.
 	private MessageArrow moveArrow;
+
+	// Flecha de dibujo.
 	private MessageArrow drawingArrow;
+
+	// Si estamos moviendo el principio o el final de una flecha. Lo calculamos
+	// cuando comenzamos el movimiento y ya no lo volveremos a comprobar.
 	private boolean initialOrFinal;
 
 	public MoveListener(SimulationView simulationView) {

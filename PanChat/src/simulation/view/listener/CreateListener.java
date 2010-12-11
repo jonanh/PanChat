@@ -9,9 +9,38 @@ import simulation.view.CutPosition;
 import simulation.view.Position;
 import simulation.view.SimulationView;
 
+/**
+ * Esta clase controla el comportamiento del View cuando hay que crear nuevas
+ * flechas.
+ * 
+ * Durante el proceso de creación de flechas, se permite :
+ * 
+ * - Crear nuevas flechas en casilla vacias.
+ * 
+ * - Añadir nuevas flechas desde el comienzo de una flecha previamente
+ * existente, creando flechas multiples.
+ * 
+ * - Mover los puntos finales de una flecha. Si una flecha se mueve a una
+ * posición inválida, esta volverá tal y como estaba.
+ * 
+ * Notas :
+ * 
+ * Cada flecha define si la nueva posición es válida o no mediante su método
+ * isValid(SimulationData). De este modo cada tipo de flecha puede determinar si
+ * en la posición nueva sería o válida.
+ * 
+ * La encarga de fijarse definitivamente sobre el Model es la propia flecha
+ * mediante el método move(SimulationData), de este modo flechas con un
+ * comportamiento más complejo pueden gestionar como quieren moverse.
+ * 
+ */
 public class CreateListener extends ViewListener {
 
+	// Flecha de backup, si movemos a una posicion invalida, volveremos sobre
+	// esta flecha.
 	private SingleArrow moveArrow;
+
+	// Flecha de dibujo
 	private SingleArrow drawingArrow;
 
 	public CreateListener(SimulationView simulationView) {
