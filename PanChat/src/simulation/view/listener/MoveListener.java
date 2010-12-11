@@ -74,7 +74,7 @@ public class MoveListener extends ViewListener {
 			moveArrow = null;
 			drawingArrow = null;
 		}
-		
+
 		// Actualizamos la posicion de la SimulationView, de manera que
 		// dibuje la iluminación cuando pasa el cursor por encima
 		simulationView.setPosition(simulationView.getPosition(e), true);
@@ -89,7 +89,7 @@ public class MoveListener extends ViewListener {
 			// Obtenemos la posición
 			Position pos = simulationView.getPosition(e);
 
-			CellPosition cell;
+			CellPosition cell = null;
 
 			// Si la posicion es una celda
 			if (pos instanceof CellPosition) {
@@ -99,7 +99,7 @@ public class MoveListener extends ViewListener {
 			}
 			// Si es una columna, dejamos apuntando al mismo proceso, pero
 			// cambiamos a que tick apunta
-			else {
+			else if (pos instanceof CutPosition) {
 
 				CutPosition cut = (CutPosition) pos;
 
@@ -113,17 +113,22 @@ public class MoveListener extends ViewListener {
 				cell.tick = cut.tick;
 			}
 
-			if (initialOrFinal) {
-				drawingArrow.setInitialPos(cell);
-			} else {
-				SingleArrow arrow = (SingleArrow) drawingArrow;
-				arrow.setFinalPos(cell);
-			}
+			// Si la posición era una posición dentro del canvas, entonces
+			// cambiamos los varlores.
+			if (pos != null) {
 
-			// Actualizamos la posicion de la SimulationView, de manera que
-			// dibuje la iluminación cuando pasa el cursor por encima
-			simulationView.setPosition(simulationView.getPosition(e),
-					drawingArrow.isValid(simulationModel));
+				if (initialOrFinal) {
+					drawingArrow.setInitialPos(cell);
+				} else {
+					SingleArrow arrow = (SingleArrow) drawingArrow;
+					arrow.setFinalPos(cell);
+				}
+
+				// Actualizamos la posicion de la SimulationView, de manera que
+				// dibuje la iluminación cuando pasa el cursor por encima
+				simulationView.setPosition(simulationView.getPosition(e),
+						drawingArrow.isValid(simulationModel));
+			}
 
 		} else
 			// Actualizamos la posicion de la SimulationView, de manera que

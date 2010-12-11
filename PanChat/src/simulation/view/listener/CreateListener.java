@@ -78,7 +78,7 @@ public class CreateListener extends ViewListener {
 				simulationModel.addArrow(moveArrow);
 
 			}
-			
+
 			// Quitamos la flecha que estabamos moviendo
 			simulationView.setDrawingArrow(null);
 			moveArrow = null;
@@ -108,7 +108,8 @@ public class CreateListener extends ViewListener {
 			}
 			// Si es una columna, dejamos apuntando al mismo proceso, pero
 			// cambiamos a que tick apunta
-			else {
+			else if (pos instanceof CutPosition) {
+
 				CutPosition cell = (CutPosition) pos;
 				// Obtenemos la posicion final
 				CellPosition finalPos = drawingArrow.getFinalPos();
@@ -117,10 +118,13 @@ public class CreateListener extends ViewListener {
 				drawingArrow.setFinalPos(finalPos);
 			}
 
-			// Actualizamos la posicion de la SimulationView, de manera que
-			// dibuje la iluminación cuando pasa el cursor por encima
-			simulationView.setPosition(simulationView.getPosition(e),
-					drawingArrow.isValid(simulationModel));
+			// Si la posición era una posición dentro del canvas, entonces
+			// cambiamos los varlores.
+			if (pos != null)
+				// Actualizamos la posicion de la SimulationView, de manera que
+				// dibuje la iluminación cuando pasa el cursor por encima
+				simulationView.setPosition(simulationView.getPosition(e),
+						drawingArrow.isValid(simulationModel));
 
 		} else
 			// Actualizamos la posicion de la SimulationView, de manera que

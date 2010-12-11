@@ -170,7 +170,7 @@ public class SimulationView extends JPanel implements Observer {
 		int columna = (x - paddingX) / cellWidth;
 
 		// // Si está en el margen izquierdo null
-		if (x < paddingX || columna >= ticks || y > height)
+		if (x < paddingX || columna >= ticks || y > height - 1)
 			return null;
 
 		// Sino, puede ser o bien una celda o una columna.
