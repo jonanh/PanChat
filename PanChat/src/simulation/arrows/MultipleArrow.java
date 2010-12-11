@@ -140,6 +140,11 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	 */
 	public boolean isValid(SimulationModel simulationModel) {
 
+		// Si sólo tenemos una flecha, entonces comprobar si esa flecha es
+		// valida
+		if (arrowList.size() == 1)
+			return arrowList.get(0).isValid(simulationModel);
+
 		// Activamos el isValid para cada una de las flechas
 		for (SingleArrow arrow : arrowList)
 			arrow.isValid(simulationModel);
