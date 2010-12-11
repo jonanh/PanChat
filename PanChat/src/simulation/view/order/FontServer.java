@@ -17,6 +17,4 @@ public class FontServer {
 	static void restoreFont(Graphics2D g2){
 		g2.setFont(oldFont);
 	}
-	
-
 }

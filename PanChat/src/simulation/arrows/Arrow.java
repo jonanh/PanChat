@@ -79,6 +79,8 @@ public class Arrow extends Line2D.Float implements Serializable {
 	 */
 	private void actualizar() {
 		tx.setToIdentity();
+		// Sacamos el angulo de la linea que usamos como base para representar
+		// la flecha.
 		double angle = Math.atan2(y2 - y1, x2 - x1);
 		tx.translate(x2, y2);
 		tx.rotate(angle);

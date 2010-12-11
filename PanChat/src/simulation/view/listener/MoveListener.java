@@ -3,6 +3,7 @@ package simulation.view.listener;
 import java.awt.event.MouseEvent;
 
 import simulation.arrows.MessageArrow;
+import simulation.arrows.SingleArrow;
 import simulation.view.CellPosition;
 import simulation.view.Position;
 import simulation.view.SimulationView;
@@ -88,5 +89,39 @@ public class MoveListener extends ViewListener {
 			// dibuje la iluminación cuando pasa el cursor por encima
 			super.mouseDragged(e);
 		}
+	}
+
+	/**
+	 * Verificamos si messageArrow es una flecha que se encuentra en un lugar
+	 * válido y/o libre :
+	 * 
+	 * <ul>
+	 * <li>Una flecha no puede ir de a el mismo proceso.</li>
+	 * <li>Una flecha no puede ir hacia atrás.</li>
+	 * <li>Una flecha no puede apuntar a una celda ya ocupada.</li>
+	 * </ul>
+	 * 
+	 * @param messageArrow
+	 * 
+	 * @return Si es valida la flecha
+	 */
+	public boolean isValidArrow(SingleArrow messageArrow) {
+
+		CellPosition initialPos = messageArrow.getInitialPos();
+		CellPosition finalPos = messageArrow.getFinalPos();
+
+		// Una flecha no puede ir de a el mismo proceso
+		if (initialPos.process == finalPos.process)
+			return false;
+
+		// Una flecha no puede ir hacia atrás
+		if (initialPos.tick >= finalPos.tick)
+			return false;
+
+		// Si el destino de la fecha apunta a una celda ya ocupada
+		if (this.simulationModel.getMultipleArrow(finalPos) != null)
+			return false;
+
+		return true;
 	}
 }

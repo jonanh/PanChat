@@ -37,7 +37,6 @@ public class SimulationModel extends Observable implements Serializable {
 	 * Atributos
 	 */
 	private int numTicks = DEFAULT_NUM_TICKS;
-	public static int numProcesses = DEFAULT_NUM_PROCESSES;
 
 	// Lista de cortes (usando un bitset, para evitar usar un array de
 	// booleanos. Es dinamico e internamente permite usar operaciones a nivel de
@@ -55,7 +54,7 @@ public class SimulationModel extends Observable implements Serializable {
 	private ArrayList<User> listaProcesos = new ArrayList<User>();
 
 	// capa que se encarga de la ordenacion
-	public OrderI fifo = new FifoOrderView();
+	public OrderI fifo = new FifoOrderView(this);
 
 	/**
 	 * Construimos el objeto de datos de simulacion
@@ -66,8 +65,8 @@ public class SimulationModel extends Observable implements Serializable {
 
 	/**
 	 * Rutina ayudante para setNumProcesses y setTimeTicks. Busca en las
-	 * flechas, el proceso más lejano desde el cual salga o llegue una flecha,
-	 * y el tick más lejano hasta donde llegue una flecha.
+	 * flechas, el proceso más lejano desde el cual salga o llegue una flecha, y
+	 * el tick más lejano hasta donde llegue una flecha.
 	 * 
 	 * @return
 	 */
@@ -112,15 +111,15 @@ public class SimulationModel extends Observable implements Serializable {
 	public int setNumProcesses(int pNumProcesses) {
 
 		int numProcesses = pNumProcesses - getNumProcesses();
-		SimulationModel.numProcesses = pNumProcesses;
 
 		// Si hay que añadir nuevos procesos :
 		if (numProcesses > 0) {
 			for (int i = getNumProcesses(); i < pNumProcesses; i++)
 				listaProcesos.add(new User(null));
 
-			//se pide que se recalculen los vectores
+			// se pide que se recalculen los vectores
 			fifo.recalculateVectors(-1);
+
 			this.setChanged();
 			this.notifyObservers();
 
@@ -213,9 +212,11 @@ public class SimulationModel extends Observable implements Serializable {
 
 		// Si no existe el MultipleArrow, lo creamos y añadimos la flecha
 		if (arrow == null) {
+
 			arrow = new MultipleArrow(initialPos, messageArrow);
 			arrowMatrix.put(initialPos, arrow);
 			listaFlechas.add(arrow);
+
 			// se introduce el correspondiente vector logico
 			correctness = fifo.addLogicalOrder(messageArrow, false);
 
@@ -232,10 +233,12 @@ public class SimulationModel extends Observable implements Serializable {
 			correctness = fifo.addLogicalOrder(messageArrow, true);
 		}
 		arrowMatrix.put(finalPos, arrow);
-		// si no es correcto de acuerdo al orden acutal se borra
+
+		// si no es correcto de acuerdo al orden actual se borra
 		if (correctness == false) {
 			deleteArrow(finalPos);
 		}
+
 		super.setChanged();
 		this.notifyObservers();
 	}
@@ -289,18 +292,18 @@ public class SimulationModel extends Observable implements Serializable {
 		if (multipleArrow.getInitialPos().equals(position)) {
 			for (CellPosition pos : multipleArrow.getFinalPos()) {
 				arrowMatrix.remove(pos);
+
 				// se borran los relojes correspondientes
-				if (fifo != null) {
-					System.out.println("por aqui no paso");
-					fifo.removeLogicalOrder(pos);
-				}
+				System.out.println("por aqui no paso");
+				fifo.removeLogicalOrder(pos);
 			}
 
 			arrow = multipleArrow;
 
 			listaFlechas.remove(multipleArrow);
-		} // Si la posicion es la posicion de destino de una flecha entonces
-			// eliminamos dicha flecha de la MultipleArrow
+		}
+		// Si la posicion es la posicion de destino de una flecha entonces
+		// eliminamos dicha flecha de la MultipleArrow
 		else {
 			arrow = multipleArrow.deleteArrow(position);
 
@@ -312,48 +315,11 @@ public class SimulationModel extends Observable implements Serializable {
 			}
 
 			// se borran los relojes correspondientes
-			if (fifo != null) {
-				System.out.println("eliminando");
-				fifo.removeOnlyLogicalOrder(position);
-			}
+			System.out.println("eliminando");
+			fifo.removeOnlyLogicalOrder(position);
 		}
 		super.setChanged();
 		this.notifyObservers();
 		return arrow;
-	}
-
-	/**
-	 * Verificamos si messageArrow es una flecha que se encuentra en un lugar
-	 * válido y/o libre :
-	 * 
-	 * <ul>
-	 * <li>Una flecha no puede ir de a el mismo proceso.</li>
-	 * <li>Una flecha no puede ir hacia atrás.</li>
-	 * <li>Una flecha no puede apuntar a una celda ya ocupada.</li>
-	 * </ul>
-	 * 
-	 * @param messageArrow
-	 * 
-	 * @return Si es valida la flecha
-	 */
-	public synchronized boolean isValidArrow(SingleArrow messageArrow) {
-
-		CellPosition initialPos = messageArrow.getInitialPos();
-		CellPosition finalPos = messageArrow.getFinalPos();
-
-		// Una flecha no puede ir de a el mismo proceso
-		if (initialPos.process == finalPos.process)
-			return false;
-
-		// Una flecha no puede ir hacia atrás
-		if (initialPos.tick >= finalPos.tick)
-			return false;
-
-		// Si el destino de la fecha apunta a una celda ya ocupada
-		if (getMultipleArrow(finalPos) != null)
-			return false;
-
-		return true;
-
 	}
 }

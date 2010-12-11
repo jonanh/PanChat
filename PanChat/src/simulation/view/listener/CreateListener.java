@@ -44,6 +44,11 @@ public class CreateListener extends ViewListener {
 				simulationView.setDrawingArrow(drawingArrow);
 			}
 		}
+
+		// Actualizamos la posicion de la SimulationView, de manera que
+		// dibuje la iluminación cuando pasa el cursor por encima
+		simulationView.setPosition(simulationView.getPosition(e),
+				isValidFinal(drawingArrow));
 	}
 
 	@Override
@@ -54,7 +59,7 @@ public class CreateListener extends ViewListener {
 		simulationView.setDrawingArrow(null);
 
 		// si la nueva posicion es valida la añadimos a la lista de flechas.
-		if (simulationModel.isValidArrow(arrow)) {
+		if (isValidFinal(arrow)) {
 
 			simulationModel.addArrow(arrow);
 
@@ -68,6 +73,10 @@ public class CreateListener extends ViewListener {
 			// Quitamos la flecha que estabamos moviendo
 			moveArrow = null;
 		}
+
+		// Actualizamos la posicion de la SimulationView, de manera que
+		// dibuje la iluminación cuando pasa el cursor por encima
+		simulationView.setPosition(simulationView.getPosition(e), true);
 	}
 
 	@Override
@@ -81,10 +90,45 @@ public class CreateListener extends ViewListener {
 
 			CellPosition cell = (CellPosition) pos;
 			drawingArrow.setFinalPos(cell);
-
-			// Actualizamos la posicion de la SimulationView, de manera que
-			// dibuje la iluminación cuando pasa el cursor por encima
-			super.mouseDragged(e);
 		}
+
+		// Actualizamos la posicion de la SimulationView, de manera que
+		// dibuje la iluminación cuando pasa el cursor por encima
+		simulationView.setPosition(simulationView.getPosition(e),
+				isValidFinal(drawingArrow));
+	}
+
+	/**
+	 * Verificamos si messageArrow es una flecha que se encuentra en un lugar
+	 * válido y/o libre :
+	 * 
+	 * <ul>
+	 * <li>Una flecha no puede ir de a el mismo proceso.</li>
+	 * <li>Una flecha no puede ir hacia atrás.</li>
+	 * <li>Una flecha no puede apuntar a una celda ya ocupada.</li>
+	 * </ul>
+	 * 
+	 * @param messageArrow
+	 * 
+	 * @return Si es valida la flecha
+	 */
+	public boolean isValidFinal(SingleArrow messageArrow) {
+
+		CellPosition initialPos = messageArrow.getInitialPos();
+		CellPosition finalPos = messageArrow.getFinalPos();
+
+		// Una flecha no puede ir de a el mismo proceso
+		if (initialPos.process == finalPos.process)
+			return false;
+
+		// Una flecha no puede ir hacia atrás
+		if (initialPos.tick >= finalPos.tick)
+			return false;
+
+		// Si el destino de la fecha apunta a una celda ya ocupada
+		if (this.simulationModel.getMultipleArrow(finalPos) != null)
+			return false;
+
+		return true;
 	}
 }

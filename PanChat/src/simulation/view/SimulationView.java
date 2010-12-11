@@ -10,7 +10,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Vector;
 
 import javax.swing.JPanel;
 
@@ -21,7 +20,6 @@ import simulation.view.listener.CreateListener;
 import simulation.view.listener.DeleteListener;
 import simulation.view.listener.MoveListener;
 import simulation.view.listener.ViewListener;
-import simulation.view.order.VectorClock;
 
 @SuppressWarnings("serial")
 public class SimulationView extends JPanel implements Observer {
@@ -70,6 +68,7 @@ public class SimulationView extends JPanel implements Observer {
 	// Atributo que usamos para guardar sobre que estamos (celda, corte o fuera
 	// de la pantalla)
 	private Position overPosition;
+	private Boolean validOverPosition = true;
 
 	// Flecha que estamos modificando sobre la vista. Como no es una flecha
 	// definitiva, trabajamos directamente sobre la vista en vez del modelo.
@@ -206,6 +205,17 @@ public class SimulationView extends JPanel implements Observer {
 	}
 
 	/**
+	 * Establecemos la posición sobre la que esta el cursor. Sólo si cambiamos
+	 * el estado actualizamos y repintamos la pantalla.
+	 * 
+	 * @param newPosition
+	 */
+	public void setPosition(Position newPosition, Boolean valid) {
+		setPosition(newPosition);
+		this.validOverPosition = valid;
+	}
+
+	/**
 	 * Calcula la posicion centrada en una celda según la posicion de una celda.
 	 * 
 	 * @param position
@@ -240,7 +250,6 @@ public class SimulationView extends JPanel implements Observer {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 
-		
 		paintColumns(g2);
 		paintProcesses(g2);
 		paintArrows(g2);
@@ -325,11 +334,8 @@ public class SimulationView extends JPanel implements Observer {
 			int x0 = pos.tick * cellWidth + paddingX;
 			int y0 = pos.process * (cellHeight + paddingY) + paddingY;
 
-			// Si estamos dibujando una flecha, la posicion final de la flecha
-			// es la misma que la celda iluminada y la flecha es esta siendo
-			// colocada sobre una fila no valida.
-			if (drawingArrow != null && drawingArrow.getFinalPos().equals(pos)
-					&& !simulationModel.isValidArrow(drawingArrow))
+			// Si la posicion over es invalida, la pintamos de rojo
+			if (!validOverPosition)
 				g.setColor(invalidOverColor);
 			else
 				g.setColor(overCellColor);
@@ -352,20 +358,12 @@ public class SimulationView extends JPanel implements Observer {
 		if (this.drawingArrow != null)
 			drawingArrow.draw(g);
 	}
-	
+
 	/**
 	 * se dibuja los vectores logicos
 	 */
-	public void paintVectorClock(Graphics2D g2){
-		//if(VectorClock.print){
-		Vector<VectorClock> clock;
-		clock = simulationModel.fifo.getVectorClocks();
-		
-		for(VectorClock iter:clock){
-			iter.draw(g2);
-		}
-		//VectorClock.print = false;
-		//}
+	public void paintVectorClock(Graphics2D g2) {
+		simulationModel.fifo.draw(g2);
 	}
 
 	/**
