@@ -320,8 +320,9 @@ public class SimulationModel extends Observable implements Serializable {
 				// se borran los relojes correspondientes
 				// FIXME
 				// System.out.println("por aqui no paso");
-				fifo.removeLogicalOrder(pos);
+				fifo.removeOnlyLogicalOrder(pos);
 			}
+			fifo.removeOriginLogicalOrder(multipleArrow.getInitialPos());
 
 			if (REMOVE_DEBUG) {
 				System.out.println();
