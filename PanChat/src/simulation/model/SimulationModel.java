@@ -260,7 +260,7 @@ public class SimulationModel extends Observable implements Serializable {
 			}
 			// FIXME
 			// se introduce el correspondiente vector logico
-			// correctness = fifo.addLogicalOrder(messageArrow, false);
+			 correctness = fifo.addLogicalOrder(messageArrow, false);
 
 		} // Añadimos la flecha
 		else {
@@ -271,7 +271,7 @@ public class SimulationModel extends Observable implements Serializable {
 				arrowMatrix.remove(removeArrow);
 
 				// FIXME
-				// fifo.removeOnlyLogicalOrder(removeArrow);
+				 fifo.removeOnlyLogicalOrder(removeArrow);
 			}
 
 			// Añadimos la flecha al final
@@ -287,14 +287,14 @@ public class SimulationModel extends Observable implements Serializable {
 			}
 
 			// se introduce el correspondiente vector logico
-			// correctness = fifo.addLogicalOrder(messageArrow, true);
+			 correctness = fifo.addLogicalOrder(messageArrow, true);
 		}
 
 		// FIXME
 		// si no es correcto de acuerdo al orden actual se borra
-		// if (correctness == false) {
-		// deleteArrow(finalPos);
-		// }
+		 if (correctness == false) {
+		 deleteArrow(finalPos);
+		 }
 
 		super.setChanged();
 		this.notifyObservers();
@@ -354,7 +354,7 @@ public class SimulationModel extends Observable implements Serializable {
 				// se borran los relojes correspondientes
 				// FIXME
 				// System.out.println("por aqui no paso");
-				// fifo.removeLogicalOrder(pos);
+				 fifo.removeLogicalOrder(pos);
 			}
 
 			if (REMOVE_DEBUG) {
@@ -390,7 +390,7 @@ public class SimulationModel extends Observable implements Serializable {
 			// se borran los relojes correspondientes
 			// FIXME
 			// System.out.println("eliminando");
-			// fifo.removeOnlyLogicalOrder(position);
+			 fifo.removeOnlyLogicalOrder(position);
 		}
 		super.setChanged();
 		this.notifyObservers();
