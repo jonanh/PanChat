@@ -185,6 +185,19 @@ public class VectorClock implements Serializable {
 		g.setColor(Color.BLUE);
 		g.drawString(finalPart, xDraw, yDraw);
 		g.setColor(Color.BLACK);
-
 	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		String s = new String();
+		s = "[";
+		for(int i=0;i<vector.length;i++){
+			s = s+i+", ";
+		}
+		s = "]";
+		return s;
+	}
+	
+
 }
