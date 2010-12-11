@@ -359,8 +359,8 @@ public class SimulationModel extends Observable implements Serializable {
 				System.out.println();
 				System.out.println("estado:" + arrowMatrix);
 			}
-
 		}
+		fifo.recalculateVectors(multipleArrow.getInitialPos().tick-1);
 		super.setChanged();
 		this.notifyObservers();
 		return arrow;
