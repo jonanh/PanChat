@@ -135,7 +135,7 @@ public class SimulationModel extends Observable implements Serializable {
 
 			for (int i = getNumProcesses(); i > pNumProcesses; i--) {
 				arrowMatrix.remove(i);
-				listaProcesos.remove(i);
+				listaProcesos.remove(i-1);
 			}
 			super.setChanged();
 			this.notifyObservers();
