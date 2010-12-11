@@ -66,36 +66,8 @@ public class SimulationModel extends Observable implements Serializable {
 		setNumProcesses(DEFAULT_NUM_PROCESSES);
 	}
 
-	/**
-	 * Rutina ayudante para setNumProcesses y setTimeTicks. Busca en las
-	 * flechas, el proceso más lejano desde el cual salga o llegue una flecha, y
-	 * el tick más lejano hasta donde llegue una flecha.
-	 * 
-	 * @return
-	 */
-	private CellPosition lastArrow() {
-
-		CellPosition last = new CellPosition(0, 0);
-
-		for (MultipleArrow arrow : arrowList) {
-			for (CellPosition arrowCellPosition : arrow.getFinalPos()) {
-
-				if (last.tick < arrowCellPosition.tick)
-					last.tick = arrowCellPosition.tick;
-
-				if (last.process < arrowCellPosition.process)
-					last.process = arrowCellPosition.process;
-
-				arrowCellPosition = arrow.getInitialPos();
-				if (last.process < arrowCellPosition.process)
-					last.process = arrowCellPosition.process;
-			}
-		}
-		return last;
-	}
-
 	/*
-	 * Número de procesos
+	 * Métodos para obtener y establecer el número procesos y ticks.
 	 */
 
 	/**
@@ -184,15 +156,9 @@ public class SimulationModel extends Observable implements Serializable {
 		return numTicks;
 	}
 
-	/**
-	 * 
-	 * @param tick
-	 * 
-	 * @return Si el tick es un corte o no.
+	/*
+	 * Métodos para añadir, obtener y eliminar flechas
 	 */
-	public boolean isCut(int tick) {
-		return cutList.get(tick);
-	}
 
 	/**
 	 * @return El listado de flechas
@@ -260,7 +226,7 @@ public class SimulationModel extends Observable implements Serializable {
 			}
 			// FIXME
 			// se introduce el correspondiente vector logico
-			 correctness = fifo.addLogicalOrder(messageArrow, false);
+			correctness = fifo.addLogicalOrder(messageArrow, false);
 
 		} // Añadimos la flecha
 		else {
@@ -271,7 +237,7 @@ public class SimulationModel extends Observable implements Serializable {
 				arrowMatrix.remove(removeArrow);
 
 				// FIXME
-				 fifo.removeOnlyLogicalOrder(removeArrow);
+				fifo.removeOnlyLogicalOrder(removeArrow);
 			}
 
 			// Añadimos la flecha al final
@@ -287,14 +253,14 @@ public class SimulationModel extends Observable implements Serializable {
 			}
 
 			// se introduce el correspondiente vector logico
-			 correctness = fifo.addLogicalOrder(messageArrow, true);
+			correctness = fifo.addLogicalOrder(messageArrow, true);
 		}
 
 		// FIXME
 		// si no es correcto de acuerdo al orden actual se borra
-		 if (correctness == false) {
-			 deleteArrow(finalPos);
-		 }
+		if (correctness == false) {
+			deleteArrow(finalPos);
+		}
 
 		super.setChanged();
 		this.notifyObservers();
@@ -354,7 +320,7 @@ public class SimulationModel extends Observable implements Serializable {
 				// se borran los relojes correspondientes
 				// FIXME
 				// System.out.println("por aqui no paso");
-				 fifo.removeLogicalOrder(pos);
+				fifo.removeLogicalOrder(pos);
 			}
 
 			if (REMOVE_DEBUG) {
@@ -378,13 +344,12 @@ public class SimulationModel extends Observable implements Serializable {
 			if (multipleArrow.getFinalPos().size() == 0) {
 				arrowMatrix.remove(multipleArrow.getInitialPos());
 				arrowList.remove(multipleArrow);
-				 fifo.removeLogicalOrder(position);
-			}
-			else{
+				fifo.removeLogicalOrder(position);
+			} else {
 				// se borran los relojes correspondientes
 				// FIXME
 				// System.out.println("eliminando");
-				 fifo.removeOnlyLogicalOrder(position);
+				fifo.removeOnlyLogicalOrder(position);
 			}
 
 			if (REMOVE_DEBUG) {
@@ -394,10 +359,85 @@ public class SimulationModel extends Observable implements Serializable {
 				System.out.println("estado:" + arrowMatrix);
 			}
 
-			
 		}
 		super.setChanged();
 		this.notifyObservers();
 		return arrow;
+	}
+
+	/*
+	 * Rutinas ayudantes
+	 */
+
+	/**
+	 * Rutina ayudante para setNumProcesses y setTimeTicks. Busca en las
+	 * flechas, el proceso más lejano desde el cual salga o llegue una flecha, y
+	 * el tick más lejano hasta donde llegue una flecha.
+	 * 
+	 * @return
+	 */
+	private CellPosition lastArrow() {
+
+		CellPosition last = new CellPosition(0, 0);
+
+		for (MultipleArrow arrow : arrowList) {
+			for (CellPosition arrowCellPosition : arrow.getFinalPos()) {
+
+				if (last.tick < arrowCellPosition.tick)
+					last.tick = arrowCellPosition.tick;
+
+				if (last.process < arrowCellPosition.process)
+					last.process = arrowCellPosition.process;
+
+				arrowCellPosition = arrow.getInitialPos();
+				if (last.process < arrowCellPosition.process)
+					last.process = arrowCellPosition.process;
+			}
+		}
+		return last;
+	}
+
+	/*
+	 * Rutinas ayudantes
+	 */
+
+	/**
+	 * 
+	 * @param tick
+	 * 
+	 * @return Si el tick es un corte o no.
+	 */
+	public boolean isCut(int tick) {
+		return cutList.get(tick);
+	}
+
+	/**
+	 * Devuelve el usuario correspondiente a un proceso determinado.
+	 * 
+	 * @param process
+	 * @return
+	 */
+	public User getUser(int process) {
+		return listaProcesos.get(process);
+	}
+
+	/**
+	 * Rutina ayudante para setNumProcesses y setTimeTicks. Busca en las
+	 * flechas, el proceso mÃ¡s lejano desde el cual salga o llegue una flecha,
+	 * y el tick mÃ¡s lejano hasta donde llegue una flecha.
+	 * 
+	 * @return
+	 */
+	public CellPosition freeCell(CellPosition cell) {
+
+		CellPosition freeCell = cell.clone();
+
+		// Recorremos los ticks desde la posicion donde estamos buscando espacio
+		// libres
+		for (; freeCell.tick < this.getTimeTicks(); freeCell.tick++)
+			if (!arrowMatrix.containsKey(freeCell))
+				return freeCell;
+
+		return null;
 	}
 }
