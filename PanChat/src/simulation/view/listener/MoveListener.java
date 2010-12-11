@@ -74,6 +74,10 @@ public class MoveListener extends ViewListener {
 			moveArrow = null;
 			drawingArrow = null;
 		}
+		
+		// Actualizamos la posicion de la SimulationView, de manera que
+		// dibuje la iluminación cuando pasa el cursor por encima
+		simulationView.setPosition(simulationView.getPosition(e), true);
 	}
 
 	@Override
