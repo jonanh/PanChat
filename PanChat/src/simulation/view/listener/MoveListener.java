@@ -54,13 +54,10 @@ public class MoveListener extends ViewListener {
 
 			MessageArrow arrow = simulationView.getDrawingArrow();
 
-			// Eliminamos la flecha en dibujo
-			simulationView.setDrawingArrow(null);
-
 			// si la nueva posicion es valida la añadimos a la lista de flechas.
 			if (arrow.isValid(simulationModel)) {
 
-				simulationModel.addArrow(arrow);
+				arrow.move(simulationModel);
 
 			}
 			// Si no es valida, y estabamos moviendo una flecha que ya existía,
@@ -68,11 +65,14 @@ public class MoveListener extends ViewListener {
 			// antes de moverla.
 			else if (moveArrow != null) {
 
-				simulationModel.addArrow(moveArrow);
+				moveArrow.move(simulationModel);
 
-				// Quitamos la flecha que estabamos moviendo
-				moveArrow = null;
 			}
+
+			// Quitamos la flecha de backup
+			simulationView.setDrawingArrow(null);
+			moveArrow = null;
+			drawingArrow = null;
 		}
 	}
 

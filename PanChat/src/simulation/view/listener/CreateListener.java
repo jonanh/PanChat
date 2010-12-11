@@ -64,9 +64,6 @@ public class CreateListener extends ViewListener {
 
 			SingleArrow arrow = (SingleArrow) simulationView.getDrawingArrow();
 
-			// Eliminamos la flecha en dibujo
-			simulationView.setDrawingArrow(null);
-
 			// si la nueva posicion es valida la añadimos a la lista de flechas.
 			if (arrow.isValid(simulationModel)) {
 
@@ -80,9 +77,12 @@ public class CreateListener extends ViewListener {
 
 				simulationModel.addArrow(moveArrow);
 
-				// Quitamos la flecha que estabamos moviendo
-				moveArrow = null;
 			}
+			
+			// Quitamos la flecha que estabamos moviendo
+			simulationView.setDrawingArrow(null);
+			moveArrow = null;
+			drawingArrow = null;
 		}
 
 		// Actualizamos la posicion de la SimulationView, de manera que

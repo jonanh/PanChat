@@ -101,4 +101,11 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 	public MessageArrow clone() {
 		return new SingleArrow(initialPos, finalPos);
 	}
+
+	@Override
+	public void move(SimulationModel simulationModel) {
+
+		simulationModel.addArrow(this);
+
+	}
 }

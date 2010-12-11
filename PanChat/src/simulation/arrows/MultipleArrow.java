@@ -161,14 +161,20 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	 * 
 	 * @param simulationModel
 	 */
+	@Override
 	public void move(SimulationModel simulationModel) {
 
-		Iterator<SingleArrow> iter = arrowList.iterator();
-		while (iter.hasNext()) {
-			SingleArrow arrow = iter.next();
+		Iterator<SingleArrow> iterArrow = arrowList.iterator();
+		Iterator<CellPosition> iterPosition = finalPos.iterator();
 
-			if (arrow.isValid == false)
-				deleteArrow(arrow.getFinalPos());
+		while (iterArrow.hasNext()) {
+			SingleArrow arrow = iterArrow.next();
+			iterPosition.next();
+
+			if (arrow.isValid == false) {
+				iterArrow.remove();
+				iterPosition.remove();
+			}
 		}
 
 		simulationModel.addArrow(this);
