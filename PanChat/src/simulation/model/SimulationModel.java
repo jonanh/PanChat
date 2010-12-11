@@ -293,7 +293,7 @@ public class SimulationModel extends Observable implements Serializable {
 		// FIXME
 		// si no es correcto de acuerdo al orden actual se borra
 		 if (correctness == false) {
-		 deleteArrow(finalPos);
+			 deleteArrow(finalPos);
 		 }
 
 		super.setChanged();
