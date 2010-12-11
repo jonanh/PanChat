@@ -378,6 +378,13 @@ public class SimulationModel extends Observable implements Serializable {
 			if (multipleArrow.getFinalPos().size() == 0) {
 				arrowMatrix.remove(multipleArrow.getInitialPos());
 				arrowList.remove(multipleArrow);
+				 fifo.removeLogicalOrder(position);
+			}
+			else{
+				// se borran los relojes correspondientes
+				// FIXME
+				// System.out.println("eliminando");
+				 fifo.removeOnlyLogicalOrder(position);
 			}
 
 			if (REMOVE_DEBUG) {
@@ -387,10 +394,7 @@ public class SimulationModel extends Observable implements Serializable {
 				System.out.println("estado:" + arrowMatrix);
 			}
 
-			// se borran los relojes correspondientes
-			// FIXME
-			// System.out.println("eliminando");
-			 fifo.removeOnlyLogicalOrder(position);
+			
 		}
 		super.setChanged();
 		this.notifyObservers();

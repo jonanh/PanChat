@@ -205,7 +205,8 @@ public class FifoOrderView implements Serializable, OrderI {
 	public void removeLogicalOrder(CellPosition finalPos) {
 		VectorClock removedVector;
 		removedVector = clockTable.remove(finalPos);
-		clockTable.remove(removedVector.origin);
+		if(removedVector!=null)
+			clockTable.remove(removedVector.origin);
 		recalculateVectors(-1);
 	}
 
@@ -222,14 +223,16 @@ public class FifoOrderView implements Serializable, OrderI {
 		removed = clockTable.remove(finalPos);
 		// hay que disminuir en 1 la posicion correspondiente en el origne
 		// ESTRICTAMENTE NECESARIO
-		origin = clockTable.get(removed.origin);
-		// decrementamos el que quitamos y las otra flechas que habia
-		origin.decrease(removed.finalPos.process);
-		origin.decrease(origin.finalPos.process);
-		clockTable.put(removed.origin, origin);
-
-		recalculateVectors(-1);
-		debug("tamanio de la tabla de relojes: " + clockTable.size());
+		if(removed!=null){
+			origin = clockTable.get(removed.origin);
+			// decrementamos el que quitamos y las otra flechas que habia
+			origin.decrease(removed.finalPos.process);
+			origin.decrease(origin.finalPos.process);
+			clockTable.put(removed.origin, origin);
+	
+			recalculateVectors(-1);
+			debug("tamanio de la tabla de relojes: " + clockTable.size());
+		}
 	}
 
 	private void debug(String out) {

@@ -195,7 +195,7 @@ public class VectorClock implements Serializable {
 		for(int i=0;i<vector.length;i++){
 			s = s+i+", ";
 		}
-		s = "]";
+		s = s+"]";
 		return s;
 	}
 	
