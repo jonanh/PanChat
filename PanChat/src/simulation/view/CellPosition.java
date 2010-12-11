@@ -35,4 +35,8 @@ public class CellPosition implements Serializable, Position {
 	public String toString() {
 		return "(" + process + "," + tick + ")";
 	}
+
+	public CellPosition clone() {
+		return new CellPosition(process, tick);
+	}
 }
