@@ -223,6 +223,7 @@ public class FifoOrderView implements Serializable, OrderI {
 		removed = clockTable.remove(finalPos);
 		// hay que disminuir en 1 la posicion correspondiente en el origne
 		// ESTRICTAMENTE NECESARIO
+		
 		if(removed!=null){
 			origin = clockTable.get(removed.origin);
 			// decrementamos el que quitamos y las otra flechas que habia
@@ -234,6 +235,14 @@ public class FifoOrderView implements Serializable, OrderI {
 			debug("tamanio de la tabla de relojes: " + clockTable.size());
 		}
 	}
+	
+	public void removeOriginLogicalOrder(CellPosition initPos) {
+		debug("eliminado: " + initPos);
+		clockTable.remove(initPos);
+		// hay que disminuir en 1 la posicion correspondiente en el origne
+		// ESTRICTAMENTE NECESARIO
+	}
+	
 
 	private void debug(String out) {
 		if (DEBUG)

@@ -18,4 +18,6 @@ public interface OrderI {
 	public void recalculateVectors(int originalTick);
 
 	void draw(Graphics2D g2);
+	
+	public void removeOriginLogicalOrder(CellPosition initPos);
 }
