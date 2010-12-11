@@ -134,12 +134,13 @@ public class SimulationModel extends Observable implements Serializable {
 			 * último proceso con una flecha y comprobamos que no estamos
 			 * intentando eliminarlo.
 			 */
-			pNumProcesses = Math.max(pNumProcesses, lastArrow().process);
+			pNumProcesses = Math.max(pNumProcesses, lastArrow().process + 1);
 
 			for (int i = getNumProcesses(); i > pNumProcesses; i--) {
 				arrowMatrix.remove(i);
-				listaProcesos.remove(i-1);
+				listaProcesos.remove(i - 1);
 			}
+
 			super.setChanged();
 			this.notifyObservers();
 		}
