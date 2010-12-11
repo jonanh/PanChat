@@ -33,6 +33,9 @@ public class SimulationModel extends Observable implements Serializable {
 	public static final int DEFAULT_NUM_PROCESSES = 4;
 	public static final int DEFAULT_NUM_TICKS = 14;
 
+	public static final boolean ADD_DEBUG = false;
+	public static final boolean REMOVE_DEBUG = false;
+
 	/*
 	 * Atributos
 	 */
@@ -247,7 +250,7 @@ public class SimulationModel extends Observable implements Serializable {
 
 			arrowList.add(arrow);
 
-			if (true) {
+			if (ADD_DEBUG) {
 				System.out.println();
 				System.out.println("addMultipleArrow:" + arrow);
 				System.out.println("estado flechas:" + arrowList);
@@ -273,7 +276,7 @@ public class SimulationModel extends Observable implements Serializable {
 			// Añadimos la flecha al final
 			arrowMatrix.put(finalPos, arrow);
 
-			if (true) {
+			if (ADD_DEBUG) {
 				System.out.println();
 				System.out.println("addArrow:" + messageArrow);
 				System.out.println("estado MultipleArrow:" + arrow);
@@ -343,7 +346,7 @@ public class SimulationModel extends Observable implements Serializable {
 		// Si la posicion es la posicion inicial debemos borrar además
 		// las referencias desde los nodos finales.
 		if (multipleArrow.getInitialPos().equals(position)) {
-			
+
 			for (CellPosition pos : multipleArrow.getFinalPos()) {
 				arrowMatrix.remove(pos);
 
@@ -353,13 +356,13 @@ public class SimulationModel extends Observable implements Serializable {
 				// fifo.removeLogicalOrder(pos);
 			}
 
-			if (true) {
+			if (REMOVE_DEBUG) {
 				System.out.println();
 				System.out.println("deleteArrow (inicial):" + position);
 				System.out.println();
 				System.out.println("estado:" + arrowMatrix);
 			}
-			
+
 			arrow = multipleArrow;
 
 			arrowList.remove(multipleArrow);
@@ -371,18 +374,18 @@ public class SimulationModel extends Observable implements Serializable {
 
 			// Si hemos borrado la ultima flecha del grupo, borrar también
 			// el MultiArrow
-			if (multipleArrow.getFinalPos().size() == 0) {				
+			if (multipleArrow.getFinalPos().size() == 0) {
 				arrowMatrix.remove(multipleArrow.getInitialPos());
 				arrowList.remove(multipleArrow);
 			}
 
-			if (true) {
+			if (REMOVE_DEBUG) {
 				System.out.println();
 				System.out.println("deleteArrow (final):" + position);
 				System.out.println();
 				System.out.println("estado:" + arrowMatrix);
 			}
-			
+
 			// se borran los relojes correspondientes
 			// FIXME
 			// System.out.println("eliminando");
