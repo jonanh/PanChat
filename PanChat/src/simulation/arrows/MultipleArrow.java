@@ -140,6 +140,10 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	 */
 	public boolean isValid(SimulationModel simulationModel) {
 
+		// Activamos el isValid para cada una de las flechas
+		for (SingleArrow arrow : arrowList)
+			arrow.isValid(simulationModel);
+
 		// Una flecha no puede ir hacia atrás
 		for (CellPosition pos : finalPos)
 			if (initialPos.tick >= pos.tick)

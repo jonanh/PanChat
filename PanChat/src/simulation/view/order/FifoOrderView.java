@@ -13,7 +13,7 @@ public class FifoOrderView implements Serializable, OrderI {
 
 	public static boolean debug = false;
 
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = false;
 
 	private HashMap<CellPosition, VectorClock> clockTable;
 

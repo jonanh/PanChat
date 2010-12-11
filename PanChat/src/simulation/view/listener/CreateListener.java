@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import simulation.arrows.MessageArrow;
 import simulation.arrows.SingleArrow;
 import simulation.view.CellPosition;
+import simulation.view.CutPosition;
 import simulation.view.Position;
 import simulation.view.SimulationView;
 
@@ -43,35 +44,45 @@ public class CreateListener extends ViewListener {
 				drawingArrow = new SingleArrow(moveArrow.getInitialPos(), cell);
 				simulationView.setDrawingArrow(drawingArrow);
 			}
-		}
 
-		// Actualizamos la posicion de la SimulationView, de manera que
-		// dibuje la iluminación cuando pasa el cursor por encima
-		simulationView.setPosition(simulationView.getPosition(e), drawingArrow
-				.isValid(simulationModel));
+			// Actualizamos la posicion de la SimulationView, de manera que
+			// dibuje la iluminación cuando pasa el cursor por encima
+			simulationView.setPosition(simulationView.getPosition(e),
+					drawingArrow.isValid(simulationModel));
+
+		} else
+			// Actualizamos la posicion de la SimulationView, de manera que
+			// dibuje la iluminación cuando pasa el cursor por encima
+			simulationView.setPosition(simulationView.getPosition(e), true);
+
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		SingleArrow arrow = (SingleArrow) simulationView.getDrawingArrow();
+		// Si estamos dibujando
+		if (drawingArrow != null) {
 
-		// Eliminamos la flecha en dibujo
-		simulationView.setDrawingArrow(null);
+			SingleArrow arrow = (SingleArrow) simulationView.getDrawingArrow();
 
-		// si la nueva posicion es valida la añadimos a la lista de flechas.
-		if (arrow.isValid(simulationModel)) {
+			// Eliminamos la flecha en dibujo
+			simulationView.setDrawingArrow(null);
 
-			simulationModel.addArrow(arrow);
+			// si la nueva posicion es valida la añadimos a la lista de flechas.
+			if (arrow.isValid(simulationModel)) {
 
-		} // Si no es valida, y estabamos moviendo una flecha que ya existía,
-		// volvemos a incluir la copia antigua que teniamos de la flecha
-		// antes de moverla.
-		else if (moveArrow != null) {
+				simulationModel.addArrow(arrow);
 
-			simulationModel.addArrow(moveArrow);
+			} // Si no es valida, y estabamos moviendo una flecha que ya
+			// existía,
+			// volvemos a incluir la copia antigua que teniamos de la flecha
+			// antes de moverla.
+			else if (moveArrow != null) {
 
-			// Quitamos la flecha que estabamos moviendo
-			moveArrow = null;
+				simulationModel.addArrow(moveArrow);
+
+				// Quitamos la flecha que estabamos moviendo
+				moveArrow = null;
+			}
 		}
 
 		// Actualizamos la posicion de la SimulationView, de manera que
@@ -82,19 +93,38 @@ public class CreateListener extends ViewListener {
 	@Override
 	public void mouseDragged(MouseEvent e) {
 
-		// Obtenemos la posición
-		Position pos = simulationView.getPosition(e);
+		// Si estamos dibujando
+		if (drawingArrow != null) {
 
-		// Si la posicion es una celda
-		if (pos instanceof CellPosition) {
+			// Obtenemos la posición
+			Position pos = simulationView.getPosition(e);
 
-			CellPosition cell = (CellPosition) pos;
-			drawingArrow.setFinalPos(cell);
-		}
+			// Si la posicion es una celda actualizamos la posicion
+			if (pos instanceof CellPosition) {
 
-		// Actualizamos la posicion de la SimulationView, de manera que
-		// dibuje la iluminación cuando pasa el cursor por encima
-		simulationView.setPosition(simulationView.getPosition(e), drawingArrow
-				.isValid(simulationModel));
+				CellPosition cell = (CellPosition) pos;
+				drawingArrow.setFinalPos(cell);
+
+			}
+			// Si es una columna, dejamos apuntando al mismo proceso, pero
+			// cambiamos a que tick apunta
+			else {
+				CutPosition cell = (CutPosition) pos;
+				// Obtenemos la posicion final
+				CellPosition finalPos = drawingArrow.getFinalPos();
+				// Cambiamos el tick y lo volvemos a asignar
+				finalPos.tick = cell.tick;
+				drawingArrow.setFinalPos(finalPos);
+			}
+
+			// Actualizamos la posicion de la SimulationView, de manera que
+			// dibuje la iluminación cuando pasa el cursor por encima
+			simulationView.setPosition(simulationView.getPosition(e),
+					drawingArrow.isValid(simulationModel));
+
+		} else
+			// Actualizamos la posicion de la SimulationView, de manera que
+			// dibuje la iluminación cuando pasa el cursor por encima
+			simulationView.setPosition(simulationView.getPosition(e), true);
 	}
 }
