@@ -5,6 +5,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Vector;
 
 import simulation.view.CellPosition;
 import simulation.view.SimulationView;
@@ -25,10 +26,8 @@ public class VectorClock implements Serializable {
 	public static final int EVEN_ELEVATION = 14;
 
 	CellPosition origin;
-	CellPosition finalPos;
+	Vector<CellPosition> finalPos;
 	CellPosition drawingPos;
-
-	boolean isMultiple;
 
 	// public static boolean print = false;
 
@@ -38,15 +37,15 @@ public class VectorClock implements Serializable {
 
 	public VectorClock(int size) {
 		vector = new int[size];
+		finalPos = new Vector<CellPosition>();
 	}
 
 	public VectorClock(CellPosition origin, CellPosition destiny,
-			boolean isOrigin, boolean isMultiple, int size) {
+			boolean isOrigin, int size) {
 		this(size);
 		this.origin = origin;
-		finalPos = destiny;
+		finalPos.add(destiny);
 		this.isOrigin = isOrigin;
-		this.isMultiple = isMultiple;
 
 		/*
 		 * si es origen la posicion de dibujo sera la posicion de origen si es
@@ -55,7 +54,12 @@ public class VectorClock implements Serializable {
 		if (this.isOrigin == true)
 			drawingPos = origin;
 		else
-			drawingPos = finalPos;
+			drawingPos = destiny;
+	}
+	
+	public void setUniqueFinalPos(CellPosition finalPos){
+		this.finalPos.clear();
+		this.finalPos.add(finalPos);
 	}
 
 	public void incrPos(int i) {
@@ -71,15 +75,6 @@ public class VectorClock implements Serializable {
 
 		for (int i = 0; i < vector2.length; i++)
 			this.vector[i] = vector2[i];
-
-		/*
-		 * si es origen, hay que incrementar a quien se manda si es destino, hay
-		 * que incrementar de quie espero
-		 */
-		if (isOrigin == true)
-			this.vector[finalPos.process]++;
-		else
-			this.vector[origin.process]++;
 	}
 
 	public void initialize() {
@@ -88,15 +83,6 @@ public class VectorClock implements Serializable {
 		 */
 		for (int i = 0; i < vector.length; i++)
 			this.vector[i] = 0;
-
-		/*
-		 * si es origen, hay que incrementar a quien se manda si es destino, hay
-		 * que incrementar de quie espero
-		 */
-		if (isOrigin == true)
-			this.vector[finalPos.process]++;
-		else
-			this.vector[origin.process]++;
 	}
 
 	public boolean isCorrect(VectorClock vectorClock) {
@@ -105,10 +91,10 @@ public class VectorClock implements Serializable {
 		int[] vector = vectorClock.vector;
 
 		/*
-		 * for(int i = 0;i<vector.length;i++){ correct = vector[i]== vector[i];
-		 * if(correct == false)break; }
+		 * la comprobacion se hace siempre con destino, por tanto finalPos tiene 
+		 * un solo elemento
 		 */
-		correctness = this.vector[origin.process] == vector[finalPos.process];
+		correctness = this.vector[origin.process] == vector[finalPos.get(0).process];
 		return correctness;
 	}
 
@@ -145,7 +131,7 @@ public class VectorClock implements Serializable {
 
 		// el valor que cambia se pinta en rojo
 		if (isOrigin)
-			changedValue = finalPos.process;
+			changedValue = finalPos.lastElement().process;
 		else
 			changedValue = origin.process;
 
@@ -185,6 +171,10 @@ public class VectorClock implements Serializable {
 		g.setColor(Color.BLUE);
 		g.drawString(finalPart, xDraw, yDraw);
 		g.setColor(Color.BLACK);
+	}
+	
+	public boolean isMultiple(){
+		return finalPos.size()>1;
 	}
 
 	@Override

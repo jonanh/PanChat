@@ -226,7 +226,7 @@ public class SimulationModel extends Observable implements Serializable {
 			}
 			// FIXME
 			// se introduce el correspondiente vector logico
-			correctness = fifo.addLogicalOrder(messageArrow, false);
+			//correctness = fifo.addLogicalOrder(messageArrow, false);
 
 		} // Añadimos la flecha
 		else {
@@ -237,7 +237,7 @@ public class SimulationModel extends Observable implements Serializable {
 				arrowMatrix.remove(removeArrow);
 
 				// FIXME
-				fifo.removeOnlyLogicalOrder(removeArrow);
+				//fifo.removeOnlyLogicalOrder(removeArrow);
 			}
 
 			// Añadimos la flecha al final
@@ -253,8 +253,10 @@ public class SimulationModel extends Observable implements Serializable {
 			}
 
 			// se introduce el correspondiente vector logico
-			correctness = fifo.addLogicalOrder(messageArrow, true);
+			//correctness = fifo.addLogicalOrder(messageArrow, true);
 		}
+		//se introduce el correspondiente vector logico
+		correctness = fifo.addLogicalOrder(messageArrow);
 
 		// FIXME
 		// si no es correcto de acuerdo al orden actual se borra
@@ -320,10 +322,11 @@ public class SimulationModel extends Observable implements Serializable {
 				// se borran los relojes correspondientes
 				// FIXME
 				// System.out.println("por aqui no paso");
-				fifo.removeOnlyLogicalOrder(pos);
+				//fifo.removeOnlyLogicalOrder(pos);
 			}
-			fifo.removeOriginLogicalOrder(multipleArrow.getInitialPos());
-
+			//fifo.removeOriginLogicalOrder(multipleArrow.getInitialPos());
+			//al ser la posicion inicial, se debe borrar la posicion inicial del vector
+			fifo.removeInitialOrder(position);
 			if (REMOVE_DEBUG) {
 				System.out.println();
 				System.out.println("deleteArrow (inicial):" + position);
@@ -345,13 +348,17 @@ public class SimulationModel extends Observable implements Serializable {
 			if (multipleArrow.getFinalPos().size() == 0) {
 				arrowMatrix.remove(multipleArrow.getInitialPos());
 				arrowList.remove(multipleArrow);
-				fifo.removeLogicalOrder(position);
-			} else {
+				//fifo.removeLogicalOrder(position);
+			} //else {
 				// se borran los relojes correspondientes
 				// FIXME
 				// System.out.println("eliminando");
-				fifo.removeOnlyLogicalOrder(position);
-			}
+				//fifo.removeOnlyLogicalOrder(position);
+			//}
+				
+			//se borra la posicion de destino, si es el ultimo vector se borra
+			//tambien el inicial
+				fifo.removeFinalOrder(position);
 
 			if (REMOVE_DEBUG) {
 				System.out.println();

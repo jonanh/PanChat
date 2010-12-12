@@ -7,17 +7,15 @@ import simulation.view.CellPosition;
 
 public interface OrderI {
 	
-	public boolean addLogicalOrder(SingleArrow arrow, boolean isMultiple);
-
-	public void removeLogicalOrder(CellPosition finalPos);
+	public boolean addLogicalOrder(SingleArrow arrow);
 
 	public boolean moveLogicalOrder(SingleArrow arrow);
 
-	public void removeOnlyLogicalOrder(CellPosition finalPos);
+	public void removeFinalOrder(CellPosition finalPos);
+	
+	public void removeInitialOrder(CellPosition initPos);
 
 	public void recalculateVectors(int originalTick);
 
 	void draw(Graphics2D g2);
-	
-	public void removeOriginLogicalOrder(CellPosition initPos);
 }
