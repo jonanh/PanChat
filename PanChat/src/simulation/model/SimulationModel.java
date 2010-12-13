@@ -14,6 +14,7 @@ import simulation.arrows.MultipleArrow;
 import simulation.arrows.SingleArrow;
 import simulation.view.CellPosition;
 import simulation.view.Position;
+import simulation.view.order.CausalOrderView;
 import simulation.view.order.FifoOrderView;
 import simulation.view.order.OrderI;
 
@@ -57,7 +58,7 @@ public class SimulationModel extends Observable implements Serializable {
 	private ArrayList<User> listaProcesos = new ArrayList<User>();
 
 	// capa que se encarga de la ordenacion
-	public OrderI fifo = new FifoOrderView(this);
+	public OrderI fifo = new CausalOrderView(this);
 
 	/**
 	 * Construimos el objeto de datos de simulacion
