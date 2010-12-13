@@ -1,5 +1,6 @@
 package simulation.view.order;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import simulation.arrows.SingleArrow;
 import simulation.model.SimulationModel;
 import simulation.view.CellPosition;
+import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
 public class FifoOrderView implements Serializable, OrderI {
@@ -27,6 +29,10 @@ public class FifoOrderView implements Serializable, OrderI {
 	
 	boolean numProcessChanged;
 
+	//se guardan las posiciones de una flecha no correcta a fin de dar una explicacion
+	//grafica de por que no se puede realizar una flecha
+	private CellPosition noCorrectOrigin;
+	private CellPosition noCorrectFinal;
 	// Vector <VectorClock> posClock;
 
 	public FifoOrderView(SimulationModel simulationModel) {
@@ -40,6 +46,13 @@ public class FifoOrderView implements Serializable, OrderI {
 	@Override
 	public boolean addLogicalOrder(SingleArrow arrow) {
 		/*
+		 * si se habia indicado marcas de explicacion de por que no se podian dibujar
+		 * las flechas, se borran
+		 */
+		noCorrectOrigin = null;
+		noCorrectFinal = null;
+		
+		/*
 		 * Dada una flecha, se aniade sus correspondientes marcas de tiempo
 		 * tanto en origen como en destino El valor devuelto indica que hay
 		 * inconsistencia en las marcas de tiempo(true) o que no (false)
@@ -48,9 +61,6 @@ public class FifoOrderView implements Serializable, OrderI {
 
 		addLogicalOrder(arrow.getInitialPos(), arrow.getFinalPos(), true);
 		correctness = addLogicalOrder(arrow.getInitialPos(), arrow.getFinalPos(),false);
-
-		// VectorClock.print = true;
-		debug("Correctness: " + correctness);
 
 		return correctness;
 	}
@@ -114,6 +124,8 @@ public class FifoOrderView implements Serializable, OrderI {
 							newVector.finalPos.firstElement().tick);
 			}
 		} else {
+			getHelp(origin,newVector);
+			
 			/* si la marca de tiempo no es correcta, se elimina el origen de la
 			* misma si no tiene flechas finales
 			* hay que eliminar de la lista de posiciones final de origen la que corresponde
@@ -205,6 +217,7 @@ public class FifoOrderView implements Serializable, OrderI {
 		 */
 		return vectorFound;
 	}
+		
 
 	@Override
 	public boolean moveLogicalOrder(SingleArrow arrow) {
@@ -297,7 +310,30 @@ public class FifoOrderView implements Serializable, OrderI {
 			}
 		}
 	}
-	
+	public void getHelp(CellPosition origin,VectorClock newVector){
+		//se guardan las posiciones inicial y final
+		VectorClock next = null;
+		CellPosition end = null;
+		CellPosition or = null;
+		//hay que encontrar el siguiente vector con el que se entra en conflicto
+		or = origin.clone();
+		or.tick++;
+		while(next == null){
+			next = clockTable.get(or);
+			or.tick++;
+		}
+		//hay que encontrar la posicion final que corresponda al proceso destino
+		for(CellPosition it: next.finalPos){
+			if(it.process == newVector.finalPos.firstElement().process){
+				end = it;
+				break;
+			}
+		}
+		noCorrectOrigin = origin.clone();
+		noCorrectOrigin.tick++;
+		noCorrectFinal = end.clone();
+		noCorrectFinal.tick--;
+	}
 	public void setNumProcessChanged(){
 		numProcessChanged = true;
 	}
@@ -312,6 +348,59 @@ public class FifoOrderView implements Serializable, OrderI {
 		for (VectorClock vector : this.clockTable.values()) {
 			vector.draw(g2);
 		}
+		print("entramos");
+		if(noCorrectOrigin != null){
+			int x,y;
+			int width = SimulationView.cellWidth;
+			int height = SimulationView.cellHeight;
+			int padX = SimulationView.paddingX;
+			int padY = SimulationView.paddingY;
+			int difX;
+			int initX;
+			int numberCell = 0;
+			boolean found;
+			CellPosition drawingPos = new CellPosition(simulationModel.getNumProcesses(), 0);
+			
+			//dibujamos un recuadro alrededor del origen
+			x = padX + (noCorrectOrigin.tick-1)*width;
+			y = padY + noCorrectOrigin.process*(height+padY);
+			g2.setColor(Color.RED);
+			g2.drawRect(x, y, width, height);
+			
+			/*
+			 * los posibles destinos de la flecha pueden, en el proceso destino,
+			 * desde el origen de la flecha + 1 hasta el destino de la que la limita por
+			 * orden fifo - 1
+			 */
+			g2.setColor(Color.GREEN);
+			difX = noCorrectFinal.tick - noCorrectOrigin.tick;
+			drawingPos.process = noCorrectFinal.process;
+			drawingPos.tick = noCorrectOrigin.tick;
+			y = padY + noCorrectFinal.process*(height+padY);
+			while(difX >= 0){
+				initX = drawingPos.tick;
+				numberCell = 0;
+				while(!(found = clockTable.containsKey(drawingPos)) && difX >=0){
+					numberCell++;
+					difX--;
+					drawingPos.tick++;
+				}
+				x = padX + initX*width;
+				g2.drawRect(x, y, numberCell*width, height);
+				//si se encontro algun elemento hay que decrementar el control aqui
+				if(found){
+					difX--;
+					drawingPos.tick++;
+				}
+				
+			}
+			
+			g2.setColor(Color.BLACK);
+			print("Origen: "+noCorrectOrigin);
+			print("destino: "+noCorrectFinal);
+		}
+		
+		print("salimos");
 
 	}
 	
