@@ -92,9 +92,10 @@ public class SimulationModel extends Observable implements Serializable {
 			for (int i = getNumProcesses(); i < pNumProcesses; i++)
 				listaProcesos.add(new User(null));
 
-			// se pide que se recalculen los vectores
-			fifo.recalculateVectors(-1);
-
+			// se pide que se recalculen los vectores y se avisa a fifo del cambio de numero de procesos
+			fifo.setNumProcessChanged();
+			fifo.recalculateVectors(0);
+			
 			this.setChanged();
 			this.notifyObservers();
 
@@ -112,7 +113,9 @@ public class SimulationModel extends Observable implements Serializable {
 				arrowMatrix.remove(i);
 				listaProcesos.remove(i - 1);
 			}
-
+			// se pide que se recalculen los vectores y se avisa a fifo del cambio de numero de procesos
+			fifo.setNumProcessChanged();
+			fifo.recalculateVectors(0);
 			super.setChanged();
 			this.notifyObservers();
 		}

@@ -24,6 +24,8 @@ public class FifoOrderView implements Serializable, OrderI {
 
 	// indica si estamos recalculando, para que no se produzca un ciclo
 	boolean isRecalculating;
+	
+	boolean numProcessChanged;
 
 	// Vector <VectorClock> posClock;
 
@@ -98,28 +100,47 @@ public class FifoOrderView implements Serializable, OrderI {
 			 * comprobacion se realizara solo en el vector de destino
 			 */
 			if (newVector.isOrigin == false) {
-				if (newVector.origin.tick < lastTick
-						|| newVector.finalPos.get(0).tick < lastTick) {
+				if (newVector.origin.tick < lastTick) {
 					// solo se recalcula si no estamos recalculando ya
-					recalculateVectors2(newVector.origin.tick);
-				} else
+					recalculateVectors(newVector.origin.tick);
+					lastTick = Math.max(lastTick,newVector.finalPos.firstElement().tick);
+				}
+				else if(newVector.finalPos.firstElement().tick < lastTick){
+					// solo se recalcula si no estamos recalculando ya
+					recalculateVectors(newVector.finalPos.firstElement().tick);	
+				}
+				else
 					lastTick = Math.max(newVector.origin.tick,
-							newVector.finalPos.get(0).tick);
+							newVector.finalPos.firstElement().tick);
 			}
 		} else {
-			// si la marca de tiempo no es correcta, se elimina el origen de la
-			// misma
-			clockTable.remove(newVector.origin);
+			/* si la marca de tiempo no es correcta, se elimina el origen de la
+			* misma si no tiene flechas finales
+			* hay que eliminar de la lista de posiciones final de origen la que corresponde
+			* a la flecha erronea
+			*/
+			VectorClock originalClock = clockTable.get(newVector.origin);
+			originalClock.finalPos.remove(newVector.finalPos.firstElement());
+			
+			if(originalClock.finalPos.size()<1){
+				clockTable.remove(newVector.origin);
+			}
+			else
+				clockTable.put(newVector.origin, originalClock);
 		}
 		return correctness;
 	}
 
-	public void recalculateVectors2(int originalTick) {
+	public void recalculateVectors(int originalTick) {
 		int size = simulationModel.getNumProcesses();
 		
 		CellPosition origin = new CellPosition(size, 0);
+		
 		recalculateLoop(origin,originalTick,true);
-		recalculateLoop(origin,originalTick,false);	
+		recalculateLoop(origin,originalTick,false);
+		if(numProcessChanged == true)
+			numProcessChanged = false;
+		
 	}
 	
 	//hace la pasada para insertar origenes o destinos. Si originOrFinal == true
@@ -148,99 +169,21 @@ public class FifoOrderView implements Serializable, OrderI {
 					else
 						actualVector.incrPos(actualVector.origin.process);
 					
+					//si ha cambiado el numero de procesos, hay que cambiar el tamaño de los arrays
+					if(numProcessChanged == true){
+						actualVector.newDimension(simulationModel.getNumProcesses());
+					}
 					clockTable.put(origin, actualVector);
 				}
 			}
 		}
 	}
-	public void recalculateVectors(int originalTick) {
-		int size = simulationModel.getNumProcesses();
-		// solo se recalcula si no lo haciamos ya para evitar ciclos
-		if (isRecalculating == false) {
-			isRecalculating = true;
-			/*
-			 * se recalculan todos los relojes a partir del tickOrigen +1
-			 */
-			int originTick = originalTick + 1;
-			CellPosition origin = new CellPosition(size, 0);
-			VectorClock actualVector;
-
-			for (int i = originTick; i <= lastTick; i++) {
-				origin.tick = i;
-				for (int j = 0; j < simulationModel.getNumProcesses(); j++) {
-					origin.process = j;
-					/*
-					 * si existe un vector con origen en el proceso j y tick i
-					 * se eliminan y se pide que se calculen de nuevo
-					 */
-					actualVector = clockTable.get(origin);
-					if (actualVector != null) {
-						if (actualVector.isOrigin) {
-							debug("Tamanio antes de anadir: "
-									+ clockTable.size());
-							System.out.println("number elements:"+clockTable.size());
-							/*
-							 * se aniade el primer elemento somo si fuera un vector
-							 * unico. Si es un vector multiple, los demas se aniaden 
-							 * uno a uno.
-							 */
-							addLogicalOrder(actualVector.origin,
-									actualVector.finalPos.firstElement(), true);
-							//se aniade el final tambien
-							addLogicalOrder(actualVector.origin,
-									actualVector.finalPos.firstElement(), false);
-							if(actualVector.isMultiple()){
-								actualVector.finalPos.removeElementAt(0);
-								VectorClock rest = new VectorClock(actualVector.origin,
-										null,true,size);
-								for(CellPosition finalPos: actualVector.finalPos){
-									rest.setUniqueFinalPos(finalPos);
-									aniadirVector(rest);
-									//se aniade el final tambien
-									addLogicalOrder(actualVector.origin,
-											finalPos, false);
-								}
-							}
-
-							debug("Tamanio despues de anadir: "
-									+ clockTable.size());
-
-							debug = true;
-							
-							
-
-							debug("Tamanio despues de la pos final de anadir: "
-									+ clockTable.size());
-						} else
-							addLogicalOrder(actualVector.origin,
-									actualVector.finalPos.firstElement(), false);
-					}
-				}
-			}
-			isRecalculating = false;
-		}
-
-	}
-
-	public VectorClock locateVector(VectorClock newVector) {
+		public VectorClock locateVector(VectorClock newVector) {
 		VectorClock vectorFound = null;
 		CellPosition actualPosition;
 		
 		actualPosition = new CellPosition(newVector.drawingPos.process,
 				newVector.drawingPos.tick-1);
-		//si la posicion inicial es una flecha multiple, estara en la tabla
-		/*boolean isMultiple;
-		isMultiple = clockTable.containsKey(newVector.drawingPos);
-		if (isMultiple)
-			// si es multiple hay que contar el propio vector, para que no borre
-			// los valores ya obtenidos
-			actualPosition = new CellPosition(newVector.drawingPos.process,
-					newVector.drawingPos.tick);
-		else
-			actualPosition = new CellPosition(newVector.drawingPos.process,
-					newVector.drawingPos.tick - 1);
-		*/
-		
 
 		while (actualPosition.tick >= 0 && vectorFound == null) {
 			if (clockTable.containsKey(actualPosition)) {
@@ -284,7 +227,7 @@ public class FifoOrderView implements Serializable, OrderI {
 				origin.decrease(finalPos.process);
 				clockTable.put(removedVector.origin, origin);
 			}
-			recalculateVectors2(removedVector.origin.tick);
+			recalculateVectors(removedVector.origin.tick);
 		}
 	}
 
@@ -307,7 +250,7 @@ public class FifoOrderView implements Serializable, OrderI {
 			}
 			debug("tamanio de la tabla de relojes: " + clockTable.size());
 		}
-		recalculateVectors2(initPos.tick);
+		recalculateVectors(initPos.tick);
 	}
 	
 	private void aniadirVector(VectorClock vector){
@@ -316,7 +259,7 @@ public class FifoOrderView implements Serializable, OrderI {
 			clockTable.put(vector.drawingPos, vector);
 		else{
 			/*
-			 * si es origen, el vector es multiple. En tal caso, solo
+			 * si es origen, el vector puede ser multiple. En tal caso, solo
 			 * habra que aniadir la posicion final a la lista y actualizar el vector
 			 */
 			VectorClock origin = clockTable.get(vector.origin);
@@ -324,7 +267,7 @@ public class FifoOrderView implements Serializable, OrderI {
 				clockTable.put(vector.drawingPos, vector);
 			}
 			else{
-				//si ya habia un vector que iba desde el proceso origen y tick origen
+				//si ya habia un vector que iba desde el proceso origen y mismo tick
 				//hasta el proceso final en otro  tick, se elimina
 				boolean found = false;
 				int index = 0;
@@ -344,20 +287,21 @@ public class FifoOrderView implements Serializable, OrderI {
 					clockTable.remove(origin.finalPos.elementAt(index));
 					origin.finalPos.remove(index);	
 				}
+				//si el vector no ha sido sustituido es que era un vector final mas de un vector multiple
+				//por lo tanto, hay que incrementar la posicion correspondiente del vector inicial
+				if(found == false)
+					origin.incrPos(vector.finalPos.firstElement().process);
+				
 				origin.finalPos.add(vector.finalPos.firstElement());
-				origin.incrPos(vector.finalPos.firstElement().process);
+				clockTable.put(origin.origin, origin);
 			}
 		}
 	}
 	
-	/*public void removeOriginLogicalOrder(CellPosition initPos) {
-		debug("eliminado: " + initPos);
-		clockTable.remove(initPos);
-		// hay que disminuir en 1 la posicion correspondiente en el origne
-		// ESTRICTAMENTE NECESARIO
-	}*/
+	public void setNumProcessChanged(){
+		numProcessChanged = true;
+	}
 	
-
 	private void debug(String out) {
 		if (DEBUG)
 			System.out.println(out);
@@ -370,4 +314,10 @@ public class FifoOrderView implements Serializable, OrderI {
 		}
 
 	}
+	
+	public void print(String s){
+		System.out.println(s);
+	}
+
+	
 }

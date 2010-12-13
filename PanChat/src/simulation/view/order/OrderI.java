@@ -14,6 +14,8 @@ public interface OrderI {
 	public void removeFinalOrder(CellPosition finalPos);
 	
 	public void removeInitialOrder(CellPosition initPos);
+	
+	public void setNumProcessChanged();
 
 	public void recalculateVectors(int originalTick);
 

@@ -72,8 +72,9 @@ public class VectorClock implements Serializable {
 		 * position
 		 */
 		int[] vector2 = vector.vector;
+		int limite = Math.min(this.vector.length, vector2.length);
 
-		for (int i = 0; i < vector2.length; i++)
+		for (int i = 0; i < limite; i++)
 			this.vector[i] = vector2[i];
 	}
 
@@ -173,6 +174,15 @@ public class VectorClock implements Serializable {
 		g.setColor(Color.BLACK);
 	}
 	
+	public void newDimension ( int dim ){
+		int vectorAux[];
+		int limite;
+		vectorAux = vector;
+		vector = new int[dim];
+		limite = Math.min(dim,vectorAux.length);
+		for (int i = 0;i < limite;i++)
+			vector[i] = vectorAux[i];
+	}
 	public boolean isMultiple(){
 		return finalPos.size()>1;
 	}
