@@ -31,6 +31,7 @@ public class FifoOrderView implements Serializable, OrderI {
 
 	//se guardan las posiciones de una flecha no correcta a fin de dar una explicacion
 	//grafica de por que no se puede realizar una flecha
+	private CellPosition arrowOrigin;
 	private CellPosition noCorrectOrigin;
 	private CellPosition noCorrectFinal;
 	// Vector <VectorClock> posClock;
@@ -51,6 +52,7 @@ public class FifoOrderView implements Serializable, OrderI {
 		 */
 		noCorrectOrigin = null;
 		noCorrectFinal = null;
+		arrowOrigin = null;
 		
 		/*
 		 * Dada una flecha, se aniade sus correspondientes marcas de tiempo
@@ -314,25 +316,55 @@ public class FifoOrderView implements Serializable, OrderI {
 		//se guardan las posiciones inicial y final
 		VectorClock next = null;
 		CellPosition end = null;
+		CellPosition antEnd = null;
 		CellPosition or = null;
 		//hay que encontrar el siguiente vector con el que se entra en conflicto
 		or = origin.clone();
 		or.tick++;
-		while(next == null){
+		while(next == null && or.tick <= lastTick){
 			next = clockTable.get(or);
 			or.tick++;
 		}
-		//hay que encontrar la posicion final que corresponda al proceso destino
+		
+		//si nos hemos pasado de los tick maximos es porque no se ha encontrado ninguno. Eso quiere decir
+		//que hemos entrado en conflicto con una flecha de tick inferior
+		arrowOrigin = origin.clone();
+		if(or.tick<=lastTick){
+			//hay que encontrar la posicion final que corresponda al proceso destino
+			end = findFinalPos(next,newVector);
+			noCorrectOrigin = arrowOrigin.clone();
+			noCorrectOrigin.process = end.process;
+			noCorrectOrigin.tick++;
+			
+			noCorrectFinal = end.clone();
+			noCorrectFinal.tick--;
+		}
+		if(or.tick>lastTick || newVector.finalPos.firstElement().tick<end.tick){
+			or.tick = origin.tick-1;
+			next = null;
+			while(next == null && or.tick >= 0){
+				next = clockTable.get(or);
+				or.tick--;
+			}
+			antEnd = findFinalPos(next,newVector);
+			noCorrectOrigin = antEnd.clone();
+			noCorrectOrigin.tick++;
+			if(end == null){
+				noCorrectFinal = antEnd.clone();
+				noCorrectFinal.tick = simulationModel.getTimeTicks()-1;
+			}
+		}
+	}
+	
+	private CellPosition findFinalPos(VectorClock next,VectorClock newVector){
+		CellPosition end = null;
 		for(CellPosition it: next.finalPos){
 			if(it.process == newVector.finalPos.firstElement().process){
 				end = it;
 				break;
 			}
 		}
-		noCorrectOrigin = origin.clone();
-		noCorrectOrigin.tick++;
-		noCorrectFinal = end.clone();
-		noCorrectFinal.tick--;
+		return end;
 	}
 	public void setNumProcessChanged(){
 		numProcessChanged = true;
@@ -362,8 +394,8 @@ public class FifoOrderView implements Serializable, OrderI {
 			CellPosition drawingPos = new CellPosition(simulationModel.getNumProcesses(), 0);
 			
 			//dibujamos un recuadro alrededor del origen
-			x = padX + (noCorrectOrigin.tick-1)*width;
-			y = padY + noCorrectOrigin.process*(height+padY);
+			x = padX + (arrowOrigin.tick)*width;
+			y = padY + arrowOrigin.process*(height+padY);
 			g2.setColor(Color.RED);
 			g2.drawRect(x, y, width, height);
 			
