@@ -87,7 +87,8 @@ public class CausalVectorClock implements Serializable {
 			 * con respecto al anterior
 			 */
 			for (int i = 0; i<vector.length;i++)
-				correctness = correctness || this.vector[i] <= vector[i];
+				if(this.vector[i]!= 0 || vector[i] != 0)
+					correctness = correctness || this.vector[i] <= vector[i];
 			return correctness;
 		}
 
@@ -185,7 +186,7 @@ public class CausalVectorClock implements Serializable {
 			String s = new String();
 			s = "[";
 			for(int i=0;i<vector.length;i++){
-				s = s+i+", ";
+				s = s+vector[i]+", ";
 			}
 			s = s+"]";
 			return s;

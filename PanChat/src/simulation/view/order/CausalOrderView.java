@@ -1,16 +1,19 @@
 package simulation.view.order;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Vector;
 
 import simulation.arrows.SingleArrow;
 import simulation.model.SimulationModel;
 import simulation.view.CellPosition;
+import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
 public class CausalOrderView implements Serializable, OrderI {
-
+	public boolean doPrint = true;
 	public static boolean debug = false;
 
 	private final static boolean DEBUG = false;
@@ -26,8 +29,21 @@ public class CausalOrderView implements Serializable, OrderI {
 	boolean isRecalculating;
 	
 	boolean numProcessChanged;
-
+	
+	//se guardan las posiciones de una flecha no correcta a fin de dar una explicacion
+	//grafica de por que no se puede realizar una flecha
+	private CellPosition arrowOrigin;
+	private CellPosition noCorrectOrigin;
+	private CellPosition noCorrectFinal;
+	
+	private CellPosition conflictFinal;
+	private CellPosition conflictInit;
+	private Vector<Interval> availableCell;
 	// Vector <VectorClock> posClock;
+	
+	//indica si la deteccion de la violacion de orden causal se ha detecta de manera 
+	//especial ( de delante hace detras )
+	private boolean specialDetection = false;
 
 	public CausalOrderView(SimulationModel simulationModel) {
 		this.simulationModel = simulationModel;
@@ -45,16 +61,116 @@ public class CausalOrderView implements Serializable, OrderI {
 		 * inconsistencia en las marcas de tiempo(true) o que no (false)
 		 */
 		boolean correctness = true;
+		specialDetection = false;
+		
+		//se indica que ya no se visualice la ayuda
+		removeHelp();
+		CellPosition origin = arrow.getInitialPos();
+		CellPosition finalPos = arrow.getFinalPos();
 
-		addLogicalOrder(arrow.getInitialPos(), arrow.getFinalPos(), true);
-		correctness = addLogicalOrder(arrow.getInitialPos(), arrow.getFinalPos(),false);
+		addLogicalOrder(origin, finalPos, true);
+		addLogicalOrder(origin, finalPos,false);
 
+		recalculate(origin,finalPos);
+		correctness = isCorrectArrow(origin,finalPos);
 		// CausalVectorClock.print = true;
-		debug("Correctness: " + correctness);
-
+		//si los vectores no son correctos, se eliminan
+		if(correctness == true){
+			/*puede que al aniadir la flecha esta no vulnere el orden en el momento de su
+			*entrada, pero puede hacer que flechas que se enviaron antes que la suya y lleguen
+			*despues en el mismo proceso queden mal colocadas
+			*/
+			correctness = restoreOrder(origin,finalPos);
+			if(correctness == false){
+				specialDetection = true;	
+			}
+		}
+		if(correctness == false){
+			//se guardan los valores necesarios para la ayuda
+			getHelp(origin,finalPos);
+			removeFinalOrder(finalPos);
+			
+		}
+		return correctness;
+	}
+	
+	private boolean isCorrectArrow(CellPosition origin, CellPosition finalPos){
+		boolean correctness = true;
+		CausalVectorClock originVector = clockTable.get(origin);
+		CausalVectorClock finalVector = clockTable.get(finalPos);
+		CausalVectorClock lastVector = locateVector(finalVector);
+		
+		if(lastVector != null){
+			correctness = lastVector.isCorrect(originVector);
+		}
+		
+		if(correctness == false){
+			conflictFinal = lastVector.finalPos.firstElement().clone();
+			conflictInit = clockTable.get(conflictFinal).origin;
+		}
+		return correctness;
+	}
+	
+	private boolean restoreOrder(CellPosition origin,CellPosition finalPos){
+		/*
+		 * tenemos que buscar hacia delante
+		 */
+		CausalVectorClock finalClock = clockTable.get(finalPos);
+		CausalVectorClock originClock;
+		boolean correctness = true;
+		Vector<Vector<CellPosition>> pendingPositions = new Vector<Vector<CellPosition>>();
+		
+		CellPosition it = finalPos.clone();
+		it.tick++;
+		while(it.tick <= lastTick && correctness == true){
+			originClock = clockTable.get(it);
+			if(originClock!=null){
+				if(originClock.isOrigin){
+					//hay transitividad
+					pendingPositions.add(originClock.finalPos);
+				}
+				else{
+					originClock = clockTable.get(originClock.origin);
+					correctness = finalClock.isCorrect(originClock);
+				}
+			}
+			it.tick++;
+		}
+		//si la flecha es correcta y hay transitividades se comprueban todas
+		if(correctness == true && !pendingPositions.isEmpty()){
+			exit:
+			for(Vector<CellPosition> vector: pendingPositions){
+				for(CellPosition end:vector){
+					correctness = restoreOrder(clockTable.get(end).origin,end);
+					if(correctness == false){
+						break exit;
+					}
+				}
+			}
+			//cuando se ejecute la sentencia de break se continua desde aqui
+		}
+		else{
+			it.tick--;
+			CausalVectorClock v = clockTable.get(it);
+			if(v!=null)
+				conflictFinal = v.finalPos.firstElement();
+		}
 		return correctness;
 	}
 
+	private void recalculate(CellPosition origin, CellPosition finalPos){
+		if (origin.tick < lastTick) {
+			// solo se recalcula si no estamos recalculando ya
+			lastTick = Math.max(lastTick,finalPos.tick);
+			recalculateVectors(origin.tick);	
+		}
+		else if(finalPos.tick < lastTick){
+			// solo se recalcula si no estamos recalculando ya
+			recalculateVectors(finalPos.tick);	
+		}
+		else
+			lastTick = Math.max(origin.tick,finalPos.tick);
+	}
 	private boolean addLogicalOrder(CellPosition origin, CellPosition position,
 			boolean isOrigin) {
 		/*
@@ -85,7 +201,6 @@ public class CausalOrderView implements Serializable, OrderI {
 			proceso*/
 			CellPosition or = newVector.origin;
 			newVector.setVector(clockTable.get(or));
-			print("incrementar "+newVector.finalPos.firstElement().process);
 			newVector.incrPos(newVector.finalPos.firstElement().process);
 		}
 
@@ -95,41 +210,28 @@ public class CausalOrderView implements Serializable, OrderI {
 		 * para ello tanto el vector de origen como de destino han de cumplir
 		 * una serie de propiedades
 		 */
-		if (newVector.isOrigin == false && lastVector != null)
-			correctness = lastVector.isCorrect(clockTable.get(origin));
-		print("correctness: "+correctness);
+		//el vector se aniade siempre
+		/*if (newVector.isOrigin == false && lastVector != null)
+			correctness = lastVector.isCorrect(clockTable.get(origin));*/
+		
 
 		// si es correcto se introduce en la tabla
 		
-		if (correctness == true) {
-			aniadirVector(newVector);
+		//if (correctness == true) {
+		aniadirVector(newVector);
 			/*
 			 * si el origen o destino de esta flecha es anterior a la llegada de
 			 * otros mensajes puede que al introducir esta flecha ser modifiquen
 			 * los que llegan posteriormente Habra que recalcularlos esta
 			 * comprobacion se realizara solo en el vector de destino
 			 * */
-			 
-			if (newVector.isOrigin == false) {
-				if (newVector.origin.tick < lastTick) {
-					// solo se recalcula si no estamos recalculando ya
-					recalculateVectors(newVector.origin.tick);
-					lastTick = Math.max(lastTick,newVector.finalPos.firstElement().tick);
-				}
-				else if(newVector.finalPos.firstElement().tick < lastTick){
-					// solo se recalcula si no estamos recalculando ya
-					recalculateVectors(newVector.finalPos.firstElement().tick);	
-				}
-				else
-					lastTick = Math.max(newVector.origin.tick,
-							newVector.finalPos.firstElement().tick);
-			}
-		} else{
-			/* si la marca de tiempo no es correcta, se elimina el origen de la
+			//}
+		/* else{
+			 si la marca de tiempo no es correcta, se elimina el origen de la
 			* misma si no tiene flechas finales
 			* hay que eliminar de la lista de posiciones final de origen la que corresponde
 			* a la flecha erronea
-			*/
+			
 			
 			CausalVectorClock originalClock = clockTable.get(newVector.origin);
 			originalClock.finalPos.remove(newVector.finalPos.firstElement());
@@ -139,10 +241,11 @@ public class CausalOrderView implements Serializable, OrderI {
 			}
 			else
 				clockTable.put(newVector.origin, originalClock);
-		}
+		}*/
 		
 		return correctness;
 	}
+	
 
 	public void recalculateVectors(int originalTick) {
 		int size = simulationModel.getNumProcesses();
@@ -191,7 +294,7 @@ public class CausalOrderView implements Serializable, OrderI {
 					if(numProcessChanged == true){
 						actualVector.newDimension(simulationModel.getNumProcesses());
 					}
-					clockTable.put(origin, actualVector);
+					clockTable.put(actualVector.drawingPos, actualVector);
 				}
 			}
 		}
@@ -235,7 +338,7 @@ public class CausalOrderView implements Serializable, OrderI {
 			else{
 				//quitamos la posicion final del vector multiple
 				origin.finalPos.remove(finalPos);
-				origin.decrease(finalPos.process);
+				//origin.decrease(finalPos.process);
 				clockTable.put(removedVector.origin, origin);
 			}
 			recalculateVectors(removedVector.origin.tick);
@@ -309,6 +412,263 @@ public class CausalOrderView implements Serializable, OrderI {
 		}
 	}
 	
+	private void removeHelp(){
+		arrowOrigin = null;
+		noCorrectOrigin = null;
+		noCorrectFinal = null;
+	}
+	private void getHelp(CellPosition origin,CellPosition finalPos){
+		noCorrectFinal = finalPos.clone();
+		arrowOrigin = origin.clone();
+		availableCell = new Vector<Interval>();
+		if(specialDetection == false){
+			normalHelp(origin,finalPos);
+		}
+		else
+			specialHelp(origin,finalPos);
+		
+	}
+	
+	private void normalHelp(CellPosition origin,CellPosition finalPos){
+		int ticks = simulationModel.getTimeTicks();
+		int processes = simulationModel.getNumProcesses();
+		CausalVectorClock ant = null;
+		CellPosition it = null;
+		CausalVectorClock arrowOrigin = clockTable.get(origin);
+		CausalVectorClock conflictVector = clockTable.get(conflictFinal);
+		Vector<Integer> visitedProcesses = new Vector<Integer>();
+		Vector<CellPosition> multipleLines = new Vector<CellPosition>();
+		Vector<CellPosition> treatedMultiple = new Vector<CellPosition>();
+		Vector<CellPosition> nextPosition = new Vector<CellPosition>();
+		CausalVectorClock multiple;
+		boolean havetodo= true;
+		boolean last = false;
+		
+		CellPosition itOrigin = origin.clone();
+		CellPosition incrProc;
+		CausalVectorClock itVector = null;
+		Vector<Integer> deadLine = new Vector<Integer>();
+		
+		//inicializamos el vector deadLine
+		for(int i = 0;i<processes;i++)
+			deadLine.add(ticks-1);
+		
+		while(nextPosition.size()>0 || havetodo){
+			havetodo = false;
+			while(itVector == null && itOrigin.tick <= ticks){
+				itOrigin.tick++;
+				itVector = clockTable.get(itOrigin);
+				if(itVector != null && itVector.isOrigin){
+					int element;
+					//al poner incrProc se va todo
+					for(CellPosition multipleLine:itVector.finalPos){
+						nextPosition.add(multipleLine.clone());
+						incrProc = multipleLine;
+						element = deadLine.get(incrProc.process);
+						deadLine.set(incrProc.process, Math.min(incrProc.tick-1,element));
+					}
+					last = false;
+				}
+				itVector = null;
+			}
+			if(nextPosition.size()>0){
+				itOrigin = nextPosition.firstElement();
+				nextPosition.removeElementAt(0);
+			}
+			if(nextPosition.size()==0 && last==false){
+				last = true;
+				havetodo = true;
+			}
+		}
+		
+		//se parara cuando hayamos mirado todos los procesos hasta el nuestro
+		while(conflictFinal.process != origin.process){
+			visitedProcesses.add(conflictFinal.process);
+			it = conflictFinal.clone();
+			it.tick--;
+			while(it.tick>origin.tick){
+				ant = clockTable.get(it);
+				if(ant != null){
+					if(ant.isCorrect(arrowOrigin) == false){
+						conflictFinal = it.clone();
+						conflictVector = ant;
+					}
+				}
+				it.tick--;
+			}
+			//se han encontrado posibles valores
+			if(conflictFinal.tick>origin.tick){
+				CellPosition start = origin.clone();
+				CellPosition end = conflictFinal.clone();
+				end.tick--;
+				start.tick++;
+				start.process = conflictFinal.process;
+				end.tick = Math.min(end.tick, deadLine.elementAt(end.process));
+				availableCell.add(new Interval(start,end));
+				
+				//comprobamos si la linea es multiple ya que de ser asi hay que aniadirlos
+				//a revision si no ha sido tratado previamente
+				multiple = clockTable.get(conflictFinal);
+				multiple = clockTable.get(multiple.origin);
+				if(multiple.isMultiple() && !treatedMultiple.contains(multiple.origin)){
+					treatedMultiple.add(multiple.origin);
+					for(CellPosition posMul:multiple.finalPos){
+						if(!posMul.equals(conflictFinal))
+							multipleLines.add(posMul);
+					}
+				}
+			}
+			
+			//se coge el inicio del vector en conflicto
+			conflictFinal = conflictVector.origin;
+			
+			//si hay algun punto final por revisar y se ha acabado con los
+			//anteriores, se pone somo siguiente
+			if(conflictFinal.process == origin.process && multipleLines.size()>0){
+				conflictFinal = multipleLines.firstElement();
+				multipleLines.removeElementAt(0);
+			}
+		}
+		
+		//introducimos en la lista aquellos procesos que no hayamos visitado
+		int num = simulationModel.getNumProcesses();
+		for(int i = 0; i<num;i++)
+			if(i != origin.process && !(visitedProcesses.contains(new Integer(i)))){
+				CellPosition start = new CellPosition(num,simulationModel.getTimeTicks());
+				CellPosition end;
+				
+				start.process = i;
+				end = start.clone();
+				start.tick = origin.tick+1;
+				end.tick = deadLine.get(i);
+				availableCell.add(new Interval(start,end));
+			}
+				
+	}
+	
+	private void specialHelp(CellPosition origin,CellPosition finalPos){
+		int processes = simulationModel.getNumProcesses();
+		int ticks = simulationModel.getTimeTicks();
+		
+		Vector<Integer> deadLine = new Vector<Integer>();
+		CellPosition start = new CellPosition(processes,ticks);
+		CellPosition end = new CellPosition(processes,ticks);
+		CellPosition it = origin.clone();
+		CausalVectorClock itVector;
+		Vector<Boolean> visitedProcesses = new Vector<Boolean>();
+		Vector<Boolean> globalVisited = new Vector<Boolean>();
+		Vector<Integer> forcedStart = new Vector<Integer>();
+		int numProcessesVisited = 0;
+		int numGlobalVisited = 0;
+		
+		//como muy pronto todos podran empezar un tick despues del origen del proceso
+		for(int i=0;i<processes;i++)
+			forcedStart.add(origin.tick+1);
+		
+		//primero habra que localizar los valores iniciales obligados debido a las
+		//transiones
+		CausalVectorClock forcedVector;
+		CausalVectorClock originVector;
+		CausalVectorClock localize = null;
+		forcedVector = clockTable.get(conflictFinal);
+		originVector = clockTable.get(forcedVector.origin);
+		
+		/*la primera vez podemos no entrar por el hecho de que la flecha nueva incorrecta y la flecha
+		*en conflicto pertenezcan al mismo proceso
+		*/
+		boolean firstTime = true;
+		
+		while(forcedVector.origin.process != origin.process || firstTime){
+			firstTime = false;
+			while(localize == null){
+				localize = locateVector(forcedVector);
+				if(!localize.isCorrect(originVector)&& !localize.isOrigin){
+					forcedVector = localize;
+				}
+			}
+			
+			forcedStart.set(localize.origin.process, localize.origin.tick+1);
+			forcedVector = clockTable.get(localize.origin);
+			localize = null;
+		}
+		
+		
+		
+		//inicializamos el vector deadLine con el numero maximo de ticks
+		for(int i=0; i<processes;i++)	
+			deadLine.add(new Integer(ticks));
+		
+		//inicializamos el vector global de visitados
+		for(int i=0;i<processes;i++)
+			globalVisited.add(false);
+		
+		//aniadimos los elementos del vector de visitados local
+		for(int i=0;i<processes;i++)
+			visitedProcesses.add(false);
+		
+		/*la primera posicion la marca la posicion en conflicto
+		 * se recorreran la lista de vectores hasta haber visitado todos las transiciones
+		 * posibles o haber agotado los procesos
+		 */
+		while(numGlobalVisited<processes){
+			it.tick++;
+			//inicializamos el vector de visitados
+			for(int i=0;i<processes;i++)
+				visitedProcesses.set(i, false);
+			while(it.tick<ticks && numProcessesVisited<processes){
+				itVector = clockTable.get(it);
+				if(itVector != null){
+					if(itVector.isOrigin == true){
+						//los valores deadLine seran los minimos entre los que habia y las 
+						//posiciones finales de la flecha
+						for(CellPosition endPos : itVector.finalPos){
+							int lastDeadLine = deadLine.get(endPos.process);
+							deadLine.set(endPos.process, Math.min(lastDeadLine, endPos.tick));
+							if(visitedProcesses.elementAt(endPos.process)==false){
+								visitedProcesses.set(endPos.process, true);
+								numProcessesVisited++;
+							}
+						}
+					}
+				}
+				//obtenemos el siguiente proceso que vamos a comprobar
+				it.tick++;
+			}
+			numGlobalVisited++;
+			globalVisited.set(it.process, true);
+			int min = Integer.MAX_VALUE;
+			int newProcess = 0;
+			for(int i=0;i<processes;i++){
+				if(globalVisited.get(i)==false){
+					int valor = deadLine.get(i);
+					if(valor<min){
+						min = valor;
+						newProcess = i;
+					}
+				}
+			}
+			
+			it.process = newProcess;
+			it.tick = min;
+			
+		}
+		
+		//obtenemos los intervalos disponibles
+		for(int i=0;i<processes;i++){
+			if(i!=origin.process){
+				start.process = i;
+				if(start.process == conflictFinal.process)
+					start.tick = conflictFinal.tick+1;
+				else
+					start.tick = forcedStart.elementAt(i);
+				end.process = i;
+				end.tick = deadLine.get(i)-1;
+				availableCell.add(new Interval(start.clone(),end.clone()));
+			}
+		}
+	
+		
+	}
 	public void setNumProcessChanged(){
 		numProcessChanged = true;
 	}
@@ -323,8 +683,72 @@ public class CausalOrderView implements Serializable, OrderI {
 		for (CausalVectorClock vector : this.clockTable.values()) {
 			vector.draw(g2);
 		}
-
+		
+		/*if(doPrint){
+		if(availableCell != null){
+			for (Interval inter:availableCell)
+				print("disponibles: "+inter);
+			doPrint = false;
+		}
+		}*/
+		if(noCorrectFinal != null){
+			for(Interval inter: availableCell)
+				draw(g2,inter.start,inter.end);
+		}
 	}
+	
+	private void draw(Graphics2D g2,CellPosition start,CellPosition end){
+		//el intervalo (start, end) esta disponible si no esta ocupado por otras flechas
+		int x,y;
+		int width = SimulationView.cellWidth;
+		int height = SimulationView.cellHeight;
+		int padX = SimulationView.paddingX;
+		int padY = SimulationView.paddingY;
+		int difX;
+		int initX;
+		int numberCell = 0;
+		boolean found;
+		CellPosition drawingPos = new CellPosition(simulationModel.getNumProcesses(), 0);
+		
+		//dibujamos un recuadro alrededor del origen
+		x = padX + (arrowOrigin.tick)*width;
+		y = padY + arrowOrigin.process*(height+padY);
+		g2.setColor(Color.RED);
+		g2.drawRect(x, y, width, height);
+		
+		/*
+		 * los posibles destinos de la flecha pueden, en el proceso destino,
+		 * desde start hasta end
+		 */
+		g2.setColor(Color.GREEN);
+		difX =  end.tick - start.tick;
+		drawingPos.process = end.process;
+		drawingPos.tick = start.tick;
+		y = padY + end.process*(height+padY);
+		while(difX >= 0){
+			initX = drawingPos.tick;
+			numberCell = 0;
+			while(!(found = clockTable.containsKey(drawingPos)) && difX >=0){
+				numberCell++;
+				difX--;
+				drawingPos.tick++;
+			}
+			x = padX + initX*width;
+			if(numberCell != 0)
+				g2.drawRect(x, y, numberCell*width, height);
+			//si se encontro algun elemento hay que decrementar el control aqui
+			if(found){
+				difX--;
+				drawingPos.tick++;
+			}
+			
+		}
+		
+		g2.setColor(Color.BLACK);
+		print("Origen: "+start);
+		print("destino: "+end);
+	}
+	
 	
 	public void print(String s){
 		System.out.println(s);

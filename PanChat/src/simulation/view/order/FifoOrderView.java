@@ -380,7 +380,6 @@ public class FifoOrderView implements Serializable, OrderI {
 		for (VectorClock vector : this.clockTable.values()) {
 			vector.draw(g2);
 		}
-		print("entramos");
 		if(noCorrectOrigin != null){
 			int x,y;
 			int width = SimulationView.cellWidth;
@@ -423,17 +422,10 @@ public class FifoOrderView implements Serializable, OrderI {
 				if(found){
 					difX--;
 					drawingPos.tick++;
-				}
-				
-			}
-			
-			g2.setColor(Color.BLACK);
-			print("Origen: "+noCorrectOrigin);
-			print("destino: "+noCorrectFinal);
+				}		
+			}		
+			g2.setColor(Color.BLACK);	
 		}
-		
-		print("salimos");
-
 	}
 	
 	public void print(String s){
