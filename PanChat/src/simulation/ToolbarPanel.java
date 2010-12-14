@@ -170,6 +170,11 @@ public class ToolbarPanel extends JPanel {
 			}
 		});
 
+		fifoCheck.addActionListener(orderListener);
+		causalCheck.addActionListener(orderListener);
+		totalCheck.addActionListener(orderListener);
+		showFifoCheck.addActionListener(orderListener);
+
 		numProcessText.addActionListener(new ActionListener() {
 
 			@Override
