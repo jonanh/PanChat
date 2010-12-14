@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 
 import simulation.arrows.MessageArrow;
 import simulation.arrows.MultipleArrow;
-import simulation.arrows.SingleArrow;
 import simulation.model.SimulationModel;
 import simulation.view.listener.CreateListener;
 import simulation.view.listener.DeleteListener;
@@ -367,16 +366,6 @@ public class SimulationView extends JPanel implements Observer {
 	public void paintVectorClock(Graphics2D g2) {
 		for(OrderI layer : simulationModel.orderLayerVector)
 			layer.draw(g2);
-	}
-
-	/**
-	 * Dibuja el simbolo de snapshot
-	 * 
-	 * @param g
-	 *            el contexto grafico en el cual se pinta.
-	 */
-	public void drawSnapshotPoint(Graphics g) {
-		// Dibujamos la celda donde comienza el snapshot con otro color
 	}
 
 	/*
