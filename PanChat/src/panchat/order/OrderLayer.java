@@ -5,21 +5,29 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Queue;
 
 import panchat.data.User;
 import panchat.messages.Message;
 
 public abstract class OrderLayer extends Observable implements Observer {
 
-	private List<OrderLayer> bottomLayer;
+	protected final static boolean DEBUG = true;
+
+	private List<OrderLayer> bottomLayer = new LinkedList<OrderLayer>();
 
 	protected User user;
 
 	/*
 	 * Cola de mensajes pendientes y mensajes de entrega.
 	 */
-	private LinkedList<Message> deliveryQueue = new LinkedList<Message>();
-	private LinkedList<Message> pendingQueue = new LinkedList<Message>();
+	protected Queue<Message> deliveryQueue = new LinkedList<Message>();
+	protected Queue<Message> pendingQueue = new LinkedList<Message>();
+
+	/*
+	 * Lista de usuarios
+	 */
+	protected LinkedList<User> userList = new LinkedList<User>();
 
 	/**
 	 * Crear capa de ordenacion
@@ -46,10 +54,11 @@ public abstract class OrderLayer extends Observable implements Observer {
 	/**
 	 * Añadir
 	 */
-	public void addBottomLayers(List<OrderLayer> bottomLayers) {
-		this.bottomLayer = bottomLayers;
-		for (OrderLayer layer : bottomLayer)
-			this.addObserver(layer);
+	public void addBottomLayers(OrderLayer... bottomLayers) {
+		for (OrderLayer layer : bottomLayers) {
+			this.bottomLayer.add(layer);
+			layer.addObserver(this);
+		}
 	}
 
 	/**
@@ -61,6 +70,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 	public synchronized void sendMsg(User user, Message msg) {
 		for (OrderLayer layer : bottomLayer)
 			if (msg.isType(layer.orderCapability())) {
+				debug("msg send to " + layer.getClass().toString());
 				layer.sendMsg(user, msg);
 				break;
 			}
@@ -75,6 +85,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 	public synchronized void sendMsg(LinkedList<User> users, Message msg) {
 		for (OrderLayer layer : bottomLayer)
 			if (msg.isType(layer.orderCapability())) {
+				debug("msg send to " + layer.getClass().toString());
 				layer.sendMsg(users, msg);
 				break;
 			}
@@ -87,6 +98,9 @@ public abstract class OrderLayer extends Observable implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 
+		debug("clase " + this.getClass().toString());
+		debug("comprobando pending");
+
 		OrderLayer orderLayer = (OrderLayer) o;
 
 		// Recorremos los mensajes de la cola de mensaje recibidos
@@ -95,21 +109,31 @@ public abstract class OrderLayer extends Observable implements Observer {
 		while (iter.hasNext()) {
 			Message mensaje = iter.next();
 
+			debug("comprobando mensaje " + mensaje.toString());
+
 			// Si el mensaje es del tipo de la capacidad de la capa actual, lo
 			// eliminamos de la lista y lo añadimos a la lista de mensajes
 			// pendientes.
 			if (mensaje.isType(orderCapability())) {
 				iter.remove();
-				pendingQueue.add(mensaje);
+
+				this.pendingQueue.add(mensaje);
+
+				debug("añadido a pending ");
 			}
 		}
+
+		debug("comprobando delivery");
 
 		boolean delivery = false;
 
 		// Comprobamos ahora nuestra cola de mensajes pendientes
-		iter = orderLayer.pendingQueue.iterator();
+		iter = this.pendingQueue.iterator();
+
 		while (iter.hasNext()) {
 			Message mensaje = iter.next();
+
+			debug("comprobando mensaje " + mensaje.toString());
 
 			if (okayToRecv(mensaje)) {
 
@@ -125,6 +149,8 @@ public abstract class OrderLayer extends Observable implements Observer {
 
 				// Volvemos a pasar la lista de pendientes desde el principio
 				iter = pendingQueue.iterator();
+
+				debug("añadido a delivery");
 			}
 		}
 
@@ -144,13 +170,31 @@ public abstract class OrderLayer extends Observable implements Observer {
 	 * 
 	 * @param user
 	 */
-	public abstract void addUser(User user);
+	public void addUser(User user) {
+		// añadimos el usuario a la lista de usuarios
+		this.userList.add(user);
+
+		// añadimos los usuarios en las capas de abajo
+		for (OrderLayer layer : bottomLayer)
+			layer.addUser(user);
+	}
 
 	/**
 	 * Eliminar usuario
 	 * 
 	 * @param user
 	 */
-	public abstract void removeUser(User user);
+	public void removeUser(User user) {
+		// borramos el usuario a la lista de usuarios
+		this.userList.remove(user);
 
+		// borramos el usuarios de las capas de abajo
+		for (OrderLayer layer : bottomLayer)
+			layer.addUser(user);
+	}
+
+	protected void debug(String msg) {
+		if (DEBUG)
+			System.out.println(msg);
+	}
 }

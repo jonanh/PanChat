@@ -26,9 +26,9 @@ public class CausalMatrixLayer extends OrderLayer {
 	@Override
 	public synchronized void sendMsg(User user, Message msg) {
 
-		matrix.incrementarDestino(user);
+		matrix.send(user);
 
-		msg.setClock(orderCapability(), matrix);
+		msg.setClock(orderCapability(), matrix.clone());
 
 		super.sendMsg(user, msg);
 	}
@@ -42,9 +42,9 @@ public class CausalMatrixLayer extends OrderLayer {
 	@Override
 	public synchronized void sendMsg(LinkedList<User> users, Message msg) {
 
-		matrix.incrementarDestino(users);
+		matrix.send(users);
 
-		msg.setClock(orderCapability(), matrix);
+		msg.setClock(orderCapability(), matrix.clone());
 
 		super.sendMsg(users, msg);
 	}
@@ -68,20 +68,19 @@ public class CausalMatrixLayer extends OrderLayer {
 		//
 		// return true;
 
-		if (W.getValue(srcId.uuid, user.uuid) > matrix.getValue(srcId.uuid,
-				user.uuid) + 1) {
+		if (W.getValue(srcId, user) > matrix.getValue(srcId, user) + 1) {
 			return false;
 		}
 
 		// Primero añadimos unas columnas que falten en las filas ya existentes.
-		Iterator<Entry<UUID, Hashtable<UUID, Integer>>> iter = matrix.HashMatrix
+		Iterator<Entry<User, Hashtable<User, Integer>>> iter = matrix.HashMatrix
 				.entrySet().iterator();
 		while (iter.hasNext()) {
 
-			UUID kIduuid = iter.next().getKey();
-			if ((!kIduuid.equals(srcId.uuid))
-					&& (W.getValue(kIduuid, user.uuid) > matrix.getValue(
-							kIduuid, user.uuid))) {
+			User kIduuid = iter.next().getKey();
+			if ((!kIduuid.equals(srcId))
+					&& (W.getValue(kIduuid, user) > matrix.getValue(kIduuid,
+							user))) {
 
 				return false;
 			}
@@ -100,7 +99,7 @@ public class CausalMatrixLayer extends OrderLayer {
 			/*
 			 * Actualizamos la matrix
 			 */
-			matrix.maxMatrix(cm);
+			matrix.receiveAction(cm);
 
 			return true;
 		}

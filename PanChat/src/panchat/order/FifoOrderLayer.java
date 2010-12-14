@@ -14,8 +14,8 @@ public class FifoOrderLayer extends OrderLayer {
 
 	public FifoOrderLayer(User user) {
 		super(user);
-		sendClock = new VectorClock(user);
-		receiveClock = new VectorClock(user);
+		sendClock = new VectorClock(user, false);
+		receiveClock = new VectorClock(user, true);
 	}
 
 	@Override
@@ -24,14 +24,14 @@ public class FifoOrderLayer extends OrderLayer {
 		for (User user : users)
 			sendClock.send(user);
 
-		msg.setClock(orderCapability(), sendClock);
+		msg.setClock(orderCapability(), sendClock.clone());
 		super.sendMsg(users, msg);
 	}
 
 	@Override
 	public synchronized void sendMsg(User user, Message msg) {
 		sendClock.send(user);
-		msg.setClock(orderCapability(), sendClock);
+		msg.setClock(orderCapability(), sendClock.clone());
 		super.sendMsg(user, msg);
 	}
 
