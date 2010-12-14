@@ -68,6 +68,8 @@ public class SimulationModel extends Observable implements Serializable {
 	 */
 	public SimulationModel() {
 		setNumProcesses(DEFAULT_NUM_PROCESSES);
+		orderLayerVector.add(new FifoOrderView(this));
+		drawingServer.setFifoOrder(true);
 	}
 
 	/*

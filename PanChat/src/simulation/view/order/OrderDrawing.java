@@ -117,7 +117,7 @@ public class OrderDrawing {
 	}
 	
 	
-	private void saveData(HashMap<CellPosition,Object> clocks,Vector<Interval> intervals){
+	private void saveData(HashMap<CellPosition, Object> clocks,Vector<Interval> intervals){
 		//si es una tabla hash de relojes fifo
 		Object unknownVector = clocks.values().iterator().next();
 		if(unknownVector instanceof VectorClock ){

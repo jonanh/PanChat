@@ -13,7 +13,8 @@ import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
 public class FifoOrderView implements Serializable, OrderI {
-
+	public OrderDrawing drawingServer;
+	
 	public static boolean debug = false;
 
 	private final static boolean DEBUG = false;
@@ -39,6 +40,7 @@ public class FifoOrderView implements Serializable, OrderI {
 
 	public FifoOrderView(SimulationModel simulationModel) {
 		this.simulationModel = simulationModel;
+		drawingServer = simulationModel.drawingServer;
 		clockTable = new HashMap<CellPosition, VectorClock>();
 		lastTick = 1;
 		isRecalculating = false;
@@ -378,15 +380,17 @@ public class FifoOrderView implements Serializable, OrderI {
 
 	@Override
 	public void draw(Graphics2D g2) {
-		for (VectorClock vector : this.clockTable.values()) {
+		Vector<Interval> availableCells;
+		HashMap<CellPosition,Object> genericClockTable;
+		/*for (VectorClock vector : this.clockTable.values()) {
 			vector.draw(g2);
-		}
+		}*/
 		if(noCorrectOrigin != null){
 			
 			//se crea un nuevo vector de intervalos de dibujado
-			Vector<Interval> availableCells = new Vector<Interval>();
+			availableCells = new Vector<Interval>();
 			availableCells.add(new Interval(noCorrectOrigin,noCorrectFinal));
-			int x,y;
+			/*int x,y;
 			int width = SimulationView.cellWidth;
 			int height = SimulationView.cellHeight;
 			int padX = SimulationView.paddingX;
@@ -403,11 +407,11 @@ public class FifoOrderView implements Serializable, OrderI {
 			g2.setColor(Color.RED);
 			g2.drawRect(x, y, width, height);
 			
-			/*
+			
 			 * los posibles destinos de la flecha pueden, en el proceso destino,
 			 * desde el origen de la flecha + 1 hasta el destino de la que la limita por
 			 * orden fifo - 1
-			 */
+			 
 			g2.setColor(Color.GREEN);
 			difX = noCorrectFinal.tick - noCorrectOrigin.tick;
 			drawingPos.process = noCorrectFinal.process;
@@ -429,8 +433,11 @@ public class FifoOrderView implements Serializable, OrderI {
 					drawingPos.tick++;
 				}		
 			}		
-			g2.setColor(Color.BLACK);	
+			g2.setColor(Color.BLACK);*/	
 		}
+		genericClockTable = (HashMap<CellPosition,Object>) clockTable;
+		//drawingServer.draw(g2,clockTable,availableCells);
+		
 	}
 	
 	public void print(String s){

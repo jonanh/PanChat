@@ -21,6 +21,7 @@ import simulation.view.listener.CreateListener;
 import simulation.view.listener.DeleteListener;
 import simulation.view.listener.MoveListener;
 import simulation.view.listener.ViewListener;
+import simulation.view.order.OrderI;
 
 @SuppressWarnings("serial")
 public class SimulationView extends JPanel implements Observer {
@@ -364,7 +365,8 @@ public class SimulationView extends JPanel implements Observer {
 	 * se dibuja los vectores logicos
 	 */
 	public void paintVectorClock(Graphics2D g2) {
-		simulationModel.fifo.draw(g2);
+		for(OrderI layer : simulationModel.orderLayerVector)
+			layer.draw(g2);
 	}
 
 	/**
