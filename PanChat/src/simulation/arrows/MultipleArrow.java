@@ -196,4 +196,8 @@ public class MultipleArrow implements MessageArrow, Serializable {
 
 		return newArrow;
 	}
+	
+	public ArrayList<SingleArrow> getArrowList(){
+		return arrowList;
+	}
 }
