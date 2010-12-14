@@ -4,35 +4,32 @@ import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.UUID;
 import java.util.Map.Entry;
 
 import panchat.data.User;
 
-public class CausalMatrix implements Serializable {
+public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 
 	private static final long serialVersionUID = 1L;
 
-	private final boolean DEBUG = false;
-
 	private User usuario;
 
-	private UUID myId;
+	private User myId;
 
 	/*
 	 * Vamos a utilizar tablas hash en vez de matrices, para minimizar la
 	 * información de la MatrixClock cuando esta matrix sea dinámica, es decir
 	 * que sea modificable y admita insertar y eliminar antiguos usuarios.
 	 */
-	public Hashtable<UUID, Hashtable<UUID, Integer>> HashMatrix;
+	public Hashtable<User, Hashtable<User, Integer>> HashMatrix;
 
 	public CausalMatrix(User usuario) {
 
 		this.usuario = usuario;
 
-		this.myId = usuario.uuid;
+		this.myId = usuario;
 
-		HashMatrix = new Hashtable<UUID, Hashtable<UUID, Integer>>();
+		HashMatrix = new Hashtable<User, Hashtable<User, Integer>>();
 
 		addUser(usuario);
 	}
@@ -42,15 +39,9 @@ public class CausalMatrix implements Serializable {
 	 * 
 	 * @param nuevaHashMatrix
 	 */
-	public void maxMatrix(CausalMatrix causalMatrix) {
+	public void receiveAction(CausalMatrix causalMatrix) {
 
-		printDebug("matrix local");
-		printMatrix();
-
-		printDebug("matrix remoto");
-		printMatrix();
-
-		Hashtable<UUID, Hashtable<UUID, Integer>> nuevaHashMatrix = causalMatrix.HashMatrix;
+		Hashtable<User, Hashtable<User, Integer>> nuevaHashMatrix = causalMatrix.HashMatrix;
 
 		// Es lo equivalente en tablas hash a :
 		//
@@ -59,41 +50,41 @@ public class CausalMatrix implements Serializable {
 		// .........if (W[i][j] > M[i][j])
 		// ............M[i][j] = W[i][j];
 		// 
-		Iterator<Entry<UUID, Hashtable<UUID, Integer>>> iter = nuevaHashMatrix
+		Iterator<Entry<User, Hashtable<User, Integer>>> iter = nuevaHashMatrix
 				.entrySet().iterator();
 		while (iter.hasNext()) {
-			UUID uuid1 = iter.next().getKey();
+			User user1 = iter.next().getKey();
 
 			/*
 			 * Si existe la fila en nuestra matrix, entonces tenemos que
 			 * actualizar cada casilla de la fila
 			 */
-			if (HashMatrix.containsKey(uuid1)) {
+			if (HashMatrix.containsKey(user1)) {
 
 				/*
 				 * Hacemos una actualización por columnas.
 				 */
-				Iterator<Entry<UUID, Hashtable<UUID, Integer>>> iter2 = nuevaHashMatrix
+				Iterator<Entry<User, Hashtable<User, Integer>>> iter2 = nuevaHashMatrix
 						.entrySet().iterator();
 				while (iter2.hasNext()) {
-					UUID uuid2 = iter2.next().getKey();
+					User user2 = iter2.next().getKey();
 
 					/*
 					 * Si existe la columna en nuestra matrix, escogemos el
 					 * valor más entre la columna nueva y la nuestra.
 					 */
-					if (HashMatrix.get(uuid1).containsKey(uuid2)) {
+					if (HashMatrix.get(user1).containsKey(user2)) {
 
 						/*
 						 * Obtenemos los valores de ambas matrices, los
 						 * comparamos y reasignamos el máximo de los 2
 						 */
-						Integer valor1 = HashMatrix.get(uuid1).get(uuid2);
-						Integer valor2 = nuevaHashMatrix.get(uuid1).get(uuid2);
+						Integer valor1 = HashMatrix.get(user1).get(user2);
+						Integer valor2 = nuevaHashMatrix.get(user1).get(user2);
 
 						// Solo actualizamos si hay que actualizar
 						if (valor2 > valor1)
-							HashMatrix.get(uuid1).put(uuid2, valor2);
+							HashMatrix.get(user1).put(user2, valor2);
 
 					}
 					/*
@@ -102,8 +93,8 @@ public class CausalMatrix implements Serializable {
 					 */
 					else {
 
-						Integer valor2 = nuevaHashMatrix.get(uuid1).get(uuid2);
-						HashMatrix.get(uuid1).put(uuid2, valor2);
+						Integer valor2 = nuevaHashMatrix.get(user1).get(user2);
+						HashMatrix.get(user1).put(user2, valor2);
 
 					}
 				}
@@ -115,15 +106,11 @@ public class CausalMatrix implements Serializable {
 			 */
 			else {
 
-				HashMatrix.put(uuid1, nuevaHashMatrix.get(uuid1));
+				HashMatrix.put(user1, nuevaHashMatrix.get(user1));
 
-				HashMatrix.get(uuid1).put(usuario.uuid, 0);
+				HashMatrix.get(user1).put(usuario, 0);
 			}
 		}
-
-		printDebug("resultado");
-
-		printMatrix();
 	}
 
 	/**
@@ -133,29 +120,22 @@ public class CausalMatrix implements Serializable {
 	 */
 	public void addUser(User nuevoUsuario) {
 
-		if (DEBUG) {
-			System.out
-					.println("Usuario me : " + this.usuario
-							+ "\n\tUsuario añadido :"
-							+ nuevoUsuario.toStringComplete());
-		}
-
 		// Primero añadimos unas columnas que falten en las filas ya existentes.
-		Iterator<Entry<UUID, Hashtable<UUID, Integer>>> iter = HashMatrix
+		Iterator<Entry<User, Hashtable<User, Integer>>> iter = HashMatrix
 				.entrySet().iterator();
 		while (iter.hasNext()) {
-			UUID uuid = iter.next().getKey();
+			User uuid = iter.next().getKey();
 
-			HashMatrix.get(uuid).put(nuevoUsuario.uuid, 0);
+			HashMatrix.get(uuid).put(nuevoUsuario, 0);
 		}
 
 		// Añadimos la fila entera.
-		Hashtable<UUID, Integer> tabla = new Hashtable<UUID, Integer>();
-		HashMatrix.put(nuevoUsuario.uuid, tabla);
+		Hashtable<User, Integer> tabla = new Hashtable<User, Integer>();
+		HashMatrix.put(nuevoUsuario, tabla);
 
 		iter = HashMatrix.entrySet().iterator();
 		while (iter.hasNext()) {
-			UUID uuid = iter.next().getKey();
+			User uuid = iter.next().getKey();
 
 			// Inicializamos todos los valores a 0
 			tabla.put(uuid, 0);
@@ -168,17 +148,14 @@ public class CausalMatrix implements Serializable {
 	 * 
 	 * @param usuario
 	 */
-	public void incrementarDestino(User usuario) {
+	public void send(User usuario) {
 		// M[myId][destId]++;
 
-		if (DEBUG)
-			printMatrix();
-
 		// Obtenemos la tabla referente a myId
-		Hashtable<UUID, Integer> tabla = HashMatrix.get(myId);
+		Hashtable<User, Integer> tabla = HashMatrix.get(myId);
 
 		// Actualizamos el valor referente a destId
-		tabla.put(usuario.uuid, tabla.get(usuario.uuid) + 1);
+		tabla.put(usuario, tabla.get(usuario) + 1);
 	}
 
 	/**
@@ -187,16 +164,16 @@ public class CausalMatrix implements Serializable {
 	 * 
 	 * @param user
 	 */
-	public void incrementarDestino(LinkedList<User> listaUsuarios) {
+	public void send(LinkedList<User> listaUsuarios) {
 		// for (int i = 0; i < destIds.size(); i++)
 		// ....M[myId][destIds.getEntry(i)]++;
 
 		// Obtenemos la tabla referente a myId
-		Hashtable<UUID, Integer> tabla = HashMatrix.get(myId);
+		Hashtable<User, Integer> tabla = HashMatrix.get(myId);
 
 		for (User usuario : listaUsuarios)
 			// Actualizamos el valor referente a destId
-			tabla.put(usuario.uuid, tabla.get(usuario.uuid) + 1);
+			tabla.put(usuario, tabla.get(usuario) + 1);
 	}
 
 	/**
@@ -206,7 +183,7 @@ public class CausalMatrix implements Serializable {
 	 * @param j
 	 * @return
 	 */
-	public int getValue(UUID i, UUID j) {
+	public int getValue(User i, User j) {
 		try {
 
 			return HashMatrix.get(i).get(j);
@@ -219,30 +196,56 @@ public class CausalMatrix implements Serializable {
 	}
 
 	public void printMatrix() {
-		if (DEBUG) {
-			System.out.println("Volcado matrix hash");
-			Iterator<Entry<UUID, Hashtable<UUID, Integer>>> iter = HashMatrix
-					.entrySet().iterator();
-			iter = HashMatrix.entrySet().iterator();
-			while (iter.hasNext()) {
-				UUID uuid = iter.next().getKey();
-
-				Iterator<Entry<UUID, Integer>> iter2 = HashMatrix.get(uuid)
-						.entrySet().iterator();
-				iter2 = HashMatrix.get(uuid).entrySet().iterator();
-				while (iter2.hasNext()) {
-					UUID uuid2 = iter2.next().getKey();
-
-					System.out.print("\t" + HashMatrix.get(uuid).get(uuid2));
-				}
-				System.out.println("");
-			}
-		}
+		System.out.println(toString());
 	}
 
-	private void printDebug(String string) {
-		String msgClase = "CausalLinkerThread.java: ";
-		if (DEBUG)
-			System.out.println(msgClase + string);
+	@Override
+	public String toString() {
+
+		String result = "CausalMatrix" + HashMatrix;
+		return result;
+	}
+
+	/**
+	 * Clonar matriz causal
+	 */
+	public CausalMatrix clone() {
+		CausalMatrix clone = new CausalMatrix(myId);
+		clone.receiveAction(this);
+		return clone;
+	}
+
+	/*
+	 * Tests
+	 */
+	public static void main(String[] args) {
+		// Creamos usuarios
+		User[] users = { new User("A"), new User("B"), new User("C") };
+
+		// Creamos 2 vectores lógicos
+		CausalMatrix vc1 = new CausalMatrix(users[0]);
+		CausalMatrix vc2 = new CausalMatrix(users[1]);
+
+		// Añadimos usuarios
+		vc1.addUser(users[1]);
+		vc1.addUser(users[2]);
+		vc2.addUser(users[0]);
+		vc2.addUser(users[2]);
+
+		// Imprimos los vectores
+		System.out.println(vc1);
+		System.out.println(vc2);
+
+		// Simulamos el envio de un mensaje del usuario A al usuario B
+		System.out.println("Enviamos un mensaje del usuario A al B");
+		System.out.println("Enviamos un mensaje del usuario A al C");
+		vc1.send(users[1]);
+		vc1.send(users[2]);
+		System.out.println(vc1);
+
+		// Recibimos el anterior mensaje
+		System.out.println("Recibimos el anterior mensaje");
+		vc2.receiveAction(vc1);
+		System.out.println(vc2);
 	}
 }

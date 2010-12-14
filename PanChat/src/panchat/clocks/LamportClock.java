@@ -1,10 +1,13 @@
 package panchat.clocks;
 
+import panchat.data.User;
+
 /**
  * Implementación de un reloj lógico de Lamport.
  * 
  */
-public class LamportClock {
+public class LamportClock implements IClock<LamportClock> {
+
 	private int c;
 
 	/**
@@ -13,7 +16,7 @@ public class LamportClock {
 	 * El reloj se iniciará a 1.
 	 */
 	public LamportClock() {
-		c = 1;
+		c = 0;
 	}
 
 	/**
@@ -33,7 +36,8 @@ public class LamportClock {
 	/**
 	 * Evento al enviar
 	 */
-	public void send() {
+	@Override
+	public void send(User user) {
 		tick();
 	}
 
@@ -47,7 +51,20 @@ public class LamportClock {
 		 */
 		if (c < receivedClock.c)
 			c = receivedClock.c;
+	}
 
-		tick();
+	@Override
+	public String toString() {
+		return String.valueOf(c);
+	}
+
+	/**
+	 * Clona el reloj logico.
+	 */
+	@Override
+	public LamportClock clone() {
+		LamportClock clock = new LamportClock();
+		clock.c = this.c;
+		return clock;
 	}
 }

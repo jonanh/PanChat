@@ -12,48 +12,53 @@ import panchat.data.User;
  * 
  * @author Jon Ander Hernández & Javier Mediavilla
  */
-public class VectorClock implements Serializable {
+public class VectorClock implements Serializable, IClock<VectorClock> {
 
 	private static final long serialVersionUID = 1L;
 
 	private HashMap<User, LamportClock> clock;
 
-	private User myId;
+	private User user;
+
+	private boolean origin;
 
 	/**
 	 * Inicialización y construcción de la clase VectorClock
 	 * 
-	 * @param numProc
-	 *            Número de procesos en el vector
-	 * @param id
+	 * @param user
 	 *            Identificador de nuestro proceso
+	 * 
+	 * @param origin
+	 *            Si el vector es de origen o destino
+	 * 
 	 */
-	public VectorClock(User id) {
+	public VectorClock(User user, boolean origin) {
 
-		myId = id;
+		this.user = user;
+		this.origin = origin;
 
 		// Inicializamos la hashmap
 		clock = new HashMap<User, LamportClock>();
 
 		// Añadimos un primer LamportClock asociado a nuestro identificador.
-		clock.put(myId, new LamportClock());
-
-		// Lo autoincrementamos para inicializarlo a 1.
-		clock.get(id).tick();
+		clock.put(user, new LamportClock());
 	}
 
 	/**
 	 * Incrementamos el valor del vector lógico
 	 */
 	public void tick() {
-		clock.get(myId).tick();
+		clock.get(user).tick();
 	}
 
 	/**
 	 * Evento al enviar
 	 */
 	public void send(User user) {
-		clock.get(myId).tick();
+		if (origin)
+			clock.get(user).tick();
+		else
+			clock.get(this.user).tick();
 	}
 
 	/**
@@ -85,11 +90,7 @@ public class VectorClock implements Serializable {
 				 * Si no existía, añadimos el reloj a nuestro vector.
 				 */
 				clock.put(entry.getKey(), entry.getValue());
-
 		}
-
-		// Autoincrementamos el valor de nuestro reloj.
-		tick();
 	}
 
 	/**
@@ -120,5 +121,52 @@ public class VectorClock implements Serializable {
 	 */
 	public void removeUser(User user) {
 		clock.remove(user);
+	}
+
+	@Override
+	public String toString() {
+		return "VectorClock" + clock.toString();
+	}
+
+	/**
+	 * Clona el vector logico.
+	 */
+	@Override
+	public VectorClock clone() {
+		VectorClock clock = new VectorClock(user, origin);
+		clock.receiveAction(this);
+		return clock;
+	}
+
+	/*
+	 * Tests
+	 */
+	public static void main(String[] args) {
+		// Creamos usuarios
+		User[] users = { new User("A"), new User("B"), new User("C") };
+
+		// Creamos 2 vectores lógicos
+		VectorClock vc1 = new VectorClock(users[0], false);
+		VectorClock vc2 = new VectorClock(users[1], false);
+
+		// Añadimos usuarios
+		vc1.addUser(users[1]);
+		vc1.addUser(users[2]);
+		vc2.addUser(users[0]);
+		vc2.addUser(users[2]);
+
+		// Imprimos los vectores
+		System.out.println(vc1);
+		System.out.println(vc2);
+
+		// Simulamos el envio de un mensaje del usuario A al usuario B
+		System.out.println("Enviamos un mensaje del usuario A al B");
+		vc1.send(users[1]);
+		System.out.println(vc1);
+
+		// Recibimos el anterior mensaje
+		System.out.println("Recibimos el anterior mensaje");
+		vc2.receiveAction(vc1);
+		System.out.println(vc2);
 	}
 }
