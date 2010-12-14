@@ -3,6 +3,7 @@ package panchat.messages;
 import java.io.Serializable;
 import java.util.EnumMap;
 
+import panchat.clocks.IClock;
 import panchat.data.User;
 
 @SuppressWarnings("serial")
@@ -16,6 +17,24 @@ public class Message implements Serializable {
 	}
 
 	/*
+	 * Interfaces para marcar los mensajes
+	 */
+	public interface Total {
+	}
+
+	public interface Causal {
+	}
+
+	public interface Fifo {
+	}
+
+	public interface Unicast {
+	}
+
+	public interface Multicast {
+	}
+
+	/*
 	 * Atributos del mensaje
 	 */
 	private User user;
@@ -25,20 +44,42 @@ public class Message implements Serializable {
 	private EnumMap<Type, Boolean> properties = new EnumMap<Type, Boolean>(
 			Type.class);
 
-	private EnumMap<Type, Object> clocks = new EnumMap<Type, Object>(Type.class);
+	private EnumMap<Type, IClock<?>> clocks = new EnumMap<Type, IClock<?>>(
+			Type.class);
 
 	/**
 	 * 
 	 * @param pMessage
-	 *            El contenido del mensaje.
+	 *            El contenido del mensaje. Y el mensaje está marcado con las
+	 *            interfaces definidas en esta clase, no hará falta establecer
+	 *            las propiedades.
 	 * @param pUser
 	 *            El usuario de origen.
+	 * 
+	 * @param properties
+	 *            Propiedades del mensaje.
 	 */
 	public Message(Object pMessage, User pUser, Type... properties) {
+		this.user = pUser;
+		this.content = pMessage;
 		for (Type type : properties) {
 			this.properties.put(type, true);
 		}
-		this.user = pUser;
+
+		/*
+		 * Comprobamos si el mensaje ha sido marcado mediante las interfaces.
+		 */
+		if (pMessage instanceof Total) {
+			this.properties.put(Type.TOTAL, true);
+		} else if (pMessage instanceof Causal) {
+			this.properties.put(Type.CAUSAL, true);
+		} else if (pMessage instanceof Fifo) {
+			this.properties.put(Type.FIFO, true);
+		} else if (pMessage instanceof Multicast) {
+			this.properties.put(Type.MULTICAST, true);
+		} else if (pMessage instanceof Unicast) {
+			this.properties.put(Type.UNICAST, true);
+		}
 	}
 
 	/**
@@ -59,14 +100,14 @@ public class Message implements Serializable {
 	/**
 	 * @return El contenido del mensaje
 	 */
-	public Object getClock(Type property) {
-		return clocks.containsKey(property);
+	public IClock<?> getClock(Type property) {
+		return clocks.get(property);
 	}
 
 	/**
 	 * @return El contenido del mensaje
 	 */
-	public Object setClock(Type property, Object clock) {
+	public Object setClock(Type property, IClock<?> clock) {
 		return clocks.put(property, clock);
 	}
 
@@ -77,7 +118,7 @@ public class Message implements Serializable {
 	 * @return
 	 */
 	public Boolean isType(Type property) {
-		return this.properties.containsKey(property);
+		return property == null || this.properties.containsKey(property);
 	}
 
 	/**
@@ -86,5 +127,24 @@ public class Message implements Serializable {
 	 */
 	public void removeType(Type property) {
 		this.properties.remove(property);
+	}
+
+	@Override
+	public String toString() {
+		return "msg content :" + content.toString();
+	}
+
+	/**
+	 * Construye una copia del mensaje
+	 */
+	public Message clone() {
+		Message clone = new Message(content, user);
+		clone.properties = this.properties.clone();
+		for (Type type : Type.values()) {
+			IClock<?> clock = this.getClock(type);
+			if (clock != null)
+				clone.setClock(type, clock.clone());
+		}
+		return clone;
 	}
 }
