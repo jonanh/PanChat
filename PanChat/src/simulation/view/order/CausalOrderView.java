@@ -13,12 +13,14 @@ import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
 public class CausalOrderView implements Serializable, OrderI {
+	public OrderDrawing drawingServer;
+	
 	public boolean doPrint = true;
 	public static boolean debug = false;
 
 	private final static boolean DEBUG = false;
 
-	private HashMap<CellPosition, CausalVectorClock> clockTable;
+	private HashMap<CellPosition, VectorI> clockTable;
 
 	// indica que el ultimo tick en el que hay un vector
 	private int lastTick;
@@ -44,10 +46,12 @@ public class CausalOrderView implements Serializable, OrderI {
 	//indica si la deteccion de la violacion de orden causal se ha detecta de manera 
 	//especial ( de delante hace detras )
 	private boolean specialDetection = false;
+	CausalVectorClock cast;
 
 	public CausalOrderView(SimulationModel simulationModel) {
 		this.simulationModel = simulationModel;
-		clockTable = new HashMap<CellPosition, CausalVectorClock>();
+		drawingServer = simulationModel.drawingServer;
+		clockTable = new HashMap<CellPosition, VectorI>();
 		lastTick = 1;
 		isRecalculating = false;
 		// posClock = new Vector<CausalVectorClock>();
@@ -62,6 +66,7 @@ public class CausalOrderView implements Serializable, OrderI {
 		 */
 		boolean correctness = true;
 		specialDetection = false;
+		availableCell = null;
 		
 		//se indica que ya no se visualice la ayuda
 		removeHelp();
@@ -96,8 +101,8 @@ public class CausalOrderView implements Serializable, OrderI {
 	
 	private boolean isCorrectArrow(CellPosition origin, CellPosition finalPos){
 		boolean correctness = true;
-		CausalVectorClock originVector = clockTable.get(origin);
-		CausalVectorClock finalVector = clockTable.get(finalPos);
+		CausalVectorClock originVector = (CausalVectorClock)clockTable.get(origin);
+		CausalVectorClock finalVector = (CausalVectorClock)clockTable.get(finalPos);
 		CausalVectorClock lastVector = locateVector(finalVector);
 		
 		if(lastVector != null){
@@ -106,7 +111,8 @@ public class CausalOrderView implements Serializable, OrderI {
 		
 		if(correctness == false){
 			conflictFinal = lastVector.finalPos.firstElement().clone();
-			conflictInit = clockTable.get(conflictFinal).origin;
+			CausalVectorClock temp = (CausalVectorClock) clockTable.get(conflictFinal);
+			conflictInit = temp.origin;
 		}
 		return correctness;
 	}
@@ -115,7 +121,7 @@ public class CausalOrderView implements Serializable, OrderI {
 		/*
 		 * tenemos que buscar hacia delante
 		 */
-		CausalVectorClock finalClock = clockTable.get(finalPos);
+		CausalVectorClock finalClock = (CausalVectorClock)clockTable.get(finalPos);
 		CausalVectorClock originClock;
 		boolean correctness = true;
 		Vector<Vector<CellPosition>> pendingPositions = new Vector<Vector<CellPosition>>();
@@ -123,14 +129,14 @@ public class CausalOrderView implements Serializable, OrderI {
 		CellPosition it = finalPos.clone();
 		it.tick++;
 		while(it.tick <= lastTick && correctness == true){
-			originClock = clockTable.get(it);
+			originClock = (CausalVectorClock)clockTable.get(it);
 			if(originClock!=null){
 				if(originClock.isOrigin){
 					//hay transitividad
 					pendingPositions.add(originClock.finalPos);
 				}
 				else{
-					originClock = clockTable.get(originClock.origin);
+					originClock = (CausalVectorClock)clockTable.get(originClock.origin);
 					correctness = finalClock.isCorrect(originClock);
 				}
 			}
@@ -141,7 +147,8 @@ public class CausalOrderView implements Serializable, OrderI {
 			exit:
 			for(Vector<CellPosition> vector: pendingPositions){
 				for(CellPosition end:vector){
-					correctness = restoreOrder(clockTable.get(end).origin,end);
+					cast = (CausalVectorClock)clockTable.get(end);
+					correctness = restoreOrder(cast.origin,end);
 					if(correctness == false){
 						break exit;
 					}
@@ -151,7 +158,7 @@ public class CausalOrderView implements Serializable, OrderI {
 		}
 		else{
 			it.tick--;
-			CausalVectorClock v = clockTable.get(it);
+			CausalVectorClock v = (CausalVectorClock)clockTable.get(it);
 			if(v!=null)
 				conflictFinal = v.finalPos.firstElement();
 		}
@@ -200,7 +207,7 @@ public class CausalOrderView implements Serializable, OrderI {
 			*recibido e incrementar en 1 el valor correspondiente a la posicion del
 			proceso*/
 			CellPosition or = newVector.origin;
-			newVector.setVector(clockTable.get(or));
+			newVector.setVector((CausalVectorClock)clockTable.get(or));
 			newVector.incrPos(newVector.finalPos.firstElement().process);
 		}
 
@@ -267,7 +274,7 @@ public class CausalOrderView implements Serializable, OrderI {
 			origin.tick = i;
 			for (int j = 0; j < simulationModel.getNumProcesses(); j++) {
 				origin.process = j;
-				actualVector = clockTable.get(origin);
+				actualVector = (CausalVectorClock)clockTable.get(origin);
 				if(actualVector != null){
 					lastVector = locateVector(actualVector);
 					if(lastVector == null){
@@ -286,7 +293,7 @@ public class CausalOrderView implements Serializable, OrderI {
 						*recibido e incrementar en 1 el valor correspondiente a la posicion del
 						proceso*/
 						CellPosition or = actualVector.origin;
-						actualVector.setVector(clockTable.get(or));
+						actualVector.setVector((CausalVectorClock)clockTable.get(or));
 						actualVector.incrPos(actualVector.finalPos.firstElement().process);
 					}
 					
@@ -308,7 +315,7 @@ public class CausalOrderView implements Serializable, OrderI {
 
 		while (actualPosition.tick >= 0 && vectorFound == null) {
 			if (clockTable.containsKey(actualPosition)) {
-				vectorFound = clockTable.get(actualPosition);
+				vectorFound =(CausalVectorClock)clockTable.get(actualPosition);
 			}
 			actualPosition.tick--;
 		}
@@ -330,9 +337,9 @@ public class CausalOrderView implements Serializable, OrderI {
 		//si falla aqui es pos que no se han tenido en cuenta los decrease
 		CausalVectorClock removedVector;
 		CausalVectorClock origin;
-		removedVector = clockTable.remove(finalPos);
+		removedVector =(CausalVectorClock) clockTable.remove(finalPos);
 		if(removedVector!=null){
-			origin = clockTable.get(removedVector.origin);
+			origin = (CausalVectorClock)clockTable.get(removedVector.origin);
 			if(!(origin.isMultiple()))
 				clockTable.remove(removedVector.origin);
 			else{
@@ -354,7 +361,7 @@ public class CausalOrderView implements Serializable, OrderI {
 	public void removeInitialOrder(CellPosition initPos) {
 		debug("eliminado: " + initPos);
 		CausalVectorClock removed;
-		removed = clockTable.remove(initPos);
+		removed = (CausalVectorClock)clockTable.remove(initPos);
 		// hay que disminuir en 1 la posicion correspondiente en el origne
 		// ESTRICTAMENTE NECESARIO
 		
@@ -376,7 +383,7 @@ public class CausalOrderView implements Serializable, OrderI {
 			 * si es origen, el vector puede ser multiple. En tal caso, solo
 			 * habra que aniadir la posicion final a la lista y actualizar el vector
 			 */
-			CausalVectorClock origin = clockTable.get(vector.origin);
+			CausalVectorClock origin =(CausalVectorClock) clockTable.get(vector.origin);
 			if(origin == null){
 				clockTable.put(vector.drawingPos, vector);
 			}
@@ -434,8 +441,8 @@ public class CausalOrderView implements Serializable, OrderI {
 		int processes = simulationModel.getNumProcesses();
 		CausalVectorClock ant = null;
 		CellPosition it = null;
-		CausalVectorClock arrowOrigin = clockTable.get(origin);
-		CausalVectorClock conflictVector = clockTable.get(conflictFinal);
+		CausalVectorClock arrowOrigin = (CausalVectorClock)clockTable.get(origin);
+		CausalVectorClock conflictVector = (CausalVectorClock)clockTable.get(conflictFinal);
 		Vector<Integer> visitedProcesses = new Vector<Integer>();
 		Vector<CellPosition> multipleLines = new Vector<CellPosition>();
 		Vector<CellPosition> treatedMultiple = new Vector<CellPosition>();
@@ -457,7 +464,7 @@ public class CausalOrderView implements Serializable, OrderI {
 			havetodo = false;
 			while(itVector == null && itOrigin.tick <= ticks){
 				itOrigin.tick++;
-				itVector = clockTable.get(itOrigin);
+				itVector = (CausalVectorClock)clockTable.get(itOrigin);
 				if(itVector != null && itVector.isOrigin){
 					int element;
 					//al poner incrProc se va todo
@@ -487,7 +494,7 @@ public class CausalOrderView implements Serializable, OrderI {
 			it = conflictFinal.clone();
 			it.tick--;
 			while(it.tick>origin.tick){
-				ant = clockTable.get(it);
+				ant = (CausalVectorClock)clockTable.get(it);
 				if(ant != null){
 					if(ant.isCorrect(arrowOrigin) == false){
 						conflictFinal = it.clone();
@@ -508,8 +515,8 @@ public class CausalOrderView implements Serializable, OrderI {
 				
 				//comprobamos si la linea es multiple ya que de ser asi hay que aniadirlos
 				//a revision si no ha sido tratado previamente
-				multiple = clockTable.get(conflictFinal);
-				multiple = clockTable.get(multiple.origin);
+				multiple = (CausalVectorClock)clockTable.get(conflictFinal);
+				multiple = (CausalVectorClock)clockTable.get(multiple.origin);
 				if(multiple.isMultiple() && !treatedMultiple.contains(multiple.origin)){
 					treatedMultiple.add(multiple.origin);
 					for(CellPosition posMul:multiple.finalPos){
@@ -570,8 +577,8 @@ public class CausalOrderView implements Serializable, OrderI {
 		CausalVectorClock forcedVector;
 		CausalVectorClock originVector;
 		CausalVectorClock localize = null;
-		forcedVector = clockTable.get(conflictFinal);
-		originVector = clockTable.get(forcedVector.origin);
+		forcedVector = (CausalVectorClock)clockTable.get(conflictFinal);
+		originVector = (CausalVectorClock)clockTable.get(forcedVector.origin);
 		
 		/*la primera vez podemos no entrar por el hecho de que la flecha nueva incorrecta y la flecha
 		*en conflicto pertenezcan al mismo proceso
@@ -588,7 +595,7 @@ public class CausalOrderView implements Serializable, OrderI {
 			}
 			
 			forcedStart.set(localize.origin.process, localize.origin.tick+1);
-			forcedVector = clockTable.get(localize.origin);
+			forcedVector =(CausalVectorClock) clockTable.get(localize.origin);
 			localize = null;
 		}
 		
@@ -616,7 +623,7 @@ public class CausalOrderView implements Serializable, OrderI {
 			for(int i=0;i<processes;i++)
 				visitedProcesses.set(i, false);
 			while(it.tick<ticks && numProcessesVisited<processes){
-				itVector = clockTable.get(it);
+				itVector = (CausalVectorClock)clockTable.get(it);
 				if(itVector != null){
 					if(itVector.isOrigin == true){
 						//los valores deadLine seran los minimos entre los que habia y las 
@@ -680,74 +687,9 @@ public class CausalOrderView implements Serializable, OrderI {
 
 	@Override
 	public void draw(Graphics2D g2) {
-		for (CausalVectorClock vector : this.clockTable.values()) {
-			vector.draw(g2);
-		}
-		
-		/*if(doPrint){
-		if(availableCell != null){
-			for (Interval inter:availableCell)
-				print("disponibles: "+inter);
-			doPrint = false;
-		}
-		}*/
-		if(noCorrectFinal != null){
-			for(Interval inter: availableCell)
-				draw(g2,inter.start,inter.end);
-		}
+		drawingServer.draw(g2,clockTable,availableCell,arrowOrigin);
 	}
 	
-	private void draw(Graphics2D g2,CellPosition start,CellPosition end){
-		//el intervalo (start, end) esta disponible si no esta ocupado por otras flechas
-		int x,y;
-		int width = SimulationView.cellWidth;
-		int height = SimulationView.cellHeight;
-		int padX = SimulationView.paddingX;
-		int padY = SimulationView.paddingY;
-		int difX;
-		int initX;
-		int numberCell = 0;
-		boolean found;
-		CellPosition drawingPos = new CellPosition(simulationModel.getNumProcesses(), 0);
-		
-		//dibujamos un recuadro alrededor del origen
-		x = padX + (arrowOrigin.tick)*width;
-		y = padY + arrowOrigin.process*(height+padY);
-		g2.setColor(Color.RED);
-		g2.drawRect(x, y, width, height);
-		
-		/*
-		 * los posibles destinos de la flecha pueden, en el proceso destino,
-		 * desde start hasta end
-		 */
-		g2.setColor(Color.GREEN);
-		difX =  end.tick - start.tick;
-		drawingPos.process = end.process;
-		drawingPos.tick = start.tick;
-		y = padY + end.process*(height+padY);
-		while(difX >= 0){
-			initX = drawingPos.tick;
-			numberCell = 0;
-			while(!(found = clockTable.containsKey(drawingPos)) && difX >=0){
-				numberCell++;
-				difX--;
-				drawingPos.tick++;
-			}
-			x = padX + initX*width;
-			if(numberCell != 0)
-				g2.drawRect(x, y, numberCell*width, height);
-			//si se encontro algun elemento hay que decrementar el control aqui
-			if(found){
-				difX--;
-				drawingPos.tick++;
-			}
-			
-		}
-		
-		g2.setColor(Color.BLACK);
-		print("Origen: "+start);
-		print("destino: "+end);
-	}
 	
 	
 	public void print(String s){

@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.util.HashMap;
 import java.util.Vector;
 
+import simulation.arrows.SingleArrow;
 import simulation.view.CellPosition;
 import simulation.view.SimulationView;
 
@@ -22,8 +23,8 @@ public class OrderDrawing {
 	Vector<Interval> totalOrder;
 	
 	//tabla hash con los diferentes relojes de cada capa
-	HashMap<CellPosition,Object> fifoClockTable;
-	HashMap<CellPosition,Object> causalClockTable;
+	HashMap<CellPosition,VectorI> fifoClockTable;
+	HashMap<CellPosition,VectorI> causalClockTable;
 	
 	//para saber en que orden nos encontramos
 	boolean isFifoOrder;
@@ -66,9 +67,10 @@ public class OrderDrawing {
 		
 		ready = false;
 	}
-	public void draw(Graphics2D g2,HashMap<CellPosition,Object> clocks,
-			Vector<Interval> intervals){
-	
+	public void draw(Graphics2D g2,HashMap<CellPosition,VectorI> clocks,
+			Vector<Interval> intervals,CellPosition orig){
+		if(orig != null)
+			arrowOrigin = orig.clone();
 		//detecta quien pide el dibujado y registra sus datos
 		saveData(clocks,intervals);
 		
@@ -78,14 +80,14 @@ public class OrderDrawing {
 		 */
 		ready = isReady();
 		if(ready == true){
-			Vector<HashMap<CellPosition,Object>> drawingClockTable;
+			Vector<HashMap<CellPosition,VectorI>> drawingClockTable;
 			VectorClock fifoVector;
 			CausalVectorClock causalVector;
 			/*
 			 * hay que decidir que relojes se van a dibujar
 			 */
 			drawingClockTable = selectDrawingClocks();
-			for(HashMap<CellPosition,Object> clockTable:drawingClockTable){
+			for(HashMap<CellPosition,VectorI> clockTable:drawingClockTable){
 				for (Object vector : clockTable.values()) {
 					if(vector instanceof VectorClock){
 						fifoVector = (VectorClock) vector;
@@ -105,11 +107,10 @@ public class OrderDrawing {
 				doPrint = false;
 			}
 			}*/
-			/*if(noCorrectFinal != null){
-				for(Interval inter: availableCell)
-					draw(g2,inter.start,inter.end);
-			}
-			*/
+			
+			//por si es necesario dibujar la ayuda
+			drawHelp(g2);
+			
 			fifoRequestDrawing = false;
 			causalRequestDrawing = false;
 			totalRequestDrawing = false;
@@ -117,18 +118,20 @@ public class OrderDrawing {
 	}
 	
 	
-	private void saveData(HashMap<CellPosition, Object> clocks,Vector<Interval> intervals){
+	private void saveData(HashMap<CellPosition, VectorI> clocks,Vector<Interval> intervals){
 		//si es una tabla hash de relojes fifo
-		Object unknownVector = clocks.values().iterator().next();
-		if(unknownVector instanceof VectorClock ){
-			fifoClockTable =  clocks;
-			fifoOrder = intervals;
-			fifoRequestDrawing = true;
-		}
-		else if(unknownVector instanceof CausalVectorClock){
-			causalClockTable = clocks;
-			causalOrder = intervals;
-			causalRequestDrawing = true;
+		if(!clocks.isEmpty()){
+			VectorI unknownVector = clocks.values().iterator().next();
+			if(unknownVector instanceof VectorClock ){
+				fifoClockTable =  clocks;
+				fifoOrder = intervals;
+				fifoRequestDrawing = true;
+			}
+			else if(unknownVector instanceof CausalVectorClock){
+				causalClockTable = clocks;
+				causalOrder = intervals;
+				causalRequestDrawing = true;
+			}
 		}
 	}
 	
@@ -141,17 +144,19 @@ public class OrderDrawing {
 			&& totalRequestDrawing == isTotalOrder;
 	}
 	
-	private Vector<HashMap<CellPosition,Object>> selectDrawingClocks(){
-		Vector<HashMap<CellPosition,Object>> drawing = 
-			new Vector<HashMap<CellPosition,Object>>();
+	private Vector<HashMap<CellPosition,VectorI>> selectDrawingClocks(){
+		Vector<HashMap<CellPosition,VectorI>> drawing = 
+			new Vector<HashMap<CellPosition,VectorI>>();
 		/*si esta seleccionado fifo y causal se se eligen los vectores de causal a menos
 		 * que el usuario quiera los de fifo explicitamente
 		 */
 		if(isFifoOrder && ( drawFifoVector == true || isCausalOrder == false)){
 			drawing.add(fifoClockTable);
 		}
-		if(isCausalOrder && drawFifoVector == false)
+		if(isCausalOrder && drawFifoVector == false){
 			drawing.add(causalClockTable);
+		}
+		
 		
 		//no se debe permitir orden total, fifo no causal
 		if(isTotalOrder && (isCausalOrder == true || 
@@ -161,9 +166,22 @@ public class OrderDrawing {
 		return drawing;
 	}
 	
-	
+	public void drawHelp(Graphics2D g2){
+		if(isCausalOrder){
+			if(causalOrder != null){
+				for(Interval inter: causalOrder)
+					draw(g2,inter.start,inter.end,causalClockTable);
+			}
+		}
+		else if(isFifoOrder){
+			if(fifoOrder != null){
+				for(Interval inter: fifoOrder)
+					draw(g2,inter.start,inter.end,fifoClockTable);
+			}
+		}
+	}
 	private void draw(Graphics2D g2,CellPosition start,CellPosition end,
-			HashMap<CellPosition,Object> clockTable){
+			HashMap<CellPosition,VectorI> clockTable){
 		//el intervalo (start, end) esta disponible si no esta ocupado por otras flechas
 		int x,y;
 		int difX;
@@ -237,6 +255,13 @@ public class OrderDrawing {
 		this.numProcesses = numProcesses;
 	}
 	
+	public void setShowFifoVector(){
+		drawFifoVector = true;
+	}
+	
+	public void unsetShowFifoVector(){
+		drawFifoVector = false;
+	}
 	/*public void setFifoClockTable(HashMap<CellPosition,VectorClock> fifoTable){
 		fifoClockTable = fifoTable;
 	}

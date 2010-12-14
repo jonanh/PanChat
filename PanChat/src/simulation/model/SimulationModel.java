@@ -68,8 +68,6 @@ public class SimulationModel extends Observable implements Serializable {
 	 */
 	public SimulationModel() {
 		setNumProcesses(DEFAULT_NUM_PROCESSES);
-		orderLayerVector.add(new FifoOrderView(this));
-		drawingServer.setFifoOrder(true);
 	}
 
 	/*
@@ -503,4 +501,51 @@ public class SimulationModel extends Observable implements Serializable {
 			orderLayer.recalculateVectors(tick);
 		}
 	}
+	public synchronized void addFifoLayer (){
+		FifoOrderView fifo = new FifoOrderView(this);
+		
+		//hay que aniadir aquellas flechas que ya existen
+		aniadirOrden(fifo);
+		orderLayerVector.add(fifo);
+		drawingServer.setFifoOrder(true);
+	}
+	public synchronized void addCausalLayer (){
+		CausalOrderView causal = new CausalOrderView(this);
+		aniadirOrden(causal);
+		orderLayerVector.add(causal);
+		drawingServer.setCausalOrder(true);
+	}
+	
+	public synchronized void removeFifoLayer(){
+		for(OrderI layer:orderLayerVector){
+			if(layer instanceof FifoOrderView)
+				orderLayerVector.remove(layer);
+		}
+		drawingServer.setFifoOrder(false);
+	}
+	
+	public synchronized void removeCausalLayer(){
+		for(OrderI layer:orderLayerVector){
+			if(layer instanceof CausalOrderView)
+				orderLayerVector.remove(layer);
+		}
+		drawingServer.setCausalOrder(false);
+	}
+	
+	public void aniadirOrden (OrderI layer){
+		for(MultipleArrow arrow:arrowList){
+			for(SingleArrow single:arrow.getArrowList())
+				layer.addLogicalOrder(single);
+		}
+	}
+	
+	public void setShowFifo(){
+		drawingServer.setShowFifoVector();
+	}
+	public void unsetShowFifo(){
+		drawingServer.unsetShowFifoVector();
+	}
+	/*public void addFifoLayer (){
+		orderLayerVector.add(new FifoOrderView(this));
+	}*/
 }

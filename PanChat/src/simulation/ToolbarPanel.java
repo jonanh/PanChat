@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 
 import simulation.model.SimulationModel;
 import simulation.view.SimulationView;
+import simulation.view.listener.OrderListener;
 
 @SuppressWarnings("serial")
 public class ToolbarPanel extends JPanel {
@@ -36,12 +37,16 @@ public class ToolbarPanel extends JPanel {
 	private JCheckBox fifoCheck = new JCheckBox("FIFO");
 	private JCheckBox causalCheck = new JCheckBox("Causal");
 	private JCheckBox totalCheck = new JCheckBox("Total");
-	private JCheckBox multicastCheck = new JCheckBox("Multicast");
+	
+	//como no usamos multicast, cambio multicastCheck por mostrar Fifo
+	private JCheckBox showFifoCheck = new JCheckBox("Show FIFO Vectors");
 
 	private JTextField numProcessText = new JTextField();
 	private JTextField timeUnitText = new JTextField();
 
 	private JButton stateButton[] = new JButton[6];
+	
+	private OrderListener orderListener;
 
 	public ToolbarPanel(SimulationView simulation) {
 
@@ -64,7 +69,7 @@ public class ToolbarPanel extends JPanel {
 		this.add(fifoCheck);
 		this.add(causalCheck);
 		this.add(totalCheck);
-		this.add(multicastCheck);
+		this.add(showFifoCheck);
 
 		this.add(numProcessLabel);
 		this.add(numProcessText);
@@ -127,10 +132,11 @@ public class ToolbarPanel extends JPanel {
 			}
 		});
 
-		fifoCheck.addActionListener(null);
-		causalCheck.addActionListener(null);
-		totalCheck.addActionListener(null);
-		multicastCheck.addActionListener(null);
+		orderListener = new OrderListener(simulationView.getSimulationModel(),this);
+		fifoCheck.addActionListener(orderListener);
+		causalCheck.addActionListener(orderListener);
+		totalCheck.addActionListener(orderListener);
+		showFifoCheck.addActionListener(orderListener);
 
 		numProcessText.addActionListener(new ActionListener() {
 
@@ -173,6 +179,22 @@ public class ToolbarPanel extends JPanel {
 			}
 		});
 	}
+	
+	public JCheckBox getFifoCheck(){
+		return fifoCheck;
+	};
+	
+	public JCheckBox getCausalCheck(){
+		return causalCheck;
+	};
+	
+	public JCheckBox getTotalCheck(){
+		return totalCheck;
+	};
+	
+	public JCheckBox getShowFifoCheck(){
+		return showFifoCheck;
+	};
 
 	public static void main(String[] args) {
 		JFrame ventana = new JFrame("prueba de los menus");

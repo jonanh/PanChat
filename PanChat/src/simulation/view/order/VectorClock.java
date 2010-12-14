@@ -18,7 +18,7 @@ import simulation.view.SimulationView;
  * los valores del vector corresponden a los mensajes que ha recibido destino
  */
 @SuppressWarnings("serial")
-public class VectorClock implements Serializable {
+public class VectorClock implements VectorI,Serializable {
 	public static final int X_PAINT = 0;
 	public static final int Y_PAINT = -2;
 	public static final int CHARATER_WIDTH = 4;

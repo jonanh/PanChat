@@ -19,7 +19,7 @@ public class FifoOrderView implements Serializable, OrderI {
 
 	private final static boolean DEBUG = false;
 
-	private HashMap<CellPosition, VectorClock> clockTable;
+	private HashMap<CellPosition, VectorI> clockTable;
 
 	// indica que el ultimo tick en el que hay un vector
 	private int lastTick;
@@ -41,7 +41,7 @@ public class FifoOrderView implements Serializable, OrderI {
 	public FifoOrderView(SimulationModel simulationModel) {
 		this.simulationModel = simulationModel;
 		drawingServer = simulationModel.drawingServer;
-		clockTable = new HashMap<CellPosition, VectorClock>();
+		clockTable = new HashMap<CellPosition, VectorI>();
 		lastTick = 1;
 		isRecalculating = false;
 		// posClock = new Vector<VectorClock>();
@@ -103,7 +103,7 @@ public class FifoOrderView implements Serializable, OrderI {
 		 * una serie de propiedades
 		 */
 		if (newVector.isOrigin == false)
-			correctness = newVector.isCorrect(clockTable.get(origin));
+			correctness = newVector.isCorrect((VectorClock)clockTable.get(origin));
 
 		// si es correcto se introduce en la tabla
 		if (correctness == true) {
@@ -136,7 +136,7 @@ public class FifoOrderView implements Serializable, OrderI {
 			* hay que eliminar de la lista de posiciones final de origen la que corresponde
 			* a la flecha erronea
 			*/
-			VectorClock originalClock = clockTable.get(newVector.origin);
+			VectorClock originalClock = (VectorClock) clockTable.get(newVector.origin);
 			originalClock.finalPos.remove(newVector.finalPos.firstElement());
 			
 			if(originalClock.finalPos.size()<1){
@@ -169,7 +169,7 @@ public class FifoOrderView implements Serializable, OrderI {
 			origin.tick = i;
 			for (int j = 0; j < simulationModel.getNumProcesses(); j++) {
 				origin.process = j;
-				actualVector = clockTable.get(origin);
+				actualVector = (VectorClock)clockTable.get(origin);
 				if(actualVector != null && actualVector.isOrigin==originOrFinal){
 					lastVector = locateVector(actualVector);
 					if(lastVector == null){
@@ -204,7 +204,7 @@ public class FifoOrderView implements Serializable, OrderI {
 
 		while (actualPosition.tick >= 0 && vectorFound == null) {
 			if (clockTable.containsKey(actualPosition)) {
-				vectorFound = clockTable.get(actualPosition);
+				vectorFound = (VectorClock)clockTable.get(actualPosition);
 				/*
 				 * hay que comprobar que el encontrado sea de la misma
 				 * naturaleza que el nuevo vector, es decir, que los dos sean de
@@ -234,9 +234,9 @@ public class FifoOrderView implements Serializable, OrderI {
 		//si falla aqui es pos que no se han tenido en cuenta los decrease
 		VectorClock removedVector;
 		VectorClock origin;
-		removedVector = clockTable.remove(finalPos);
+		removedVector = (VectorClock) clockTable.remove(finalPos);
 		if(removedVector!=null){
-			origin = clockTable.get(removedVector.origin);
+			origin = (VectorClock) clockTable.get(removedVector.origin);
 			if(!(origin.isMultiple()))
 				clockTable.remove(removedVector.origin);
 			else{
@@ -258,7 +258,7 @@ public class FifoOrderView implements Serializable, OrderI {
 	public void removeInitialOrder(CellPosition initPos) {
 		debug("eliminado: " + initPos);
 		VectorClock removed;
-		removed = clockTable.remove(initPos);
+		removed = ( VectorClock ) clockTable.remove(initPos);
 		// hay que disminuir en 1 la posicion correspondiente en el origne
 		// ESTRICTAMENTE NECESARIO
 		
@@ -280,7 +280,7 @@ public class FifoOrderView implements Serializable, OrderI {
 			 * si es origen, el vector puede ser multiple. En tal caso, solo
 			 * habra que aniadir la posicion final a la lista y actualizar el vector
 			 */
-			VectorClock origin = clockTable.get(vector.origin);
+			VectorClock origin = (VectorClock) clockTable.get(vector.origin);
 			if(origin == null){
 				clockTable.put(vector.drawingPos, vector);
 			}
@@ -325,7 +325,7 @@ public class FifoOrderView implements Serializable, OrderI {
 		or = origin.clone();
 		or.tick++;
 		while(next == null && or.tick <= lastTick){
-			next = clockTable.get(or);
+			next = (VectorClock) clockTable.get(or);
 			or.tick++;
 		}
 		
@@ -346,7 +346,7 @@ public class FifoOrderView implements Serializable, OrderI {
 			or.tick = origin.tick-1;
 			next = null;
 			while(next == null && or.tick >= 0){
-				next = clockTable.get(or);
+				next = (VectorClock) clockTable.get(or);
 				or.tick--;
 			}
 			antEnd = findFinalPos(next,newVector);
@@ -380,63 +380,17 @@ public class FifoOrderView implements Serializable, OrderI {
 
 	@Override
 	public void draw(Graphics2D g2) {
-		Vector<Interval> availableCells;
-		HashMap<CellPosition,Object> genericClockTable;
-		/*for (VectorClock vector : this.clockTable.values()) {
-			vector.draw(g2);
-		}*/
+		Vector<Interval> availableCell = null;
+	
 		if(noCorrectOrigin != null){
 			
 			//se crea un nuevo vector de intervalos de dibujado
-			availableCells = new Vector<Interval>();
-			availableCells.add(new Interval(noCorrectOrigin,noCorrectFinal));
-			/*int x,y;
-			int width = SimulationView.cellWidth;
-			int height = SimulationView.cellHeight;
-			int padX = SimulationView.paddingX;
-			int padY = SimulationView.paddingY;
-			int difX;
-			int initX;
-			int numberCell = 0;
-			boolean found;
-			CellPosition drawingPos = new CellPosition(simulationModel.getNumProcesses(), 0);
+			availableCell = new Vector<Interval>();
+			availableCell.add(new Interval(noCorrectOrigin,noCorrectFinal));
 			
-			//dibujamos un recuadro alrededor del origen
-			x = padX + (arrowOrigin.tick)*width;
-			y = padY + arrowOrigin.process*(height+padY);
-			g2.setColor(Color.RED);
-			g2.drawRect(x, y, width, height);
-			
-			
-			 * los posibles destinos de la flecha pueden, en el proceso destino,
-			 * desde el origen de la flecha + 1 hasta el destino de la que la limita por
-			 * orden fifo - 1
-			 
-			g2.setColor(Color.GREEN);
-			difX = noCorrectFinal.tick - noCorrectOrigin.tick;
-			drawingPos.process = noCorrectFinal.process;
-			drawingPos.tick = noCorrectOrigin.tick;
-			y = padY + noCorrectFinal.process*(height+padY);
-			while(difX >= 0){
-				initX = drawingPos.tick;
-				numberCell = 0;
-				while(!(found = clockTable.containsKey(drawingPos)) && difX >=0){
-					numberCell++;
-					difX--;
-					drawingPos.tick++;
-				}
-				x = padX + initX*width;
-				g2.drawRect(x, y, numberCell*width, height);
-				//si se encontro algun elemento hay que decrementar el control aqui
-				if(found){
-					difX--;
-					drawingPos.tick++;
-				}		
-			}		
-			g2.setColor(Color.BLACK);*/	
 		}
-		genericClockTable = (HashMap<CellPosition,Object>) clockTable;
-		//drawingServer.draw(g2,clockTable,availableCells);
+			
+		drawingServer.draw(g2,clockTable,availableCell,arrowOrigin);
 		
 	}
 	

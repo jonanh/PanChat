@@ -10,7 +10,7 @@
 	import simulation.view.CellPosition;
 	import simulation.view.SimulationView;
 	@SuppressWarnings("serial")
-public class CausalVectorClock implements Serializable {
+public class CausalVectorClock implements VectorI,Serializable {
 		public static final int X_PAINT = 0;
 		public static final int Y_PAINT = -2;
 		public static final int CHARATER_WIDTH = 4;
