@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Vector;
 
 import simulation.arrows.SingleArrow;
 import simulation.model.SimulationModel;
@@ -381,6 +382,10 @@ public class FifoOrderView implements Serializable, OrderI {
 			vector.draw(g2);
 		}
 		if(noCorrectOrigin != null){
+			
+			//se crea un nuevo vector de intervalos de dibujado
+			Vector<Interval> availableCells = new Vector<Interval>();
+			availableCells.add(new Interval(noCorrectOrigin,noCorrectFinal));
 			int x,y;
 			int width = SimulationView.cellWidth;
 			int height = SimulationView.cellHeight;
