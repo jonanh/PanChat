@@ -6,6 +6,7 @@ import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
+import java.util.Vector;
 
 import panchat.data.User;
 
@@ -16,6 +17,7 @@ import simulation.view.CellPosition;
 import simulation.view.Position;
 import simulation.view.order.CausalOrderView;
 import simulation.view.order.FifoOrderView;
+import simulation.view.order.OrderDrawing;
 import simulation.view.order.OrderI;
 
 /**
@@ -58,7 +60,8 @@ public class SimulationModel extends Observable implements Serializable {
 	private ArrayList<User> listaProcesos = new ArrayList<User>();
 
 	// capa que se encarga de la ordenacion
-	public OrderI fifo = new CausalOrderView(this);
+	public Vector<OrderI> orderLayerVector = new Vector<OrderI>();
+	public OrderDrawing drawingServer = new OrderDrawing(DEFAULT_NUM_PROCESSES);
 
 	/**
 	 * Construimos el objeto de datos de simulacion
@@ -93,9 +96,7 @@ public class SimulationModel extends Observable implements Serializable {
 			for (int i = getNumProcesses(); i < pNumProcesses; i++)
 				listaProcesos.add(new User(null));
 
-			// se pide que se recalculen los vectores y se avisa a fifo del cambio de numero de procesos
-			fifo.setNumProcessChanged();
-			fifo.recalculateVectors(0);
+			changeProcessesOrderLayers();
 			
 			this.setChanged();
 			this.notifyObservers();
@@ -114,9 +115,9 @@ public class SimulationModel extends Observable implements Serializable {
 				arrowMatrix.remove(i);
 				listaProcesos.remove(i - 1);
 			}
-			// se pide que se recalculen los vectores y se avisa a fifo del cambio de numero de procesos
-			fifo.setNumProcessChanged();
-			fifo.recalculateVectors(0);
+			// se pide que se recalculen los vectores y se avisa a la capa del cambio de numero de procesos
+			changeProcessesOrderLayers();
+			
 			super.setChanged();
 			this.notifyObservers();
 		}
@@ -203,7 +204,7 @@ public class SimulationModel extends Observable implements Serializable {
 	 *            Añadimos esta fecla
 	 */
 	public synchronized void addArrow(SingleArrow messageArrow) {
-		boolean correctness = true;
+		Vector<Boolean> correctness = new Vector<Boolean>();
 
 		CellPosition initialPos = messageArrow.getInitialPos();
 		CellPosition finalPos = messageArrow.getFinalPos();
@@ -259,12 +260,12 @@ public class SimulationModel extends Observable implements Serializable {
 			// se introduce el correspondiente vector logico
 			//correctness = fifo.addLogicalOrder(messageArrow, true);
 		}
-		//se introduce el correspondiente vector logico
-		correctness = fifo.addLogicalOrder(messageArrow);
+		//se introduce el correspondiente vector logico en todas las capas
+		addLogicalOrderLayers(correctness,messageArrow);
 
 		// FIXME
-		// si no es correcto de acuerdo al orden actual se borra
-		if (correctness == false) {
+		// si no es correcto de acuerdo a algun orden establecido se borra
+		if (isCorrectOrderLayers(correctness) == false) {
 			deleteArrow(finalPos);
 		}
 
@@ -329,8 +330,12 @@ public class SimulationModel extends Observable implements Serializable {
 				//fifo.removeOnlyLogicalOrder(pos);
 			}
 			//fifo.removeOriginLogicalOrder(multipleArrow.getInitialPos());
-			//al ser la posicion inicial, se debe borrar la posicion inicial del vector
-			fifo.removeInitialOrder(position);
+			/*
+			 * al ser la posicion inicial, se debe borrar la posicion inicial del vector
+			 * en todas las capas
+			 */
+			removeInitialOrderLayers(position);
+			
 			if (REMOVE_DEBUG) {
 				System.out.println();
 				System.out.println("deleteArrow (inicial):" + position);
@@ -360,9 +365,9 @@ public class SimulationModel extends Observable implements Serializable {
 				//fifo.removeOnlyLogicalOrder(position);
 			//}
 				
-			//se borra la posicion de destino, si es el ultimo vector se borra
-			//tambien el inicial
-				fifo.removeFinalOrder(position);
+			//se borra la posicion de destino de todas las capas, 
+			//si es el ultimo vector se borra tambien el inicial
+				removeFinalOrderLayers(position);
 
 			if (REMOVE_DEBUG) {
 				System.out.println();
@@ -371,7 +376,10 @@ public class SimulationModel extends Observable implements Serializable {
 				System.out.println("estado:" + arrowMatrix);
 			}
 		}
-		fifo.recalculateVectors(multipleArrow.getInitialPos().tick-1);
+		
+		//se recalcula para todas las capas
+		recalculateVectorsOrderLayers(multipleArrow.getInitialPos().tick-1);
+		
 		super.setChanged();
 		this.notifyObservers();
 		return arrow;
@@ -451,5 +459,46 @@ public class SimulationModel extends Observable implements Serializable {
 				return freeCell;
 
 		return null;
+	}
+	
+	public void changeProcessesOrderLayers(){
+		for(OrderI orderLayer:orderLayerVector){
+			orderLayer.setNumProcessChanged();
+			orderLayer.recalculateVectors(0);
+		}
+	}
+	
+	public void addLogicalOrderLayers(Vector<Boolean> correctness,SingleArrow messageArrow){
+		for(OrderI orderLayer:orderLayerVector){
+			correctness.add(orderLayer.addLogicalOrder(messageArrow));
+		}
+	}
+	
+	public boolean isCorrectOrderLayers(Vector<Boolean> correctness)
+	{
+		//sera correcto si todas las componentes del vector son correctas
+		boolean correct = true;
+		for(Boolean bool:correctness){
+			correct = correct & bool;
+		}
+		return correct;
+	}
+	
+	public void removeInitialOrderLayers (CellPosition initPos){
+		for(OrderI orderLayer:orderLayerVector){
+			orderLayer.removeInitialOrder(initPos);
+		}
+	}
+	
+	public void removeFinalOrderLayers (CellPosition finalPos){
+		for(OrderI orderLayer:orderLayerVector){
+			orderLayer.removeFinalOrder(finalPos);
+		}
+	}
+	
+	public void recalculateVectorsOrderLayers(int tick){
+		for(OrderI orderLayer:orderLayerVector){
+			orderLayer.recalculateVectors(tick);
+		}
 	}
 }

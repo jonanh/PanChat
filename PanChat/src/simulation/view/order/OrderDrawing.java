@@ -233,6 +233,10 @@ public class OrderDrawing {
 		isTotalOrder = isTotal;
 	}
 	
+	public void setNumProcesses (int numProcesses){
+		this.numProcesses = numProcesses;
+	}
+	
 	/*public void setFifoClockTable(HashMap<CellPosition,VectorClock> fifoTable){
 		fifoClockTable = fifoTable;
 	}
