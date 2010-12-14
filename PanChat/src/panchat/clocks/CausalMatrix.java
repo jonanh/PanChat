@@ -214,38 +214,4 @@ public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 		clone.receiveAction(this);
 		return clone;
 	}
-
-	/*
-	 * Tests
-	 */
-	public static void main(String[] args) {
-		// Creamos usuarios
-		User[] users = { new User("A"), new User("B"), new User("C") };
-
-		// Creamos 2 vectores lógicos
-		CausalMatrix vc1 = new CausalMatrix(users[0]);
-		CausalMatrix vc2 = new CausalMatrix(users[1]);
-
-		// Añadimos usuarios
-		vc1.addUser(users[1]);
-		vc1.addUser(users[2]);
-		vc2.addUser(users[0]);
-		vc2.addUser(users[2]);
-
-		// Imprimos los vectores
-		System.out.println(vc1);
-		System.out.println(vc2);
-
-		// Simulamos el envio de un mensaje del usuario A al usuario B
-		System.out.println("Enviamos un mensaje del usuario A al B");
-		System.out.println("Enviamos un mensaje del usuario A al C");
-		vc1.send(users[1]);
-		vc1.send(users[2]);
-		System.out.println(vc1);
-
-		// Recibimos el anterior mensaje
-		System.out.println("Recibimos el anterior mensaje");
-		vc2.receiveAction(vc1);
-		System.out.println(vc2);
-	}
 }
