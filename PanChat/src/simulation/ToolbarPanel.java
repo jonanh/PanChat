@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.EnumMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -12,6 +13,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import panchat.messages.Message.Type;
 
 import simulation.model.SimulationModel;
 import simulation.view.SimulationView;
@@ -25,7 +28,6 @@ public class ToolbarPanel extends JPanel {
 	private static final String create = "go-jump";
 	private static final String delete = "edit-delete";
 	private static final String move = "view-fullscreen";
-	private static final String cut = "edit-cut";
 	private static final String open = "document-open";
 	private static final String save = "document-save";
 
@@ -37,15 +39,18 @@ public class ToolbarPanel extends JPanel {
 	private JCheckBox fifoCheck = new JCheckBox("FIFO");
 	private JCheckBox causalCheck = new JCheckBox("Causal");
 	private JCheckBox totalCheck = new JCheckBox("Total");
-	
-	//como no usamos multicast, cambio multicastCheck por mostrar Fifo
+
+	private EnumMap<Type, Boolean> properties = new EnumMap<Type, Boolean>(
+			Type.class);
+
+	// como no usamos multicast, cambio multicastCheck por mostrar Fifo
 	private JCheckBox showFifoCheck = new JCheckBox("Show FIFO Vectors");
 
 	private JTextField numProcessText = new JTextField();
 	private JTextField timeUnitText = new JTextField();
 
 	private JButton stateButton[] = new JButton[6];
-	
+
 	private OrderListener orderListener;
 
 	public ToolbarPanel(SimulationView simulation) {
@@ -58,12 +63,12 @@ public class ToolbarPanel extends JPanel {
 		stateButton[0] = new JButton(loadIcon(create));
 		stateButton[1] = new JButton(loadIcon(move));
 		stateButton[2] = new JButton(loadIcon(delete));
-		stateButton[3] = new JButton(loadIcon(cut));
 		stateButton[4] = new JButton(loadIcon(open));
 		stateButton[5] = new JButton(loadIcon(save));
 
 		for (JButton button : stateButton)
-			this.add(button);
+			if (button != null)
+				this.add(button);
 
 		this.setLayout(new FlowLayout());
 		this.add(fifoCheck);
@@ -75,6 +80,15 @@ public class ToolbarPanel extends JPanel {
 		this.add(numProcessText);
 		this.add(timeUnitLabel);
 		this.add(timeUnitText);
+
+		// Establece el texto con el numero de procesos
+		int numeroProcesses = simulationView.getSimulationModel()
+				.getNumProcesses();
+		numProcessText.setText(String.valueOf(numeroProcesses));
+
+		// Establece el texto con el numero de ticks
+		int numeroTicks = simulationView.getSimulationModel().getTimeTicks();
+		timeUnitText.setText(String.valueOf(numeroTicks));
 
 		subscribeEvents();
 
@@ -132,11 +146,29 @@ public class ToolbarPanel extends JPanel {
 			}
 		});
 
-		orderListener = new OrderListener(simulationView.getSimulationModel(),this);
-		fifoCheck.addActionListener(orderListener);
-		causalCheck.addActionListener(orderListener);
-		totalCheck.addActionListener(orderListener);
-		showFifoCheck.addActionListener(orderListener);
+		orderListener = new OrderListener(simulationView.getSimulationModel(),
+				this);
+
+		fifoCheck.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				properties.put(Type.FIFO, fifoCheck.isEnabled());
+			}
+		});
+
+		causalCheck.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				properties.put(Type.CAUSAL, causalCheck.isEnabled());
+			}
+		});
+
+		totalCheck.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				properties.put(Type.TOTAL, totalCheck.isEnabled());
+			}
+		});
 
 		numProcessText.addActionListener(new ActionListener() {
 
@@ -179,20 +211,20 @@ public class ToolbarPanel extends JPanel {
 			}
 		});
 	}
-	
-	public JCheckBox getFifoCheck(){
+
+	public JCheckBox getFifoCheck() {
 		return fifoCheck;
 	};
-	
-	public JCheckBox getCausalCheck(){
+
+	public JCheckBox getCausalCheck() {
 		return causalCheck;
 	};
-	
-	public JCheckBox getTotalCheck(){
+
+	public JCheckBox getTotalCheck() {
 		return totalCheck;
 	};
-	
-	public JCheckBox getShowFifoCheck(){
+
+	public JCheckBox getShowFifoCheck() {
 		return showFifoCheck;
 	};
 
