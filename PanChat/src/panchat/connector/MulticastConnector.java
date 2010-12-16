@@ -81,7 +81,7 @@ public class MulticastConnector extends OrderLayer implements Connector {
 	 */
 
 	@Override
-	public synchronized void sendMsg(LinkedList<User> users, Message msg) {
+	public synchronized void sendMsg(List<User> users, Message msg) {
 		write(msg);
 	}
 

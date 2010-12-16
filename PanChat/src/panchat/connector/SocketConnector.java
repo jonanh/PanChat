@@ -61,7 +61,7 @@ public class SocketConnector extends OrderLayer implements Connector {
 	 */
 
 	@Override
-	public synchronized void sendMsg(LinkedList<User> users, Message msg) {
+	public synchronized void sendMsg(List<User> users, Message msg) {
 		for (User user : users)
 			write(user, msg);
 	}
