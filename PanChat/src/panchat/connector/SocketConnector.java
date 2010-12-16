@@ -5,12 +5,11 @@ import java.util.Map.Entry;
 import java.net.*;
 import java.io.*;
 
-import panchat.Panchat;
 import panchat.data.User;
-import panchat.listeners.CausalLinkerThread;
-import panchat.listeners.SocketListenerThread;
-import panchat.listeners.MulticastListenerThread;
-import panchat.protocol.SaludoUsuario;
+import panchat.messages.Message;
+import panchat.messages.Message.Type;
+import panchat.messages.register.UserMessage;
+import panchat.order.OrderLayer;
 
 /**
  * Esta gestiona los sockets con el conjunto de clientes
@@ -18,67 +17,68 @@ import panchat.protocol.SaludoUsuario;
  * @author Jon Ander Hernández & Javier Mediavilla
  * 
  */
-public class SocketConnector {
+public class SocketConnector extends OrderLayer implements Connector {
 
 	public final static boolean DEBUG = false;
 
 	/*
 	 * Constantes y variables para el socket multicast
 	 */
-	public final static String MDNS_GROUP = "224.0.0.251";
-	public final static int MDNS_PORT = 5454;
 	public final static int LOCALPORT = 50000;
 	public final static int PORTMAX = LOCALPORT + 100;
 
-	/**
-	 * This is the multicast group, we are listening to for multicast DNS
-	 * messages.
-	 */
-	private MulticastSocket socket;
-	private InetAddress group;
-
 	private ServerSocket listener;
 
-	private Hashtable<UUID, Socket> link;
-	private Hashtable<UUID, ObjectInputStream> hashOIS;
-	private Hashtable<UUID, ObjectOutputStream> hashOOS;
+	private Hashtable<User, Socket> link;
+	private Hashtable<User, ObjectInputStream> hashOIS;
+	private Hashtable<User, ObjectOutputStream> hashOOS;
 
 	// Pool de threads
-	private Hashtable<UUID, Thread> threadPool;
-
-	// Multicast thread
-	private MulticastListenerThread multicastThread;
-
-	private CausalLinkerThread causalLinkerThread;
-
-	private User usuario;
-	private Panchat panchat;
+	private Hashtable<User, Thread> threadPool;
 
 	/**
 	 * 
 	 * @param user
 	 * @throws Exception
 	 */
-	public SocketConnector(Panchat panchat) {
-
-		this.panchat = panchat;
-		this.usuario = panchat.getUsuario();
+	public SocketConnector(User user) {
+		super(user);
 
 		// Inicializamos link
-		link = new Hashtable<UUID, Socket>();
-		hashOIS = new Hashtable<UUID, ObjectInputStream>();
-		hashOOS = new Hashtable<UUID, ObjectOutputStream>();
+		link = new Hashtable<User, Socket>();
+		hashOIS = new Hashtable<User, ObjectInputStream>();
+		hashOOS = new Hashtable<User, ObjectOutputStream>();
 
 		// Inicializamos la threadPool
-		threadPool = new Hashtable<UUID, Thread>();
+		threadPool = new Hashtable<User, Thread>();
 
 		// Inicializamos los sockets.
 		inicializarSockets();
+	}
 
-		/*
-		 * Nos damos a conocer al mundo, como buenos ciudadanos 0:-)
-		 */
-		enviarSaludo(true);
+	/*
+	 * Métodos del OrderLayer
+	 */
+
+	@Override
+	public synchronized void sendMsg(LinkedList<User> users, Message msg) {
+		for (User user : users)
+			write(user, msg);
+	}
+
+	@Override
+	public synchronized void sendMsg(User user, Message msg) {
+		write(user, msg);
+	}
+
+	@Override
+	protected boolean okayToRecv(Message msg) {
+		return true;
+	}
+
+	@Override
+	public Type orderCapability() {
+		return null;
 	}
 
 	private void inicializarSockets() {
@@ -101,77 +101,37 @@ public class SocketConnector {
 		if (listener != null) {
 			// Intentamos conseguir la IP del equipo local
 			try {
-				usuario.ip = InetAddress.getLocalHost().getHostAddress();
-				usuario.port = port - 1;
+				this.user.ip = InetAddress.getLocalHost().getHostAddress();
+				this.user.port = port - 1;
 			} catch (UnknownHostException e) {
+
 				// No se ha podido, luego soltamos una excepcion de tiempo de
 				// ejecución
-				System.out
-						.println("Su ordenación no tiene configurada una conexion de internet, y terminará");
+				String msg = "Su ordenación no tiene configurada una conexion de internet, y terminará";
+				System.out.println(msg);
 				System.exit(0);
 			}
 		} else {
-			System.out
-					.println("No hemos conseguido encontrar un puerto disponible para su equipo, y la aplicación terminará");
+			String msg = "No hemos conseguido encontrar un puerto disponible para su equipo, y la aplicación terminará";
+			System.out.println(msg);
 			System.exit(0);
 		}
+	}
 
-		/*
-		 * Creamos el Socket multicast
-		 */
+	/**
+	 * Lee un objeto de un socket multicast
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public void write(User user, Message message) {
 		try {
-			group = InetAddress.getByName(MDNS_GROUP);
-
-			socket = new MulticastSocket(MDNS_PORT);
-
-			socket.joinGroup(group);
-
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-
+			ObjectOutputStream oos = hashOOS.get(user);
+			oos.writeObject(message);
+			oos.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * 
-	 * Enviamos un saludo Multicast
-	 * 
-	 * @param Registrar
-	 */
-	public void enviarSaludo(boolean Registrar) {
-		SaludoUsuario msgRegistrar = new SaludoUsuario(usuario, Registrar);
-
-		if (Registrar)
-			printDebug("Dandonos a conocer al mundo 0:-)");
-		else {
-			printDebug("Despidiendonos del mundo 0:-)");
-			printDebug("num procesos activos : "
-					+ String.valueOf(threadPool.size()));
-		}
-		this.escribirMultiCastSocket(msgRegistrar);
-	}
-
-	/**
-	 * Arrancar los hilos que gestionan el hilo multicast y los eventos
-	 * recividos a traves del causalLinker.
-	 */
-	public void arrancarThreads() {
-
-		/*
-		 * Creamos un MulticastListenerThread para escuchar los eventos
-		 * Multicast
-		 */
-		printDebug("Creando el MulticastListenerThread 0:-)");
-
-		this.multicastThread = new MulticastListenerThread(socket, panchat);
-
-		this.causalLinkerThread = new CausalLinkerThread(socket, panchat);
-
-		this.multicastThread.start();
-
-		this.causalLinkerThread.start();
 	}
 
 	/**
@@ -182,37 +142,38 @@ public class SocketConnector {
 	 * 
 	 * @param user
 	 */
-	public synchronized void connect(User pUsuario) {
+	public synchronized void connect(User pUser) {
 		Socket socket = null;
 		ObjectInputStream ois = null;
 		ObjectOutputStream oos = null;
 
 		try {
 			// Creamos el socket
-			socket = new Socket(pUsuario.ip, pUsuario.port);
+			socket = new Socket(pUser.ip, pUser.port);
 
 			// Creamos los object streams
 			oos = new ObjectOutputStream(socket.getOutputStream());
 			ois = new ObjectInputStream(socket.getInputStream());
 
 			// Enviamos petición
-			oos.writeObject(usuario);
+			oos.writeObject(user.userMessage(true));
 
-			link.put(pUsuario.uuid, socket);
-			hashOIS.put(pUsuario.uuid, ois);
-			hashOOS.put(pUsuario.uuid, oos);
+			link.put(pUser, socket);
+			hashOIS.put(pUser, ois);
+			hashOOS.put(pUser, oos);
+
+			// Creamos el ListenerThread para escuchar al socket
+			Thread thread = new SocketListenerThread(this);
+			thread.start();
+
+			// Añadimos el thread al thread Pool
+			threadPool.put(pUser, thread);
+
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		// Creamos el ListenerThread para escuchar al socket
-		Thread thread = new SocketListenerThread(panchat, pUsuario, socket, ois);
-		thread.start();
-
-		// Añadimos el thread al thread Pool
-		threadPool.put(pUsuario.uuid, thread);
 	}
 
 	/**
@@ -225,8 +186,7 @@ public class SocketConnector {
 		Socket socket = null;
 		ObjectInputStream ois = null;
 		ObjectOutputStream oos = null;
-		User readUsuario = null;
-
+		User user = null;
 		try {
 			// Creamos el socket
 			socket = listener.accept();
@@ -236,68 +196,149 @@ public class SocketConnector {
 			oos = new ObjectOutputStream(socket.getOutputStream());
 
 			// Leemos el objeto Usuario que nos envia el cliente
-			try {
-				readUsuario = (User) ois.readObject();
-			} catch (ClassNotFoundException e) {
-				System.out.println("Connector.java: Objeto no recibido");
-				e.printStackTrace();
+			UserMessage readUser = (UserMessage) ois.readObject();
+
+			if (readUser instanceof UserMessage) {
+				user = readUser.user();
+				this.receive(new Message(readUser, user));
+
+				link.put(user, socket);
+				hashOIS.put(user, ois);
+				hashOOS.put(user, oos);
+
+				// Creamos el ListenerThread para escuchar al socket
+				Thread thread = new SocketListenerThread(this);
+				thread.start();
+
+				// Añadimos el thread al thread Pool
+				threadPool.put(user, thread);
 			}
 
-			link.put(readUsuario.uuid, socket);
-			hashOIS.put(readUsuario.uuid, ois);
-			hashOOS.put(readUsuario.uuid, oos);
+		} catch (ClassNotFoundException e) {
+			System.out.println("Connector.java: Objeto no recibido");
+			e.printStackTrace();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
-		// Creamos el ListenerThread para escuchar al socket
-		Thread thread = new SocketListenerThread(panchat, readUsuario, socket,
-				ois);
-		thread.start();
+		return user;
+	}
 
-		// Añadimos el thread al thread Pool
-		threadPool.put(readUsuario.uuid, thread);
+	/**
+	 * Lee un objeto de un socket multicast
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	@Override
+	public Object read(User user) {
+		Object msg = null;
 
-		return readUsuario;
+		try {
+			// Leyendo objeto
+			msg = hashOIS.get(user).readObject();
+
+		} catch (IOException e) {
+			// El socket se ha cerrado
+			try {
+
+				// Mandar un mensaje a las capas de arriba indicando que el
+				// usuario se ha cerrado.
+				UserMessage msg2 = new UserMessage(user, false);
+				this.receive(new Message(msg2, user));
+
+				link.get(user).close();
+			} catch (IOException e1) {
+			}
+
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		return msg;
+	}
+
+	@Override
+	public void addUser(User user) {
+		super.addUser(user);
+
+		if (this.user.uuid.compareTo(user.uuid) < 0) {
+
+			connect(user);
+
+		} else {
+
+			acceptConnect();
+
+		}
+	}
+
+	@Override
+	public void removeUser(User user) {
+		super.removeUser(user);
+	}
+
+	@Override
+	public boolean isClosed(User user) {
+		return link.get(user).isClosed();
+	}
+
+	@Override
+	public void receive(Message msg) {
+		this.deliveryQueue.add(msg);
+		this.setChanged();
+		this.notifyObservers(this);
 	}
 
 	/**
 	 * Cerramos los sockets del cliente.
 	 */
-	public void closeSockets() {
+	public void close() {
 		printDebug("Cerrando Sockets");
 
 		// Cerramos los Socket con el resto de clientes.
-		Iterator<Entry<UUID, Socket>> iter = link.entrySet().iterator();
+		Iterator<Entry<User, Socket>> iter = link.entrySet().iterator();
 
 		while (iter.hasNext()) {
 			// Por cada socket guardado intentamos cerrarlo (por si no está
 			// cerrado ya)
+
+			Entry<User, Socket> entry = iter.next();
+
+			printDebug("Cerrando socket de " + user + " a " + entry.getKey());
+
 			try {
-				Entry<UUID, Socket> entry = iter.next();
-				printDebug("Cerrando socket de " + usuario + " a "
-						+ entry.getKey());
 				entry.getValue().close();
+
 			} catch (Exception e) {
-				printDebug("Fallo el cierre :-P");
+				printDebug("Fallo cerrando el socket de " + user + " a "
+						+ entry.getKey());
 			}
 		}
 
 		printDebug("Cerrados todos los sockets abiertos");
 
-		Iterator<Entry<UUID, Thread>> iter2 = threadPool.entrySet().iterator();
-		while (iter2.hasNext())
-			// Esperamos a que termine el multicastThread
+		Iterator<Entry<User, Thread>> iter2 = threadPool.entrySet().iterator();
+
+		while (iter2.hasNext()) {
+
+			Entry<User, Thread> entry = iter2.next();
+
+			printDebug("Esperando a parar ListenerThread de " + user + " a "
+					+ entry.getKey());
 			try {
-				Entry<UUID, Thread> entry = iter2.next();
-				printDebug("Esperando a parar ListenerThread de " + usuario
-						+ " a " + entry.getKey());
-				entry.getValue().join();
+
+				entry.getValue().join(2000);
+
 			} catch (InterruptedException e) {
-				printDebug("Fallo al esperar :-P");
+				printDebug("Fallo al esperar a parar ListenerThread de " + user
+						+ " a " + entry.getKey());
 			}
+		}
 
 		printDebug("Parados todos los hilos de la thread pool");
 
@@ -310,147 +351,17 @@ public class SocketConnector {
 		}
 
 		printDebug("Cerrado ServerSocket");
-
-		try {
-
-			// Cerramos el socket multicast
-			socket.close();
-
-		} catch (Exception e) {
-		}
-
-		printDebug("Cerrado el socket multicastThread");
-
-		// Esperamos a que termine el multicastThread
-		try {
-			multicastThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		printDebug("Parado el multicastThread");
-
-	}
-
-	/*
-	 * Funciones de escritura
-	 */
-
-	/**
-	 * Lee un objeto de un socket multicast
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	public void escribirMultiCastSocket(Object objeto) {
-
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStream oos;
-
-		try {
-
-			oos = new ObjectOutputStream(baos);
-			oos.writeObject(objeto);
-			oos.close();
-
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		byte[] buffer = baos.toByteArray();
-
-		DatagramPacket hi = new DatagramPacket(buffer, buffer.length, group,
-				MDNS_PORT);
-		try {
-			socket.send(hi);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	/**
-	 * Lee un objeto de un socket multicast
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	public Object leerMultiCastSocket() throws IOException {
-
-		// Creamos un buffer donde guardar lo leído
-		byte[] buf = new byte[1000];
-
-		DatagramPacket recv = new DatagramPacket(buf, buf.length);
-
-		// Leemos del Socket
-		socket.receive(recv);
-
-		// Creamos un ByteArrayInputStream desde donde serializar el objeto
-		ByteArrayInputStream bais = new ByteArrayInputStream(recv.getData(), 0,
-				recv.getData().length);
-		ObjectInputStream ois;
-
-		Object objeto;
-
-		// Intentamos leer el objeto
-		try {
-
-			ois = new ObjectInputStream(bais);
-			objeto = ois.readObject();
-			ois.close();
-
-			return objeto;
-
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		// Si algo ha salido mal, devolvemos null
-		return null;
-	}
-
-	/*
-	 * Getters
-	 */
-
-	/**
-	 * Obtener el Socket
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public Socket getSocket(UUID uuid) {
-		return link.get(uuid);
-	}
-
-	/**
-	 * Obtener el ObjectInputStream
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public ObjectInputStream getOIS(UUID uuid) {
-		return hashOIS.get(uuid);
-	}
-
-	/**
-	 * Obtener el ObjectOutputStream
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public ObjectOutputStream getOOS(UUID uuid) {
-		return hashOOS.get(uuid);
 	}
 
 	/*
 	 * funciones de debug
 	 */
+
+	final static String msgClase = "Connector.java: ";
+
 	private void printDebug(String string) {
+
 		if (DEBUG)
 			System.out.println(msgClase + string);
 	}
-
-	final static String msgClase = "Connector.java: ";
 }
