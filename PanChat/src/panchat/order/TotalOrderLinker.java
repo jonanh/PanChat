@@ -1,6 +1,6 @@
 package panchat.order;
 
-import java.util.LinkedList;
+import java.util.List;
 
 import panchat.clocks.LamportClock;
 import panchat.data.User;
@@ -9,25 +9,9 @@ import panchat.messages.Message.Type;
 
 public class TotalOrderLinker extends OrderLayer {
 
-	/*
-	 * - To send a multicast message, a process sends a timestamped message to
-	 * all the destination processes.
-	 */
-	private LinkedList<Message> undeliverableQueue = new LinkedList<Message>();
-
-	private LinkedList<User> userList = new LinkedList<User>();
-
 	private LamportClock clock = new LamportClock();
 
-	/*
-	 * Clase para las respuestas
-	 */
-	static enum TotalMessageType {
-		proposal, ack
-	}
-
-	private class TotalMessage {
-		TotalMessageType type;
+	private class TotalMessage implements Message.Fifo {
 		LamportClock clock;
 	}
 
@@ -35,13 +19,43 @@ public class TotalOrderLinker extends OrderLayer {
 		super(user);
 	}
 
+	public class TotalSendMsg implements Message.Fifo, Message.Total {
+		int msgReference;
+		LamportClock clock;
+	}
+
+	public class TotalProposalMsg implements Message.Fifo, Message.Total {
+		int msgReference;
+		LamportClock clock;
+	}
+
+	public class TotalFinalMsg implements Message.Fifo, Message.Total {
+		LamportClock clock;
+	}
+
+	/**
+	 * Enviar mensaje a multiples usuarios
+	 * 
+	 * @param users
+	 * @param msg
+	 */
 	@Override
-	public synchronized void sendMsg(LinkedList<User> users, Message msg) {
+	public synchronized void sendMsg(List<User> users, Message msg) {
+		// Incrementamos el reloj, y añadimos el reloj al mensaje
 		clock.tick();
 		msg.setClock(orderCapability(), clock);
+
+		// Añadimos el mensaje a la cola de pendientes
+		this.pendingQueue.add(msg.clone());
+
+		// Enviamos el mensaje
 		super.sendMsg(users, msg);
 	}
 
+	/**
+	 * - To send a multicast message, a process sends a timestamped message to
+	 * all the destination processes.
+	 */
 	@Override
 	public synchronized void sendMsg(User user, Message msg) {
 		clock.tick();
@@ -67,21 +81,12 @@ public class TotalOrderLinker extends OrderLayer {
 		 * - A deliverable message is delivered to the site if it has the
 		 * smallest timestamp in the message queue.
 		 */
+
 		return false;
 	}
 
 	@Override
 	public Type orderCapability() {
 		return Message.Type.TOTAL;
-	}
-
-	@Override
-	public void addUser(User user) {
-		userList.add(user);
-	}
-
-	@Override
-	public void removeUser(User user) {
-		userList.remove(user);
 	}
 }

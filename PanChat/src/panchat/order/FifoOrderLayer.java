@@ -1,6 +1,6 @@
 package panchat.order;
 
-import java.util.LinkedList;
+import java.util.List;
 
 import panchat.clocks.VectorClock;
 import panchat.data.User;
@@ -12,14 +12,16 @@ public class FifoOrderLayer extends OrderLayer {
 	private VectorClock sendClock;
 	private VectorClock receiveClock;
 
+	int i = 0;
+
 	public FifoOrderLayer(User user) {
 		super(user);
-		sendClock = new VectorClock(user, false);
-		receiveClock = new VectorClock(user, true);
+		sendClock = new VectorClock(user, true);
+		receiveClock = new VectorClock(user, false);
 	}
 
 	@Override
-	public synchronized void sendMsg(LinkedList<User> users, Message msg) {
+	public synchronized void sendMsg(List<User> users, Message msg) {
 		// Añadir un tick en cada usuario
 		for (User user : users)
 			sendClock.send(user);
@@ -42,8 +44,8 @@ public class FifoOrderLayer extends OrderLayer {
 
 		User sendUser = msg.getUsuario();
 
-		if (vc.getValue(sendUser) == receiveClock.getValue(sendUser) + 1) {
-			receiveClock.send(sendUser);
+		if (vc.getValue(this.user) == receiveClock.getValue(sendUser) + 1) {
+			receiveClock.send(this.user);
 			return true;
 		}
 

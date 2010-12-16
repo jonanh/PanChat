@@ -82,7 +82,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 	 * @param users
 	 * @param msg
 	 */
-	public synchronized void sendMsg(LinkedList<User> users, Message msg) {
+	public synchronized void sendMsg(List<User> users, Message msg) {
 		for (OrderLayer layer : bottomLayer)
 			if (msg.isType(layer.orderCapability())) {
 				debug("msg send to " + layer.getClass().toString());
@@ -117,9 +117,11 @@ public abstract class OrderLayer extends Observable implements Observer {
 			if (mensaje.isType(orderCapability())) {
 				iter.remove();
 
-				this.pendingQueue.add(mensaje);
+				this.pendingQueue.offer(mensaje);
 
 				debug("añadido a pending ");
+				
+				debug("pendingQueue " + pendingQueue);
 			}
 		}
 
@@ -142,7 +144,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 
 				// Añadimos nuestro mensaje a la cola de mensajes listos para
 				// enviar a la capa superior
-				deliveryQueue.add(mensaje);
+				deliveryQueue.offer(mensaje);
 
 				// Borramos el mensaje de la lista de mensajes pendientes
 				iter.remove();

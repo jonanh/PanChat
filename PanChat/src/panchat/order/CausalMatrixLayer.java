@@ -40,7 +40,7 @@ public class CausalMatrixLayer extends OrderLayer {
 	 * @param msg
 	 */
 	@Override
-	public synchronized void sendMsg(LinkedList<User> users, Message msg) {
+	public synchronized void sendMsg(List<User> users, Message msg) {
 
 		matrix.send(users);
 
