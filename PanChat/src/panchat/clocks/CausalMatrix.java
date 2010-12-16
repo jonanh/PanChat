@@ -3,7 +3,7 @@ package panchat.clocks;
 import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 
 import panchat.data.User;
@@ -164,7 +164,7 @@ public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 	 * 
 	 * @param user
 	 */
-	public void send(LinkedList<User> listaUsuarios) {
+	public void send(List<User> listaUsuarios) {
 		// for (int i = 0; i < destIds.size(); i++)
 		// ....M[myId][destIds.getEntry(i)]++;
 

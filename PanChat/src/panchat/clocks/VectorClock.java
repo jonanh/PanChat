@@ -16,7 +16,7 @@ public class VectorClock implements Serializable, IClock<VectorClock> {
 
 	private static final long serialVersionUID = 1L;
 
-	private HashMap<User, LamportClock> clock;
+	private HashMap<User, Integer> clock;
 
 	private User user;
 
@@ -38,27 +38,24 @@ public class VectorClock implements Serializable, IClock<VectorClock> {
 		this.origin = origin;
 
 		// Inicializamos la hashmap
-		clock = new HashMap<User, LamportClock>();
+		clock = new HashMap<User, Integer>();
 
 		// Añadimos un primer LamportClock asociado a nuestro identificador.
-		clock.put(user, new LamportClock());
+		clock.put(user, 0);
 	}
 
 	/**
 	 * Incrementamos el valor del vector lógico
 	 */
 	public void tick() {
-		clock.get(user).tick();
+		clock.put(user, clock.get(user) + 1);
 	}
 
 	/**
 	 * Evento al enviar
 	 */
 	public void send(User user) {
-		if (origin)
-			clock.get(user).tick();
-		else
-			clock.get(this.user).tick();
+		clock.put(user, clock.get(user) + 1);
 	}
 
 	/**
@@ -66,30 +63,33 @@ public class VectorClock implements Serializable, IClock<VectorClock> {
 	 */
 	public void receiveAction(VectorClock receivedClock) {
 
-		Entry<User, LamportClock> entry;
+		Entry<User, Integer> entry;
 
-		Iterator<Entry<User, LamportClock>> iter = receivedClock.clock
-				.entrySet().iterator();
+		Iterator<Entry<User, Integer>> iter = receivedClock.clock.entrySet()
+				.iterator();
 
 		// Para cada elemento del reloj recivido
 		while (iter.hasNext()) {
 			entry = iter.next();
 
 			// Obtenemos el reloj asociado a la dirección procesada actualmente
-			LamportClock lClock = clock.get(entry.getKey());
+			if (clock.get(entry.getKey()) != null) {
+				int lClock = clock.get(entry.getKey());
 
-			// Comprobamos si existe esta direccion en nuestro vector
-			if (lClock != null)
 				/*
 				 * Si existía un reloj para dicha dirección, actualizamos el
 				 * reloj de nuestro vector.
 				 */
-				lClock.receiveAction(entry.getValue());
-			else
+				int nClock = entry.getValue();
+				if (lClock < nClock)
+					clock.put(entry.getKey(), nClock);
+
+			} else {
 				/*
 				 * Si no existía, añadimos el reloj a nuestro vector.
 				 */
 				clock.put(entry.getKey(), entry.getValue());
+			}
 		}
 	}
 
@@ -102,7 +102,7 @@ public class VectorClock implements Serializable, IClock<VectorClock> {
 	 * @return
 	 */
 	public int getValue(User i) {
-		return clock.get(i).getValue();
+		return clock.get(i);
 	}
 
 	/**
@@ -111,7 +111,7 @@ public class VectorClock implements Serializable, IClock<VectorClock> {
 	 * @param user
 	 */
 	public void addUser(User user) {
-		clock.put(user, new LamportClock());
+		clock.put(user, 0);
 	}
 
 	/**
