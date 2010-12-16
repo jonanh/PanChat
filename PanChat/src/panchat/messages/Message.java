@@ -6,8 +6,9 @@ import java.util.EnumMap;
 import panchat.clocks.IClock;
 import panchat.data.User;
 
-@SuppressWarnings("serial")
 public class Message implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/*
 	 * Tipos de mensaje
@@ -46,6 +47,25 @@ public class Message implements Serializable {
 
 	private EnumMap<Type, IClock<?>> clocks = new EnumMap<Type, IClock<?>>(
 			Type.class);
+
+	/**
+	 * 
+	 * @param pMessage
+	 *            El contenido del mensaje. Y el mensaje está marcado con las
+	 *            interfaces definidas en esta clase, no hará falta establecer
+	 *            las propiedades.
+	 * @param pUser
+	 *            El usuario de origen.
+	 * 
+	 * @param properties
+	 *            Propiedades del mensaje.
+	 */
+	public Message(Object pMessage, User pUser,
+			EnumMap<Type, Boolean> properties) {
+		this.user = pUser;
+		this.content = pMessage;
+		this.properties = properties.clone();
+	}
 
 	/**
 	 * 

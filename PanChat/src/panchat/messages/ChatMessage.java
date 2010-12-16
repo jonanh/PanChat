@@ -4,7 +4,8 @@ import java.io.Serializable;
 
 import panchat.data.ChatRoom;
 
-public class MessageChat implements Serializable {
+public class ChatMessage implements Serializable, Message.Unicast,
+		Message.Causal, Message.Total {
 
 	private static final long serialVersionUID = 1L;
 
@@ -12,7 +13,7 @@ public class MessageChat implements Serializable {
 
 	public ChatRoom chatroom;
 
-	public MessageChat(ChatRoom pChatRoom, String pMessage) {
+	public ChatMessage(ChatRoom pChatRoom, String pMessage) {
 		this.chatroom = pChatRoom;
 		this.mensaje = pMessage;
 	}
