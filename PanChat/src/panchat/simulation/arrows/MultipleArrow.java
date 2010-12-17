@@ -217,13 +217,23 @@ public class MultipleArrow implements MessageArrow, Serializable {
 		return properties;
 	}
 
+	/**
+	 * 
+	 * @param newPosition
+	 * @return
+	 */
 	public CellPosition move(CellPosition newPosition) {
 		int index = positionList.indexOf(newPosition);
 		this.moveCell = positionList.get(index);
 		return moveCell;
 	}
 
-	public void move() {
+	/**
+	 * Inicializar las flechas después de 
+	 */
+	public void initialize() {
+		for (SingleArrow arrow : arrowList)
+			arrow.initialize();
 	}
 
 	/**

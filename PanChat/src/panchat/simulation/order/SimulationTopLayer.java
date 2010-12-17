@@ -1,28 +1,34 @@
 package panchat.simulation.order;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Queue;
 
+import panchat.clocks.CausalMatrix;
+import panchat.clocks.SavedClocks;
+import panchat.clocks.VectorClock;
 import panchat.data.User;
 import panchat.messages.Message;
 import panchat.messages.Message.Type;
 import panchat.order.CausalMatrixLayer;
-import panchat.order.CausalVectorOrderLayer;
 import panchat.order.FifoOrderLayer;
 import panchat.order.OrderLayer;
-import simulation.view.CellPosition;
 
 public class SimulationTopLayer extends OrderLayer {
 
+	/*
+	 * Capas de ordenación
+	 */
 	SimulationBottomLayer bottomLayer;
+	FifoOrderLayer fifo;
+	CausalMatrixLayer causal;
 
 	public SimulationTopLayer(User user, Collection<User> users) {
 		this(user);
-		// añadimos los usuarios
+
+		// Debemos añadir los usuarios que pertenecerán al grupo.
 		for (User u : users)
 			if (!u.equals(user))
 				this.addUser(u);
@@ -31,16 +37,19 @@ public class SimulationTopLayer extends OrderLayer {
 	public SimulationTopLayer(User user) {
 		super(user);
 
-		// Creamos las capas de orden
+		/*
+		 * Creamos las capas de orden
+		 */
 		bottomLayer = new SimulationBottomLayer(user);
-		FifoOrderLayer fifo = new FifoOrderLayer(user);
-		CausalMatrixLayer causal = new CausalMatrixLayer(user);
+		fifo = new FifoOrderLayer(user);
+		causal = new CausalMatrixLayer(user);
 
-		// Vinculamos las capas en el orden inverso, ya que notifyObservers
-		// llama a los observadores en orden inverso al orden en el que son
-		// registrados.
-
-		this.addBottomLayers(fifo, causal, bottomLayer);
+		/*
+		 * Vinculamos las capas en el orden inverso, ya que notifyObservers
+		 * llama a los observadores en orden inverso al orden en el que son
+		 * registrados.
+		 */
+		this.addBottomLayers(causal, fifo, bottomLayer);
 		causal.addBottomLayers(fifo, bottomLayer);
 		fifo.addBottomLayers(bottomLayer);
 	}
@@ -65,7 +74,8 @@ public class SimulationTopLayer extends OrderLayer {
 	}
 
 	/**
-	 * Simulamos la recepción de un mensaje
+	 * Simulamos la recepción de un mensaje. Es decir estamos simulando el
+	 * momento en que el cliente recibiría a través del socket el mensaje.
 	 * 
 	 * @param msg
 	 */
@@ -73,47 +83,35 @@ public class SimulationTopLayer extends OrderLayer {
 		bottomLayer.receive(msg);
 	}
 
+	/**
+	 * @return Obtenemos los mensajes que el cliente habría recibido en ese tick
+	 *         tras todo el procesamiento de las capas de ordenación.
+	 */
 	public Collection<Message> getReceivedMsgs() {
 		Queue<Message> returnQueue = deliveryQueue;
 		deliveryQueue = new LinkedList<Message>();
 		return returnQueue;
 	}
 
+	/**
+	 * 
+	 * @return Devuelve los relojes de las diferentes capas.
+	 */
+	public SavedClocks getClocks() {
+		VectorClock sendClock = fifo.getSendClock().clone();
+		VectorClock receiveClock = fifo.getReceiveClock().clone();
+		CausalMatrix causalMatrix = causal.getCausalMatrix().clone();
+
+		return new SavedClocks(sendClock, receiveClock, causalMatrix);
+	}
+
 	@Override
 	public void update(Observable o, Object arg) {
 		super.update(o, arg);
 		if (this.deliveryQueue.size() > 0) {
-			debug("mensaje recibido!!!");
-			debug(this.deliveryQueue.toString());
+			debug("\nMensaje recibido en el cliente :");
+			debug("--------------------------------");
+			debug(this.deliveryQueue.toString() + "\n\n");
 		}
-	}
-
-	public static void main(String[] args) {
-		// Creamos usuarios
-		ArrayList<User> users = new ArrayList<User>();
-		users.add(new User("A"));
-		users.add(new User("B"));
-		users.add(new User("C"));
-
-		SimulationTopLayer topLayer1 = new SimulationTopLayer(users.get(0),
-				users);
-		SimulationTopLayer topLayer2 = new SimulationTopLayer(users.get(1),
-				users);
-
-		// Enviamos una posicion
-		CellPosition cell1 = new CellPosition(0, 2);
-		CellPosition cell2 = new CellPosition(0, 3);
-
-		Message msg1 = new Message(cell1, users.get(0), Message.Type.FIFO);
-		Message msg2 = new Message(cell2, users.get(0), Message.Type.FIFO);
-
-		topLayer1.sendMsg(users.get(1), msg1);
-		msg1 = topLayer1.getSendedMsg().get(users.get(1));
-
-		topLayer1.sendMsg(users.get(1), msg2);
-		msg2 = topLayer1.getSendedMsg().get(users.get(1));
-
-		topLayer2.receive(msg2);
-		topLayer2.receive(msg1);
 	}
 }

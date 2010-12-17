@@ -18,16 +18,20 @@ public class Simulation extends JPanel {
 	private SimulationView view;
 	private ToolbarPanel menu;
 	private SimulationOrderLayer simul;
+	private ClockPanel clockPanel;
 
 	public Simulation() {
 		model = new SimulationModel();
-		view = new SimulationView(model);
+		clockPanel = new ClockPanel(model);
+		view = new SimulationView(model, clockPanel);
 		menu = new ToolbarPanel(this);
 		simul = new SimulationOrderLayer(view);
 
 		this.setLayout(new BorderLayout());
 		this.add(menu, BorderLayout.NORTH);
 		this.add(new JScrollPane(view), BorderLayout.CENTER);
+		this.add(new JScrollPane(view), BorderLayout.CENTER);
+		this.add(clockPanel, BorderLayout.EAST);
 	}
 
 	public SimulationView getSimulationView() {

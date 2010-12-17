@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -16,7 +17,9 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
+import panchat.clocks.SavedClocks;
 import panchat.messages.Message.Type;
+import panchat.simulation.ClockPanel;
 import panchat.simulation.arrows.MessageArrow;
 import panchat.simulation.arrows.MultipleArrow;
 import panchat.simulation.model.SimulationModel;
@@ -97,11 +100,18 @@ public class SimulationView extends JPanel implements Observer {
 	// Guardamos una referencia al listener actual para poder cambiarlo por otro
 	private ViewListener actualViewListener;
 
+	// Guardamos una referencia al panel para poder actualizar el contenido
+	// cuando se mueve el cursor encima del simulador.
+	private ClockPanel clockPanel;
+
+	private HashMap<CellPosition, SavedClocks> receiveClocks = new HashMap<CellPosition, SavedClocks>();
+
 	/**
 	 * Crea un nuevo tablero con el simulation model.
 	 */
-	public SimulationView(SimulationModel simulationModel) {
+	public SimulationView(SimulationModel simulationModel, ClockPanel clock) {
 
+		this.clockPanel = clock;
 		this.simulationModel = simulationModel;
 		this.simulationModel.addObserver(this);
 
@@ -185,6 +195,10 @@ public class SimulationView extends JPanel implements Observer {
 		return this.simulationArrows;
 	}
 
+	public HashMap<CellPosition, SavedClocks> getReceiveClocks() {
+		return this.receiveClocks;
+	}
+
 	/**
 	 * Calcular el indice de la celda en funcion de la posicion del cursor
 	 */
@@ -224,16 +238,27 @@ public class SimulationView extends JPanel implements Observer {
 	 * @param newPosition
 	 */
 	public void setPosition(Position newPosition) {
-		// - Si la posicion antigua era distinta de null y ahora es null, ya
-		// no estamos encima de la pantalla. (evitamos el null pointer)
-		// - Si la posicion antigua es distinta de null, comprobamos que la
-		// posicion nueva sea distinta de la antigua.
+		/*
+		 * - Si la posicion antigua era distinta de null y ahora es null, ya no
+		 * estamos encima de la pantalla. (evitamos el null pointer)
+		 * 
+		 * - Si la posicion antigua es distinta de null, comprobamos que la
+		 * posicion nueva sea distinta de la antigua.
+		 */
 		if ((this.overPosition != null && newPosition == null)
 				|| (newPosition != null && !newPosition
 						.equals(this.overPosition))) {
 
 			this.overPosition = newPosition;
+
 			this.repaint();
+
+			if (newPosition instanceof CellPosition) {
+
+				CellPosition pos = (CellPosition) newPosition;
+				SavedClocks clock = this.receiveClocks.get(pos);
+				this.clockPanel.setClock(clock);
+			}
 		}
 	}
 
@@ -423,6 +448,9 @@ public class SimulationView extends JPanel implements Observer {
 	public void setSimulationModel(SimulationModel simulationModel) {
 
 		this.simulationModel = simulationModel;
+
+		for (MultipleArrow arrow : this.simulationModel.getArrowList())
+			arrow.initialize();
 
 		for (ViewListener view : listViewListeners) {
 			view.updateModel();

@@ -66,9 +66,6 @@ public class FileChooser extends JFileChooser {
 				return null;
 			}
 
-			// System.out.println("You chose to open this file: "
-			// + chooser.getSelectedFile());
-
 			InputStream is = new FileInputStream(chooser.getSelectedFile());
 			ObjectInputStream ois = new ObjectInputStream(is);
 			Object obj = ois.readObject();
@@ -98,9 +95,6 @@ public class FileChooser extends JFileChooser {
 			int returnVal = chooser.showSaveDialog(parent);
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-
-				// System.out.println("You chose to save this file: "
-				// + chooser.getSelectedFile().getName());
 
 				OutputStream os = new FileOutputStream(chooser
 						.getSelectedFile());

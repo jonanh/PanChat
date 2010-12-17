@@ -92,8 +92,6 @@ public class MoveListener extends ViewListener {
 			// si la nueva posicion es valida la añadimos a la lista de flechas.
 			if (drawingArrow.isValid(simulationModel)) {
 
-				System.out.print("test");
-
 				drawingArrow.add2Simulation(simulationModel);
 
 			}

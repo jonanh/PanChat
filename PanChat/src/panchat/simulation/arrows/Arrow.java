@@ -56,7 +56,7 @@ public class Arrow extends Line2D.Float implements Serializable {
 	public Arrow(Point2D p1, Point2D p2, Color color) {
 		super(p1, p2);
 		this.color = redColor;
-		inicializar();
+		initialize();
 	}
 
 	public Arrow(float X1, float Y1, float X2, float Y2) {
@@ -66,23 +66,24 @@ public class Arrow extends Line2D.Float implements Serializable {
 	public Arrow(float X1, float Y1, float X2, float Y2, Color color) {
 		super(X1, Y1, X2, Y2);
 		this.color = color;
-		inicializar();
+		reload();
 	}
 
-	public void inicializar() {
+	public void initialize() {
 		if (arrowPath == null) {
 			arrowPath = new Path2D.Float();
 			arrowPath.moveTo(-arrowPoint.x, arrowPoint.y);
 			arrowPath.lineTo(0.0f, 0.0f);
 			arrowPath.lineTo(-arrowPoint.x, -arrowPoint.y);
 		}
-		actualizar();
 	}
 
 	/**
 	 * Actualizamos la transformacion
 	 */
-	protected void actualizar() {
+	protected void reload() {
+		initialize();
+		
 		tx.setToIdentity();
 		// Sacamos el angulo de la linea que usamos como base para representar
 		// la flecha.
@@ -114,12 +115,12 @@ public class Arrow extends Line2D.Float implements Serializable {
 	@Override
 	public void setLine(Line2D l) {
 		super.setLine(l);
-		actualizar();
+		reload();
 	}
 
 	@Override
 	public void setLine(Point2D p1, Point2D p2) {
 		super.setLine(p1, p2);
-		actualizar();
+		reload();
 	}
 }
