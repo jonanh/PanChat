@@ -120,7 +120,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 				this.pendingQueue.offer(mensaje);
 
 				debug("añadido a pending ");
-				
+
 				debug("pendingQueue " + pendingQueue);
 			}
 		}

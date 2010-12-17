@@ -131,4 +131,8 @@ public class CausalMatrixLayer extends OrderLayer {
 	public void removeUser(User usuario) {
 		// FIXME
 	}
+
+	public CausalMatrix getCausalMatrix() {
+		return this.matrix;
+	}
 }

@@ -68,4 +68,12 @@ public class FifoOrderLayer extends OrderLayer {
 		sendClock.removeUser(user);
 		receiveClock.removeUser(user);
 	}
+
+	public VectorClock getSendClock() {
+		return this.sendClock;
+	}
+
+	public VectorClock getReceiveClock() {
+		return this.receiveClock;
+	}
 }
