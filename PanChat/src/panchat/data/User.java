@@ -3,14 +3,16 @@ package panchat.data;
 import java.io.Serializable;
 import java.util.UUID;
 
+import panchat.messages.register.UserMessage;
+
 public class User implements Serializable, Comparable<User> {
 
 	private static final long serialVersionUID = 1L;
 
 	public UUID uuid;
-	public String ip;
-	public int port;
-	public String nickName;
+	public transient String ip;
+	public transient int port;
+	public transient String nickName;
 
 	public User(String nickName) {
 		this.ip = null;
@@ -24,6 +26,13 @@ public class User implements Serializable, Comparable<User> {
 		this.port = port;
 		this.nickName = nickName;
 		this.uuid = UUID.randomUUID();
+	}
+
+	public User(String ip, int port, String nickName, UUID uuid) {
+		this.ip = ip;
+		this.port = port;
+		this.nickName = nickName;
+		this.uuid = uuid;
 	}
 
 	@Override
@@ -53,5 +62,17 @@ public class User implements Serializable, Comparable<User> {
 	@Override
 	public int hashCode() {
 		return this.uuid.hashCode();
+	}
+
+	/**
+	 * 
+	 * @param register
+	 *            Indica si queremos registar o desregistrar el usuario.
+	 * 
+	 * @return Devuelve una version serializable del usuario.
+	 */
+	public UserMessage userMessage(boolean register) {
+		UserMessage user = new UserMessage(this, register);
+		return user;
 	}
 }
