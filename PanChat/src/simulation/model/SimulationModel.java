@@ -19,6 +19,7 @@ import simulation.view.order.CausalOrderView;
 import simulation.view.order.FifoOrderView;
 import simulation.view.order.OrderDrawing;
 import simulation.view.order.OrderI;
+import simulation.view.order.TotalOrderView;
 
 /**
  * Clase que representa los datos del simulador :
@@ -501,38 +502,78 @@ public class SimulationModel extends Observable implements Serializable {
 			orderLayer.recalculateVectors(tick);
 		}
 	}
-	public synchronized void addFifoLayer (){
+	public void addFifoLayer (){
 		FifoOrderView fifo = new FifoOrderView(this);
 		
 		//hay que aniadir aquellas flechas que ya existen
-		aniadirOrden(fifo);
+		addOrder(fifo);
 		orderLayerVector.add(fifo);
 		drawingServer.setFifoOrder(true);
 	}
-	public synchronized void addCausalLayer (){
+	public void addCausalLayer (){
 		CausalOrderView causal = new CausalOrderView(this);
-		aniadirOrden(causal);
+		addOrder(causal);
 		orderLayerVector.add(causal);
 		drawingServer.setCausalOrder(true);
 	}
 	
-	public synchronized void removeFifoLayer(){
-		for(OrderI layer:orderLayerVector){
-			if(layer instanceof FifoOrderView)
-				orderLayerVector.remove(layer);
+	public void addTotalLayer(){
+		//no se debe permitir tener fifo, no causal y total
+		TotalOrderView total = new TotalOrderView(this);
+		int size = orderLayerVector.size();
+		boolean isFifo = false;
+		boolean isCausal = false;
+		
+		for(int i = 0; i< size; i++){
+			if(orderLayerVector.get(i) instanceof FifoOrderView)
+				isFifo = true;
+			else if(orderLayerVector.get(i) instanceof CausalOrderView)
+				isCausal = true;
 		}
+		
+		//si no hay orden fifo o hay causal, se inserta la capa
+		if (!isFifo || isCausal){
+			addOrder(total);
+			orderLayerVector.add(total);
+			drawingServer.setTotalOrder(true);
+		}
+	}
+	
+	public void removeFifoLayer(){
+		int size = orderLayerVector.size();
+		for(int i = 0;i < size; i++){
+			if(orderLayerVector.get(i) instanceof FifoOrderView){
+				orderLayerVector.remove(i);
+				break;
+			}
+		}
+		drawingServer.unsetShowFifoVector();
 		drawingServer.setFifoOrder(false);
 	}
 	
-	public synchronized void removeCausalLayer(){
-		for(OrderI layer:orderLayerVector){
-			if(layer instanceof CausalOrderView)
-				orderLayerVector.remove(layer);
+	public void removeCausalLayer(){
+		int size = orderLayerVector.size();
+		for(int i = 0;i < size; i++){
+			if(orderLayerVector.get(i) instanceof CausalOrderView){
+				orderLayerVector.remove(i);
+				break;
+			}
 		}
 		drawingServer.setCausalOrder(false);
 	}
 	
-	public void aniadirOrden (OrderI layer){
+	public void removeTotalLayer(){
+		int size = orderLayerVector.size();
+		for(int i = 0;i < size; i++){
+			if(orderLayerVector.get(i) instanceof TotalOrderView){
+				orderLayerVector.remove(i);
+				break;
+			}
+		}
+		drawingServer.setTotalOrder(false);
+	}
+	
+	public void addOrder (OrderI layer){
 		for(MultipleArrow arrow:arrowList){
 			for(SingleArrow single:arrow.getArrowList())
 				layer.addLogicalOrder(single);

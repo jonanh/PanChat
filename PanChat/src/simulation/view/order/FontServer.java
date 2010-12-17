@@ -2,8 +2,9 @@ package simulation.view.order;
 
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
-public class FontServer {
+public class FontServer implements Serializable{
 	static Font BOLD_FONT = new Font("TimesRoman",Font.BOLD,15);
 	
 	static Font oldFont;

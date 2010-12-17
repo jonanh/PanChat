@@ -25,5 +25,7 @@ public interface MessageArrow {
 	public boolean isValid(SimulationModel simulationModel);
 
 	void move(SimulationModel simulationModel);
+	
+	
 
 }

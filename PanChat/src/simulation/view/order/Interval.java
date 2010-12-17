@@ -1,8 +1,10 @@
 package simulation.view.order;
 
+import java.io.Serializable;
+
 import simulation.view.CellPosition;
 
-public class Interval {
+public class Interval implements Serializable{
 	CellPosition start;
 	CellPosition end;
 	

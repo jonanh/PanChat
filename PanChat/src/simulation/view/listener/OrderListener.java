@@ -30,6 +30,7 @@ public class OrderListener implements ActionListener {
 		}
 		else if(panel.getTotalCheck() == action){
 			sourceCheck = (JCheckBox)action;
+			setTotal(sourceCheck);
 		}
 		else if(panel.getShowFifoCheck() == action){
 			sourceCheck = (JCheckBox) action;
@@ -57,19 +58,21 @@ public class OrderListener implements ActionListener {
 		}
 	}
 	
-	/*private void setTotal (JCheckBox total){
-		//si esta activado hay que insertar fifo
-		if(total.isEnabled()){
+	private void setTotal (JCheckBox total){
+		//si esta activo se inserta,
+		if(total.isSelected()){
 			model.addTotalLayer();
 		}
 		else{
 			model.removeTotalLayer();
 		}
-	}*/
+	}
+	
 	
 	private void showFifoClocks(JCheckBox showFifo){
 		if(showFifo.isSelected()){
-			model.setShowFifo();
+			if(panel.getFifoCheck().isSelected())
+				model.setShowFifo();
 		}
 		else{
 			model.unsetShowFifo();

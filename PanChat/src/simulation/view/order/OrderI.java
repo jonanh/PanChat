@@ -9,8 +9,6 @@ public interface OrderI {
 	
 	public boolean addLogicalOrder(SingleArrow arrow);
 
-	public boolean moveLogicalOrder(SingleArrow arrow);
-
 	public void removeFinalOrder(CellPosition finalPos);
 	
 	public void removeInitialOrder(CellPosition initPos);

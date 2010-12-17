@@ -32,6 +32,7 @@ public class CausalOrderView implements Serializable, OrderI {
 	
 	boolean numProcessChanged;
 	
+	
 	//se guardan las posiciones de una flecha no correcta a fin de dar una explicacion
 	//grafica de por que no se puede realizar una flecha
 	private CellPosition arrowOrigin;
@@ -51,6 +52,7 @@ public class CausalOrderView implements Serializable, OrderI {
 	public CausalOrderView(SimulationModel simulationModel) {
 		this.simulationModel = simulationModel;
 		drawingServer = simulationModel.drawingServer;
+		drawingServer.setCausalOrder(this);
 		clockTable = new HashMap<CellPosition, VectorI>();
 		lastTick = 1;
 		isRecalculating = false;
@@ -64,10 +66,12 @@ public class CausalOrderView implements Serializable, OrderI {
 		 * tanto en origen como en destino El valor devuelto indica que hay
 		 * inconsistencia en las marcas de tiempo(true) o que no (false)
 		 */
+		//copia por si alguna falla, causal o total
+		drawingServer.setLastArrow(arrow);
 		boolean correctness = true;
 		specialDetection = false;
 		availableCell = null;
-		
+		drawingServer.unsetCausalMiss();
 		//se indica que ya no se visualice la ayuda
 		removeHelp();
 		CellPosition origin = arrow.getInitialPos();
@@ -89,9 +93,14 @@ public class CausalOrderView implements Serializable, OrderI {
 			if(correctness == false){
 				specialDetection = true;	
 			}
+			else{
+				if(drawingServer.isSomeoneWrong())
+					getHelp(origin,finalPos);
+			}
 		}
 		if(correctness == false){
 			//se guardan los valores necesarios para la ayuda
+			drawingServer.setCausalMiss();
 			getHelp(origin,finalPos);
 			removeFinalOrder(finalPos);
 			
@@ -217,39 +226,8 @@ public class CausalOrderView implements Serializable, OrderI {
 		 * para ello tanto el vector de origen como de destino han de cumplir
 		 * una serie de propiedades
 		 */
-		//el vector se aniade siempre
-		/*if (newVector.isOrigin == false && lastVector != null)
-			correctness = lastVector.isCorrect(clockTable.get(origin));*/
 		
-
-		// si es correcto se introduce en la tabla
-		
-		//if (correctness == true) {
 		aniadirVector(newVector);
-			/*
-			 * si el origen o destino de esta flecha es anterior a la llegada de
-			 * otros mensajes puede que al introducir esta flecha ser modifiquen
-			 * los que llegan posteriormente Habra que recalcularlos esta
-			 * comprobacion se realizara solo en el vector de destino
-			 * */
-			//}
-		/* else{
-			 si la marca de tiempo no es correcta, se elimina el origen de la
-			* misma si no tiene flechas finales
-			* hay que eliminar de la lista de posiciones final de origen la que corresponde
-			* a la flecha erronea
-			
-			
-			CausalVectorClock originalClock = clockTable.get(newVector.origin);
-			originalClock.finalPos.remove(newVector.finalPos.firstElement());
-			
-			if(originalClock.finalPos.size()<1){
-				clockTable.remove(newVector.origin);
-			}
-			else
-				clockTable.put(newVector.origin, originalClock);
-		}*/
-		
 		return correctness;
 	}
 	
@@ -327,10 +305,7 @@ public class CausalOrderView implements Serializable, OrderI {
 		return vectorFound;
 	}
 
-	@Override
-	public boolean moveLogicalOrder(SingleArrow arrow) {
-		return false;
-	}
+
 
 	@Override
 	public void removeFinalOrder(CellPosition finalPos) {
@@ -362,8 +337,6 @@ public class CausalOrderView implements Serializable, OrderI {
 		debug("eliminado: " + initPos);
 		CausalVectorClock removed;
 		removed = (CausalVectorClock)clockTable.remove(initPos);
-		// hay que disminuir en 1 la posicion correspondiente en el origne
-		// ESTRICTAMENTE NECESARIO
 		
 		if(removed!=null){
 			for(CellPosition finalPos:removed.finalPos){
@@ -392,11 +365,6 @@ public class CausalOrderView implements Serializable, OrderI {
 				//hasta el proceso final en otro  tick, se elimina
 				boolean found = false;
 				int index = 0;
-				/*if(origin.finalPos.contains(vector.finalPos.firstElement())){
-					origin.finalPos.remove(vector.finalPos.firstElement());
-					clockTable.remove(vector.finalPos.firstElement());
-				}*/
-				
 				for (CellPosition finalPos:origin.finalPos){
 					if(finalPos.process==vector.finalPos.firstElement().process){
 						found = true;
@@ -424,7 +392,7 @@ public class CausalOrderView implements Serializable, OrderI {
 		noCorrectOrigin = null;
 		noCorrectFinal = null;
 	}
-	private void getHelp(CellPosition origin,CellPosition finalPos){
+	public void getHelp(CellPosition origin,CellPosition finalPos){
 		noCorrectFinal = finalPos.clone();
 		arrowOrigin = origin.clone();
 		availableCell = new Vector<Interval>();
@@ -688,8 +656,12 @@ public class CausalOrderView implements Serializable, OrderI {
 	@Override
 	public void draw(Graphics2D g2) {
 		drawingServer.draw(g2,clockTable,availableCell,arrowOrigin);
+
 	}
 	
+	public Vector<Interval> getAvailableCell(){
+		return availableCell;
+	}
 	
 	
 	public void print(String s){

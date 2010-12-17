@@ -222,12 +222,6 @@ public class FifoOrderView implements Serializable, OrderI {
 		 */
 		return vectorFound;
 	}
-		
-
-	@Override
-	public boolean moveLogicalOrder(SingleArrow arrow) {
-		return false;
-	}
 
 	@Override
 	public void removeFinalOrder(CellPosition finalPos) {
@@ -289,10 +283,6 @@ public class FifoOrderView implements Serializable, OrderI {
 				//hasta el proceso final en otro  tick, se elimina
 				boolean found = false;
 				int index = 0;
-				/*if(origin.finalPos.contains(vector.finalPos.firstElement())){
-					origin.finalPos.remove(vector.finalPos.firstElement());
-					clockTable.remove(vector.finalPos.firstElement());
-				}*/
 				
 				for (CellPosition finalPos:origin.finalPos){
 					if(finalPos.process==vector.finalPos.firstElement().process){
@@ -338,9 +328,10 @@ public class FifoOrderView implements Serializable, OrderI {
 			noCorrectOrigin = arrowOrigin.clone();
 			noCorrectOrigin.process = end.process;
 			noCorrectOrigin.tick++;
-			
+				
 			noCorrectFinal = end.clone();
 			noCorrectFinal.tick--;
+			
 		}
 		if(or.tick>lastTick || newVector.finalPos.firstElement().tick<end.tick){
 			or.tick = origin.tick-1;
