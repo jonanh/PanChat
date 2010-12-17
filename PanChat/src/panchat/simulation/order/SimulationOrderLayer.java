@@ -96,7 +96,7 @@ public class SimulationOrderLayer implements Observer {
 		for (iterator.tick = 0; iterator.tick < simulationModel.getTimeTicks(); iterator.tick++) {
 
 			System.out.println();
-			System.out.println("tick : " + iterator.tick);
+			System.out.println("tick : " + (iterator.tick + 1));
 			System.out.println("----------");
 			System.out.println();
 

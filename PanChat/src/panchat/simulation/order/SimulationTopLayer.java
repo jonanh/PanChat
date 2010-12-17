@@ -109,9 +109,8 @@ public class SimulationTopLayer extends OrderLayer {
 	public void update(Observable o, Object arg) {
 		super.update(o, arg);
 		if (this.deliveryQueue.size() > 0) {
-			debug("\nMensaje recibido en el cliente :");
-			debug("--------------------------------");
-			debug(this.deliveryQueue.toString() + "\n\n");
+			debug("\nMensajes recibidos en el cliente :");
+			debug("\t" + this.deliveryQueue.toString() + "\n\n");
 		}
 	}
 }
