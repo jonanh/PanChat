@@ -137,4 +137,11 @@ public class VectorClock implements Serializable, IClock<VectorClock> {
 		clock.receiveAction(this);
 		return clock;
 	}
+
+	/**
+	 * @return Tamaño del vector.
+	 */
+	public int size() {
+		return clock.size();
+	}
 }

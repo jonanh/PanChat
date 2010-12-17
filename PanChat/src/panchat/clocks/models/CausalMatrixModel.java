@@ -4,28 +4,38 @@ import javax.swing.table.AbstractTableModel;
 
 import panchat.clocks.CausalMatrix;
 import panchat.data.User;
-import simulation.model.SimulationModel;
+import panchat.simulation.model.SimulationModel;
 
 public class CausalMatrixModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
-	private CausalMatrix cm;
+	private CausalMatrix cm = null;
 	private SimulationModel simulationModel;
 
-	public CausalMatrixModel(CausalMatrix cm, SimulationModel simulationModel) {
-		this.cm = cm;
+	public CausalMatrixModel(SimulationModel simulationModel) {
 		this.simulationModel = simulationModel;
+	}
+
+	public void setCausalMatrix(CausalMatrix cm) {
+		this.cm = cm;
+		this.fireTableDataChanged();
 	}
 
 	@Override
 	public int getColumnCount() {
-		return cm.HashMatrix.size();
+		if (cm != null)
+			return cm.HashMatrix.size();
+		else
+			return 0;
 	}
 
 	@Override
 	public int getRowCount() {
-		return cm.HashMatrix.size();
+		if (cm != null)
+			return cm.HashMatrix.size();
+		else
+			return 0;
 	}
 
 	@Override
