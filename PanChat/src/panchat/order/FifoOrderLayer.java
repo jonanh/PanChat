@@ -45,7 +45,8 @@ public class FifoOrderLayer extends OrderLayer {
 		User sendUser = msg.getUsuario();
 
 		if (vc.getValue(this.user) == receiveClock.getValue(sendUser) + 1) {
-			receiveClock.send(this.user);
+			receiveClock.send(sendUser);
+
 			return true;
 		}
 

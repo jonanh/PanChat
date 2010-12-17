@@ -70,7 +70,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 	public synchronized void sendMsg(User user, Message msg) {
 		for (OrderLayer layer : bottomLayer)
 			if (msg.isType(layer.orderCapability())) {
-				debug("msg send to " + layer.getClass().toString());
+				debug("Enviando : " + layer.getClass().getName());
 				layer.sendMsg(user, msg);
 				break;
 			}
@@ -85,7 +85,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 	public synchronized void sendMsg(List<User> users, Message msg) {
 		for (OrderLayer layer : bottomLayer)
 			if (msg.isType(layer.orderCapability())) {
-				debug("msg send to " + layer.getClass().toString());
+				debug("sendMsg to : " + layer.getClass().getName());
 				layer.sendMsg(users, msg);
 				break;
 			}
@@ -98,8 +98,8 @@ public abstract class OrderLayer extends Observable implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 
-		debug("clase " + this.getClass().toString());
-		debug("comprobando pending");
+		debug("Comprobando : " + this.getClass().getName() + "\n");
+		debug("\tComprobando pending");
 
 		OrderLayer orderLayer = (OrderLayer) o;
 
@@ -109,7 +109,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 		while (iter.hasNext()) {
 			Message mensaje = iter.next();
 
-			debug("comprobando mensaje " + mensaje.toString());
+			debug("\t\t- comprobando mensaje " + mensaje.toString());
 
 			// Si el mensaje es del tipo de la capacidad de la capa actual, lo
 			// eliminamos de la lista y lo añadimos a la lista de mensajes
@@ -119,13 +119,13 @@ public abstract class OrderLayer extends Observable implements Observer {
 
 				this.pendingQueue.offer(mensaje);
 
-				debug("añadido a pending ");
+				debug("\t\t- añadido a pending! ");
 
-				debug("pendingQueue " + pendingQueue);
+				debug("\t\t- Stado del pendingQueue : " + pendingQueue);
 			}
 		}
 
-		debug("comprobando delivery");
+		debug("\n\tComprobando delivery");
 
 		boolean delivery = false;
 
@@ -135,7 +135,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 		while (iter.hasNext()) {
 			Message mensaje = iter.next();
 
-			debug("comprobando mensaje " + mensaje.toString());
+			debug("\t\t- comprobando mensaje " + mensaje.toString());
 
 			if (okayToRecv(mensaje)) {
 
@@ -152,9 +152,10 @@ public abstract class OrderLayer extends Observable implements Observer {
 				// Volvemos a pasar la lista de pendientes desde el principio
 				iter = pendingQueue.iterator();
 
-				debug("añadido a delivery");
+				debug("\t\t- añadido a delivery! ");
 			}
 		}
+		debug("");
 
 		// Si hay algo que enviar, notificamos a las capas superiores
 		if (delivery) {
