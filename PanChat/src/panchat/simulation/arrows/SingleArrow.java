@@ -15,6 +15,15 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final Color NORMAL_COLOR = Color.getHSBColor(2 * .4f % 1,
+			.70f, 1f);
+	private static final Color FIFO_COLOR = Color.getHSBColor(4 * .4f % 1,
+			.70f, 1f);
+	private static final Color CAUSAL_COLOR = Color.getHSBColor(6 * .4f % 1,
+			.70f, 1f);
+	private static final Color TOTAL_COLOR = Color.getHSBColor(8 * .4f % 1,
+			.70f, 1f);
+
 	// Posiciones inicial y final de la flecha
 	protected CellPosition initialPos;
 	protected CellPosition finalPos;
@@ -33,7 +42,7 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 		this.finalPos = finalPos;
 		update();
 	}
-	
+
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
 			EnumMap<Type, Boolean> properties) {
 		super(0f, 0f, 0f, 0f);
@@ -67,6 +76,24 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 	@Override
 	public EnumMap<Type, Boolean> getProperties() {
 		return properties;
+	}
+
+	public void setProperties(EnumMap<Type, Boolean> properties) {
+
+		this.properties = properties;
+
+		if (properties.containsKey(Type.TOTAL)) {
+			this.color = TOTAL_COLOR;
+		}
+		if (properties.containsKey(Type.CAUSAL)) {
+			this.color = CAUSAL_COLOR;
+		}
+		if (properties.containsKey(Type.FIFO)) {
+			this.color = FIFO_COLOR;
+		} else {
+			this.color = NORMAL_COLOR;
+		}
+
 	}
 
 	/**

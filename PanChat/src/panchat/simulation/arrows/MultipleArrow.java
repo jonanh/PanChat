@@ -125,6 +125,8 @@ public class MultipleArrow implements MessageArrow, Serializable {
 				positionList.add(finalPos);
 			}
 
+			singleArrow.setProperties(this.properties);
+
 			arrowList.add(singleArrow);
 
 		} else if (arrow instanceof MultipleArrow) {
@@ -229,7 +231,7 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	}
 
 	/**
-	 * Inicializar las flechas después de 
+	 * Inicializar las flechas después de
 	 */
 	public void initialize() {
 		for (SingleArrow arrow : arrowList)

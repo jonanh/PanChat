@@ -40,7 +40,7 @@ public class Arrow extends Line2D.Float implements Serializable {
 	/*
 	 * Atributos
 	 */
-	private Color color;
+	protected Color color;
 
 	private static final Color redColor = new Color(1f, 0f, 0f, .6f);
 
