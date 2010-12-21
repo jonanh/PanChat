@@ -41,7 +41,8 @@ public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 	 */
 	public void receiveAction(CausalMatrix causalMatrix) {
 
-		Hashtable<User, Hashtable<User, Integer>> nuevaHashMatrix = causalMatrix.HashMatrix;
+		Hashtable<User, Hashtable<User, Integer>> M = this.HashMatrix;
+		Hashtable<User, Hashtable<User, Integer>> W = causalMatrix.HashMatrix;
 
 		// Es lo equivalente en tablas hash a :
 		//
@@ -50,41 +51,42 @@ public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 		// .........if (W[i][j] > M[i][j])
 		// ............M[i][j] = W[i][j];
 		// 
-		Iterator<Entry<User, Hashtable<User, Integer>>> iter = nuevaHashMatrix
-				.entrySet().iterator();
-		while (iter.hasNext()) {
-			User user1 = iter.next().getKey();
+		Iterator<Entry<User, Hashtable<User, Integer>>> i = W.entrySet()
+				.iterator();
+		while (i.hasNext()) {
+
+			User w_i = i.next().getKey();
 
 			/*
 			 * Si existe la fila en nuestra matrix, entonces tenemos que
 			 * actualizar cada casilla de la fila
 			 */
-			if (HashMatrix.containsKey(user1)) {
+			if (M.containsKey(w_i)) {
 
 				/*
 				 * Hacemos una actualización por columnas.
 				 */
-				Iterator<Entry<User, Hashtable<User, Integer>>> iter2 = nuevaHashMatrix
+				Iterator<Entry<User, Hashtable<User, Integer>>> j = W
 						.entrySet().iterator();
-				while (iter2.hasNext()) {
-					User user2 = iter2.next().getKey();
+				while (j.hasNext()) {
+					User w_i_j = j.next().getKey();
 
 					/*
 					 * Si existe la columna en nuestra matrix, escogemos el
 					 * valor más entre la columna nueva y la nuestra.
 					 */
-					if (HashMatrix.get(user1).containsKey(user2)) {
+					if (M.get(w_i).containsKey(w_i_j)) {
 
 						/*
 						 * Obtenemos los valores de ambas matrices, los
 						 * comparamos y reasignamos el máximo de los 2
 						 */
-						Integer valor1 = HashMatrix.get(user1).get(user2);
-						Integer valor2 = nuevaHashMatrix.get(user1).get(user2);
+						Integer M_i_j = M.get(w_i).get(w_i_j);
+						Integer W_i_j = W.get(w_i).get(w_i_j);
 
 						// Solo actualizamos si hay que actualizar
-						if (valor2 > valor1)
-							HashMatrix.get(user1).put(user2, valor2);
+						if (W_i_j > M_i_j)
+							HashMatrix.get(w_i).put(w_i_j, W_i_j);
 
 					}
 					/*
@@ -93,8 +95,8 @@ public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 					 */
 					else {
 
-						Integer valor2 = nuevaHashMatrix.get(user1).get(user2);
-						HashMatrix.get(user1).put(user2, valor2);
+						Integer valor2 = W.get(w_i).get(w_i_j);
+						HashMatrix.get(w_i).put(w_i_j, valor2);
 
 					}
 				}
@@ -106,9 +108,9 @@ public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 			 */
 			else {
 
-				HashMatrix.put(user1, nuevaHashMatrix.get(user1));
+				HashMatrix.put(w_i, W.get(w_i));
 
-				HashMatrix.get(user1).put(usuario, 0);
+				HashMatrix.get(w_i).put(usuario, 0);
 			}
 		}
 	}
