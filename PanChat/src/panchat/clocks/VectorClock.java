@@ -55,7 +55,9 @@ public class VectorClock implements Serializable, IClock<VectorClock> {
 	 * Evento al enviar
 	 */
 	public void send(User user) {
+		System.out.println(clock.get(user));
 		clock.put(user, clock.get(user) + 1);
+		System.out.println(clock.get(user));
 	}
 
 	/**
