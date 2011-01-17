@@ -10,7 +10,7 @@ import java.util.List;
 
 import panchat.messages.Message.Type;
 
-import panchat.simulation.model.SimulationModel;
+import panchat.simulation.model.SimulationArrowModel;
 import panchat.simulation.view.CellPosition;
 
 @SuppressWarnings("serial")
@@ -202,7 +202,7 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	 * 
 	 * @return Si es valida la flecha
 	 */
-	public boolean isValid(SimulationModel simulationModel) {
+	public boolean isValid(SimulationArrowModel simulationModel) {
 
 		boolean isValid = true;
 
@@ -243,7 +243,7 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	 * 
 	 * @param simulationModel
 	 */
-	public boolean add2Simulation(SimulationModel simulationModel) {
+	public boolean add2Simulation(SimulationArrowModel simulationModel) {
 		simulationModel.addArrow(this);
 		moveCell = null;
 		return true;

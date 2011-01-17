@@ -17,8 +17,8 @@ public class SimulationBottomLayer extends OrderLayer {
 	}
 
 	@Override
-	protected boolean okayToRecv(Message msg) {
-		return true;
+	protected receiveStatus okayToRecv(Message msg) {
+		return receiveStatus.Receive;
 	}
 
 	@Override

@@ -49,12 +49,12 @@ public class Inicio extends VentanaBase implements ActionListener {
 		panel.add(boton);
 		this.add(panel);
 
-		añadirEscuchas();
+		anyadirEscuchas();
 		nombre.cambiarColor(Color.red);
-		nombre.cambiarTamañoLabel(27);
+		nombre.cambiarTamanyoLabel(27);
 	}
 
-	public void añadirEscuchas() {
+	public void anyadirEscuchas() {
 		boton.addActionListener(this);
 	}
 

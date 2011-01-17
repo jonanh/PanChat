@@ -15,7 +15,7 @@ import javax.swing.JTextField;
 
 import panchat.messages.Message.Type;
 
-import panchat.simulation.model.SimulationModel;
+import panchat.simulation.model.SimulationArrowModel;
 import panchat.simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
@@ -38,6 +38,8 @@ public class ToolbarPanel extends JPanel {
 	private JCheckBox fifoCheck = new JCheckBox("FIFO");
 	private JCheckBox causalCheck = new JCheckBox("Causal");
 	private JCheckBox totalCheck = new JCheckBox("Total");
+
+	private JCheckBox deliveryCheck = new JCheckBox("Delivery");
 
 	private EnumMap<Type, Boolean> properties;
 
@@ -72,10 +74,14 @@ public class ToolbarPanel extends JPanel {
 		this.add(causalCheck);
 		this.add(totalCheck);
 
+		this.add(deliveryCheck);
+
 		this.add(numProcessLabel);
 		this.add(numProcessText);
 		this.add(timeUnitLabel);
 		this.add(timeUnitText);
+
+		deliveryCheck.setSelected(true);
 
 		// Inicializamos el texto de los cuadros de simulacion
 		int numeroProcesses = simulationView.getSimulationModel()
@@ -127,14 +133,17 @@ public class ToolbarPanel extends JPanel {
 		stateButton[4].addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SimulationModel simulationModel = FileChooser.getFile(parent);
+				SimulationArrowModel simulationModel = FileChooser
+						.getFile(parent);
 
 				// Si hemos cargado un fichero
 				if (simulationModel != null) {
 					simulation.setSimulationModel(simulationModel);
 
-					// Establecemos los textbox del numero de procesos y ticks
-					// de acuerdo al nuevo modelo
+					/*
+					 * Establecemos los textbox del numero de procesos y ticks
+					 * de acuerdo al nuevo modelo
+					 */
 					int numeroProcesses = simulationView.getSimulationModel()
 							.getNumProcesses();
 					numProcessText.setText(String.valueOf(numeroProcesses));
@@ -151,7 +160,7 @@ public class ToolbarPanel extends JPanel {
 		stateButton[5].addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SimulationModel simulationModel = simulationView
+				SimulationArrowModel simulationModel = simulationView
 						.getSimulationModel();
 				FileChooser.saveFile(parent, simulationModel);
 			}
@@ -202,6 +211,16 @@ public class ToolbarPanel extends JPanel {
 				}
 
 				properties.put(Type.TOTAL, totalCheck.isSelected());
+			}
+		});
+
+		deliveryCheck.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				// simulationView.setDrawSimulationArrows(deliveryCheck
+				// .isSelected());
+
 			}
 		});
 

@@ -97,7 +97,7 @@ public class ListaCanalesTest extends TestCase {
 	 * Probamos a registrar un usuario, y probamos a eliminarlo, y a comprobar
 	 * los usuarios registrados y sin registrar.
 	 */
-	public void testAñadirYEliminar() {
+	public void testAnyadirYEliminar() {
 
 		ChatRoomList canales = new ChatRoomList();
 		UserList usuarios = new UserList(canales);

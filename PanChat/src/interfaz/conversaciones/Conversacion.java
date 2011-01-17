@@ -64,7 +64,7 @@ public class Conversacion extends MiPanel implements KeyListener {
 		c.weighty = 0.2;
 		this.add(abajo, c);
 
-		añadirEscuchas();
+		anyadirEscuchas();
 
 		this.setOpaque(false);
 
@@ -79,7 +79,7 @@ public class Conversacion extends MiPanel implements KeyListener {
 
 	}
 
-	private void añadirEscuchas() {
+	private void anyadirEscuchas() {
 		escritura.addKeyListener(this);
 	}
 

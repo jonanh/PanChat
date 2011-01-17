@@ -6,10 +6,10 @@ import panchat.data.ChatRoomList;
 import panchat.data.ChatList;
 import panchat.data.UserList;
 import panchat.data.User;
-import panchat.messages.MessageChat;
+import panchat.messages.ChatMessage;
+import panchat.messages.JoinRoomMessage;
 import panchat.order.CausalMatrixLayer;
 import panchat.order.OrderLayer;
-import panchat.protocol.JoinChannel;
 import panchat.ui.main.PanchatUI;
 
 public class Panchat {
@@ -25,7 +25,6 @@ public class Panchat {
 
 	// Linkers
 	private OrderLayer linker;
-	private CausalMatrixLayer causalLinker;
 
 	/**
 	 * Crea nueva instancia de panchat
@@ -53,14 +52,8 @@ public class Panchat {
 		// Nos añadimos a nuestra propia lista de usuarios
 		this.listaUsuarios.add(usuario);
 
-		this.connector = new SocketConnector(this);
-		this.causalLinker = new CausalMatrixLayer(this);
 		this.linker = new OrderLayer(this);
 
-		// Como el hilo MulticastListenerThread depende de causalLinker, lo
-		// arrancamos después para evitar una condicción de carrera al
-		// instanciar las clases.
-		this.connector.arrancarThreads();
 	}
 
 	/*
@@ -104,24 +97,6 @@ public class Panchat {
 	}
 
 	/**
-	 * Devuelve el causal linker asociado al chat
-	 * 
-	 * @return
-	 */
-	public CausalMatrixLayer getCausalLinker() {
-		return causalLinker;
-	}
-
-	/**
-	 * Devuelve el linker asociado al chat
-	 * 
-	 * @return
-	 */
-	public OrderLayer getLinker() {
-		return linker;
-	}
-
-	/**
 	 * Devuelve la clase connector
 	 * 
 	 * @return
@@ -138,9 +113,9 @@ public class Panchat {
 	 * Desregistra el cliente e inicia la terminación de la aplicación
 	 */
 	public void accionDesegistrarCliente() {
-		connector.enviarSaludo(false);
+		
+		linker.close();
 
-		connector.closeSockets();
 	}
 
 	/**
@@ -179,6 +154,7 @@ public class Panchat {
 	 * @param user
 	 */
 	public void accionIniciarConversacionCanal(ChatRoom canal) {
+		
 		if (!canal.contains(usuario)) {
 			canal.joinUser(usuario);
 
@@ -187,7 +163,7 @@ public class Panchat {
 			listaConversaciones.getChatRoomWindow(canal);
 
 			// Notificamos a todo el mundo sobre el nuevo canal
-			JoinChannel inscripcion = new JoinChannel(canal, usuario,
+			JoinRoomMessage inscripcion = new JoinRoomMessage(canal, usuario,
 					true);
 
 			causalLinker.sendMsg(this.listaUsuarios.getUserList(),
@@ -206,7 +182,7 @@ public class Panchat {
 		listaConversaciones.delete(canal);
 
 		// Notificamos a todo el mundo sobre el nuevo canal
-		JoinChannel inscripcion = new JoinChannel(canal, usuario,
+		JoinRoomMessage inscripcion = new JoinRoomMessage(canal, usuario,
 				false);
 
 		causalLinker.sendMsg(listaUsuarios.getUserList(), inscripcion);
@@ -239,7 +215,7 @@ public class Panchat {
 	 * @param pComentario
 	 */
 	public void escribirComentarioCanal(ChatRoom pCanal, String pComentario) {
-		MessageChat mensaje = new MessageChat(pCanal, pComentario);
+		ChatMessage mensaje = new ChatMessage(pCanal, pComentario);
 		causalLinker.sendMsg(pCanal.getUserList(), mensaje);
 	}
 
@@ -257,7 +233,7 @@ public class Panchat {
 		listaCanales.setModified();
 
 		// Notificamos a todo el mundo sobre el nuevo canal
-		JoinChannel inscripcion = new JoinChannel(pCanal, pUsuario,
+		JoinRoomMessage inscripcion = new JoinRoomMessage(pCanal, pUsuario,
 				true);
 
 		causalLinker

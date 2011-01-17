@@ -36,7 +36,7 @@ public class ListaUsuariosTest extends TestCase {
 	/**
 	 * Verificamos el funcionamiento de registrar y el iterador
 	 */
-	public void testAñadirUsuario() {
+	public void testAnyadirUsuario() {
 		listaUsuarios.add(lista.get(0));
 		listaUsuarios.add(lista.get(1));
 

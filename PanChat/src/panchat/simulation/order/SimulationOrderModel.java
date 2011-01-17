@@ -1,20 +1,21 @@
 package panchat.simulation.order;
 
-import java.awt.Color;
+import java.awt.Graphics2D;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
-import java.util.Observer;
 
 import panchat.clocks.SavedClocks;
 import panchat.data.User;
 import panchat.messages.Message;
 import panchat.simulation.arrows.MultipleArrow;
 import panchat.simulation.arrows.SingleArrow;
-import panchat.simulation.model.SimulationModel;
+import panchat.simulation.model.SimulationArrowModel;
 import panchat.simulation.view.CellPosition;
+import panchat.simulation.view.ISimulator;
 import panchat.simulation.view.SimulationView;
 
 /**
@@ -23,17 +24,11 @@ import panchat.simulation.view.SimulationView;
  * recepcion.
  * 
  */
-public class SimulationOrderLayer implements Observer {
-
-	private static final Color ARROW_COLOR = new Color(1f, 1f, 0f, .5f);
+public class SimulationOrderModel extends Observable implements ISimulator {
 
 	/*
 	 * Atributos
 	 */
-	private SimulationView simulationView;
-	private SimulationModel simulationModel;
-
-	private List<SingleArrow> simulationArrows;
 
 	/*
 	 * Conjunto de las capas de ordenación. Para cada usuario disponemos de una
@@ -51,26 +46,91 @@ public class SimulationOrderLayer implements Observer {
 	private HashMap<CellPosition, Message> receive = new HashMap<CellPosition, Message>();
 
 	/*
-	 * Guardamos los clocks en el View, para que cuando cambiemos de celda,
-	 * podamos visualizarlas.
+	 * Guardamos los clocks para cada posición.
 	 */
-	private HashMap<CellPosition, SavedClocks> receiveClocks;
+	private HashMap<CellPosition, SavedClocks> receiveClocks = new HashMap<CellPosition, SavedClocks>();
 
-	public SimulationOrderLayer(SimulationView simulationView) {
+	/*
+	 * Guardamos los logs para cada posición.
+	 */
+	private HashMap<CellPosition, String> receiveLogs = new HashMap<CellPosition, String>();
 
-		this.simulationView = simulationView;
-		this.simulationModel = simulationView.getSimulationModel();
-		this.simulationArrows = simulationView.getSimulationArrows();
-		this.receiveClocks = simulationView.getReceiveClocks();
+	/*
+	 * Lista de flechas de entrega
+	 */
+	private List<SingleArrow> simulationArrows = new LinkedList<SingleArrow>();
 
-		simulationModel.addObserver(this);
+	/*
+	 * Referencia al modelo de flechas.
+	 */
+	private SimulationArrowModel simulationArrowModel;
 
+	public SimulationOrderModel(SimulationArrowModel simulationModel) {
+
+		simulationArrowModel = simulationModel;
+
+	}
+
+	/**
+	 * Cargamos un nuevo SimulationModel
+	 * 
+	 * @param simulationModel
+	 */
+	public void setSimulationModel(SimulationArrowModel simulationModel) {
+
+		// Observamos la nueva simulacion;
+		this.simulationArrowModel = simulationModel;
+	}
+
+	/**
+	 * @return Obtenemos el número de procesos
+	 */
+	public int getNumProcesses() {
+		return this.simulationArrowModel.getNumProcesses();
+	}
+
+	/**
+	 * @param process
+	 * 
+	 * @return Devuelve el usuario correspondiente a un proceso determinado.
+	 */
+	public User getUser(int process) {
+		return this.simulationArrowModel.getUser(process);
+	}
+
+	/**
+	 * @param position
+	 * 
+	 * @return Devuelve la información del reloj correspondiente a la posición
+	 *         position.
+	 */
+	public SavedClocks getClocks(CellPosition position) {
+		if (position != null)
+			return receiveClocks.get(position);
+		else
+			return null;
+	}
+
+	/**
+	 * 
+	 * @param position
+	 * 
+	 * @return Devuelve la información de las capas de ordenación.
+	 */
+	public String getLog(CellPosition position) {
+		if (position != null)
+			return receiveLogs.get(position);
+		else
+			return null;
 	}
 
 	/**
 	 * Realizar nueva simulacion
 	 */
-	public synchronized void simulate() {
+	@Override
+	public void simulate(SimulationView simulationView) {
+
+		simulationArrowModel = simulationView.getSimulationModel();
 
 		// Reiniciamos la simulacion.
 		topLayers.clear();
@@ -79,13 +139,13 @@ public class SimulationOrderLayer implements Observer {
 		receiveClocks.clear();
 
 		// Creamos los top layers
-		for (User user : simulationModel.getUserList()) {
+		for (User user : simulationArrowModel.getUserList()) {
 			topLayers.put(user, new SimulationTopLayer(user));
 		}
 
 		// Registramos los usuarios en los top layers
-		for (User user : simulationModel.getUserList()) {
-			for (User user2 : simulationModel.getUserList()) {
+		for (User user : simulationArrowModel.getUserList()) {
+			for (User user2 : simulationArrowModel.getUserList()) {
 				if (!user.equals(user2))
 					topLayers.get(user).addUser(user2);
 			}
@@ -93,21 +153,22 @@ public class SimulationOrderLayer implements Observer {
 
 		CellPosition iterator = new CellPosition(0, 0);
 		// Vamos recorriendo las casillas
-		for (iterator.tick = 0; iterator.tick < simulationModel.getTimeTicks(); iterator.tick++) {
+		for (iterator.tick = 0; iterator.tick < simulationArrowModel
+				.getTimeTicks(); iterator.tick++) {
 
 			System.out.println();
 			System.out.println("tick : " + (iterator.tick + 1));
 			System.out.println("----------");
 			System.out.println();
 
-			for (iterator.process = 0; iterator.process < simulationModel
+			for (iterator.process = 0; iterator.process < simulationArrowModel
 					.getNumProcesses(); iterator.process++) {
 
 				// Los topLayers está diseñados para usarse con usuarios, por lo
 				// tanto para la simulación realizamos un mapeo entre el
 				// identificador proceso, y un usuario creado para
 				// representarlo.
-				User user = simulationModel.getUser(iterator.process);
+				User user = simulationArrowModel.getUser(iterator.process);
 				SimulationTopLayer topLayer = topLayers.get(user);
 
 				// Las MultipleArrow son el conjunto de flechas que conforman
@@ -119,7 +180,7 @@ public class SimulationOrderLayer implements Observer {
 
 				// Obtenemos la flecha correspondiente a este paso en el
 				// simulador, comprobando si esta existe.
-				multipleArrow = simulationModel.getArrow(iterator);
+				multipleArrow = simulationArrowModel.getArrow(iterator);
 				if (multipleArrow != null) {
 
 					// Obtenemos las flechas que salen de este punto
@@ -129,7 +190,7 @@ public class SimulationOrderLayer implements Observer {
 
 						// Necesitamos hacer el mapeo proceso - usuario
 						int process = destArrow.getFinalPos().process;
-						User user2 = simulationModel.getUser(process);
+						User user2 = simulationArrowModel.getUser(process);
 
 						// Creamos el mensaje, y guardamos en el la posición
 						// donde estamos (el tick y el proceso), de modo que
@@ -187,8 +248,8 @@ public class SimulationOrderLayer implements Observer {
 						CellPosition pos = (CellPosition) rMsg.getContent();
 
 						// Creamos la flecha que representa la entrega
-						SingleArrow arrow = new SingleArrow(pos, iterator
-								.clone(), ARROW_COLOR);
+						SingleArrow arrow = new DeliveryArrow(pos, iterator
+								.clone());
 
 						// La añadimos al listado de flechas de entrega.
 						simulationArrows.add(arrow);
@@ -201,34 +262,13 @@ public class SimulationOrderLayer implements Observer {
 				receiveClocks.put(iterator.clone(), topLayer.getClocks());
 			}
 		}
-		simulationView.repaint();
 
 		System.out.println("\n\n");
 	}
 
-	/**
-	 * Cuando se produce un cambio, debemos rehacer la simulación.
-	 */
+	
 	@Override
-	public void update(Observable o, Object arg) {
-		simulate();
-	}
-
-	/**
-	 * Cargamos un nuevo SimulationModel
-	 * 
-	 * @param simulationModel
-	 */
-	public void setSimulationModel(SimulationModel simulationModel) {
-
-		// Dejamos de observar la antigua simulacion
-		this.simulationModel.deleteObserver(this);
-
-		// Observamos la nueva simulacion;
-		this.simulationModel = simulationModel;
-		this.simulationModel.addObserver(this);
-
-		// Simulamos
-		simulate();
+	public void drawSimulation(Graphics2D g) {
+		SimulationView.paintArrows(g, this.simulationArrows);
 	}
 }

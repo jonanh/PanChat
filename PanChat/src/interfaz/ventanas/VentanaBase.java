@@ -14,7 +14,7 @@ public class VentanaBase extends JFrame {
 	// variables para el default toolkit y para el tamaño de ventana
 	Toolkit pantalla;
 	Dimension dimension;
-	double tamañoX, tamañoY;
+	double tamanyoX, tamanyoY;
 	double centroX, centroY;
 
 	// panel al que se aplicará un borderlayout
@@ -28,12 +28,12 @@ public class VentanaBase extends JFrame {
 		// obtenemos el tamaño de la pantalla
 		pantalla = Toolkit.getDefaultToolkit();
 		dimension = pantalla.getScreenSize();
-		tamañoX = dimension.getWidth();
-		tamañoY = dimension.getHeight();
+		tamanyoX = dimension.getWidth();
+		tamanyoY = dimension.getHeight();
 
 		// calculamos el centro de la pantalla en X y en Y
-		centroX = tamañoX / 2;
-		centroY = tamañoY / 2;
+		centroX = tamanyoX / 2;
+		centroY = tamanyoY / 2;
 
 		// colocamos la ventana en el centro
 		this.setLocation((int) centroX - ancho / 2, (int) centroY - alto / 2);

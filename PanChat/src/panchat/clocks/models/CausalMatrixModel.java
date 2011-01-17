@@ -4,17 +4,17 @@ import javax.swing.table.AbstractTableModel;
 
 import panchat.clocks.CausalMatrix;
 import panchat.data.User;
-import panchat.simulation.model.SimulationModel;
+import panchat.simulation.order.SimulationOrderModel;
 
 public class CausalMatrixModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
 	private CausalMatrix cm = null;
-	private SimulationModel simulationModel;
+	private SimulationOrderModel simulationOrderModel;
 
-	public CausalMatrixModel(SimulationModel simulationModel) {
-		this.simulationModel = simulationModel;
+	public CausalMatrixModel(SimulationOrderModel simulationModel) {
+		this.simulationOrderModel = simulationModel;
 	}
 
 	public void setCausalMatrix(CausalMatrix cm) {
@@ -24,24 +24,22 @@ public class CausalMatrixModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		if (cm != null)
-			return cm.HashMatrix.size();
-		else
-			return 0;
+		return simulationOrderModel.getNumProcesses();
 	}
 
 	@Override
 	public int getRowCount() {
 		if (cm != null)
-			return cm.HashMatrix.size();
+			return simulationOrderModel.getNumProcesses();
 		else
 			return 0;
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		User rowUser = simulationModel.getUser(rowIndex);
-		User columnUser = simulationModel.getUser(columnIndex);
+
+		User rowUser = simulationOrderModel.getUser(rowIndex);
+		User columnUser = simulationOrderModel.getUser(columnIndex);
 
 		return cm.getValue(rowUser, columnUser);
 	}

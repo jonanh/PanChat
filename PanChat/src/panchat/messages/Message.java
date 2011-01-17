@@ -2,6 +2,7 @@ package panchat.messages;
 
 import java.io.Serializable;
 import java.util.EnumMap;
+import java.util.List;
 
 import panchat.clocks.IClock;
 import panchat.data.User;
@@ -18,7 +19,8 @@ public class Message implements Serializable {
 	}
 
 	/*
-	 * Interfaces para marcar los mensajes
+	 * Interfaces para marcar el contenido de los mensajes. De modo que podamos
+	 * determinar las propiedades del mensaje mediante el contenido.
 	 */
 	public interface Total {
 	}
@@ -42,11 +44,16 @@ public class Message implements Serializable {
 
 	private Object content;
 
+	// Lista de propiedades
 	private EnumMap<Type, Boolean> properties = new EnumMap<Type, Boolean>(
 			Type.class);
 
+	// Lista de relojes lógicos
 	private EnumMap<Type, IClock<?>> clocks = new EnumMap<Type, IClock<?>>(
 			Type.class);
+
+	// Lista de usuarios para usarse en canales multicast
+	private List<User> userList;
 
 	/**
 	 * 
@@ -129,6 +136,24 @@ public class Message implements Serializable {
 	 */
 	public Object setClock(Type property, IClock<?> clock) {
 		return clocks.put(property, clock);
+	}
+
+	/**
+	 * Establecemos los destinatarios del mensajes. Fundamentalmente empleamos
+	 * esta funcionalidad en canales multicast, o con mensajes que requieran
+	 * "consenso", ya que necesitan conocer si el mensaje es para ellos.
+	 * 
+	 * @param list
+	 */
+	public void setUserList(List<User> list) {
+		this.userList = list;
+	}
+
+	/**
+	 * @return Lista de destinatarios
+	 */
+	public List<User> getUserList() {
+		return this.userList;
 	}
 
 	/**

@@ -4,7 +4,7 @@ import java.util.List;
 
 import panchat.simulation.view.CellPosition;
 import panchat.simulation.arrows.SingleArrow;
-import panchat.simulation.model.SimulationModel;
+import panchat.simulation.model.SimulationArrowModel;
 
 public class SimpleMultipleArrow extends MultipleArrow {
 
@@ -30,7 +30,7 @@ public class SimpleMultipleArrow extends MultipleArrow {
 	 * 
 	 * @return Si es valida la flecha
 	 */
-	public boolean isValid(SimulationModel simulationModel) {
+	public boolean isValid(SimulationArrowModel simulationModel) {
 
 		// Si sólo tenemos una flecha, entonces comprobar si esa flecha es
 		// valida
@@ -41,7 +41,7 @@ public class SimpleMultipleArrow extends MultipleArrow {
 	}
 
 	@Override
-	public boolean add2Simulation(SimulationModel simulationModel) {
+	public boolean add2Simulation(SimulationArrowModel simulationModel) {
 
 		List<SingleArrow> arrows = this.getFinalArrow(moveCell);
 

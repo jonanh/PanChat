@@ -111,7 +111,7 @@ public class ConversacionCanal extends MiPanel implements KeyListener,MouseListe
 		c.weighty = 0.2;
 		this.add(abajo, c);
 
-		añadirEscuchas();
+		anyadirEscuchas();
 
 		this.setOpaque(false);
 
@@ -126,7 +126,7 @@ public class ConversacionCanal extends MiPanel implements KeyListener,MouseListe
 
 	}
 
-	private void añadirEscuchas() {
+	private void anyadirEscuchas() {
 		escritura.addKeyListener(this);
 		usuariosNoConectados.addMouseListener(this);
 	}

@@ -9,7 +9,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -17,17 +16,14 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
-import panchat.clocks.SavedClocks;
 import panchat.messages.Message.Type;
-import panchat.simulation.ClockPanel;
 import panchat.simulation.arrows.MessageArrow;
 import panchat.simulation.arrows.MultipleArrow;
-import panchat.simulation.model.SimulationModel;
+import panchat.simulation.model.SimulationArrowModel;
 import panchat.simulation.view.listener.CreateListener;
 import panchat.simulation.view.listener.DeleteListener;
 import panchat.simulation.view.listener.MoveListener;
 import panchat.simulation.view.listener.ViewListener;
-import panchat.simulation.arrows.SingleArrow;
 
 @SuppressWarnings("serial")
 public class SimulationView extends JPanel implements Observer {
@@ -60,7 +56,7 @@ public class SimulationView extends JPanel implements Observer {
 	 */
 
 	// El modelo de datos
-	private SimulationModel simulationModel;
+	private SimulationArrowModel simulationModel;
 
 	// Numero de procesos y de ticks
 	private int processes;
@@ -79,12 +75,6 @@ public class SimulationView extends JPanel implements Observer {
 	// definitiva, trabajamos directamente sobre la vista en vez del modelo.
 	private MessageArrow drawingArrow;
 
-	// Listado de flechas de la simulacion
-	private List<SingleArrow> simulationArrows = new LinkedList<SingleArrow>();
-
-	// Dibujar simulacion
-	boolean drawSimulation = true;
-
 	// Implementamos un doble buffer, realizando las operaciones de dibujo sobre
 	// el buffer, y después volcando la imagen sobre el contexto del panel.
 	BufferedImage backBuffer;
@@ -100,18 +90,18 @@ public class SimulationView extends JPanel implements Observer {
 	// Guardamos una referencia al listener actual para poder cambiarlo por otro
 	private ViewListener actualViewListener;
 
-	// Guardamos una referencia al panel para poder actualizar el contenido
-	// cuando se mueve el cursor encima del simulador.
-	private ClockPanel clockPanel;
+	// Lista de observadores de posición. Como por ejemplo el panel de
+	// información de relojes lógicos.
+	private List<IPositionObserver> positionObservers = new LinkedList<IPositionObserver>();
 
-	private HashMap<CellPosition, SavedClocks> receiveClocks = new HashMap<CellPosition, SavedClocks>();
+	// Lista de simuladores de información
+	private List<ISimulator> simulatorList = new LinkedList<ISimulator>();
 
 	/**
 	 * Crea un nuevo tablero con el simulation model.
 	 */
-	public SimulationView(SimulationModel simulationModel, ClockPanel clock) {
+	public SimulationView(SimulationArrowModel simulationModel) {
 
-		this.clockPanel = clock;
 		this.simulationModel = simulationModel;
 		this.simulationModel.addObserver(this);
 
@@ -134,163 +124,6 @@ public class SimulationView extends JPanel implements Observer {
 		listViewListeners[State.DELETE.ordinal()] = new DeleteListener(this);
 	}
 
-	/**
-	 * Cambiamos el modo de comportamiento de la vista :
-	 * <ul>
-	 * <li>Type.Over = Moverse sin hacer nada</li>
-	 * <li>Type.Create = Crear flechas, y mover los puntos del final</li>
-	 * <li>Type.Move = Mover flechas</li>
-	 * <li>Type.Delete = Eliminar flechas</li>
-	 * </ul>
-	 * 
-	 * @param state
-	 */
-	public void setState(State state) {
-		if (actualViewListener != null) {
-			this.removeMouseListener(actualViewListener);
-			this.removeMouseMotionListener(actualViewListener);
-		}
-		actualViewListener = listViewListeners[state.ordinal()];
-		this.addMouseListener(actualViewListener);
-		this.addMouseMotionListener(actualViewListener);
-	}
-
-	/**
-	 * 
-	 * @param draw
-	 *            Dibujamos la simulacion en la pantalla.
-	 */
-	public void setDrawSimulationArrows(boolean draw) {
-		this.drawSimulation = draw;
-		this.repaint();
-	}
-
-	/**
-	 * 
-	 * @return Devuelve las propiedades de creación de flechas del
-	 *         CreateListener.
-	 */
-	public EnumMap<Type, Boolean> getCreationProperties() {
-		CreateListener listener = (CreateListener) listViewListeners[State.CREATE
-				.ordinal()];
-		return listener.getProperties();
-	}
-
-	/**
-	 * @return the drawingArrow
-	 */
-	public MessageArrow getDrawingArrow() {
-		return drawingArrow;
-	}
-
-	/**
-	 * @param drawingArrow
-	 *            the drawingArrow to set
-	 */
-	public void setDrawingArrow(MessageArrow drawingArrow) {
-		this.drawingArrow = drawingArrow;
-	}
-
-	public List<SingleArrow> getSimulationArrows() {
-		return this.simulationArrows;
-	}
-
-	public HashMap<CellPosition, SavedClocks> getReceiveClocks() {
-		return this.receiveClocks;
-	}
-
-	/**
-	 * Calcular el indice de la celda en funcion de la posicion del cursor
-	 */
-	public Position getPosition(MouseEvent e) {
-
-		int x = e.getX();
-		int y = e.getY();
-
-		// Calculamos donde cae dentro de una fila (donde una fila es el espacio
-		// de un proceso y el espacio que tiene justo antes de el)
-		int fila = y % (paddingY + cellHeight);
-
-		// columna, que es la columna una vez hemos restado el espacio de la
-		// izquierda
-		int columna = (x - paddingX) / cellWidth;
-
-		// // Si está en el margen izquierdo null
-		if (x < paddingX || columna >= ticks || y > height - 1)
-			return null;
-
-		// Sino, puede ser o bien una celda o una columna.
-		if (fila >= paddingY) {
-
-			// Calculamos la fila
-			fila = y / (paddingY + cellHeight);
-
-			return new CellPosition(fila, columna);
-		} // Estamos en una columna
-		else
-			return new CutPosition(columna);
-	}
-
-	/**
-	 * Establecemos la posición sobre la que esta el cursor. Sólo si cambiamos
-	 * el estado actualizamos y repintamos la pantalla.
-	 * 
-	 * @param newPosition
-	 */
-	public void setPosition(Position newPosition) {
-		/*
-		 * - Si la posicion antigua era distinta de null y ahora es null, ya no
-		 * estamos encima de la pantalla. (evitamos el null pointer)
-		 * 
-		 * - Si la posicion antigua es distinta de null, comprobamos que la
-		 * posicion nueva sea distinta de la antigua.
-		 */
-		if ((this.overPosition != null && newPosition == null)
-				|| (newPosition != null && !newPosition
-						.equals(this.overPosition))) {
-
-			this.overPosition = newPosition;
-
-			this.repaint();
-
-			if (newPosition instanceof CellPosition) {
-
-				CellPosition pos = (CellPosition) newPosition;
-				SavedClocks clock = this.receiveClocks.get(pos);
-				this.clockPanel.setClock(clock);
-			}
-		}
-	}
-
-	/**
-	 * Establecemos la posición sobre la que esta el cursor. Sólo si cambiamos
-	 * el estado actualizamos y repintamos la pantalla.
-	 * 
-	 * @param newPosition
-	 */
-	public void setPosition(Position newPosition, Boolean valid) {
-		setPosition(newPosition);
-		this.validOverPosition = valid;
-	}
-
-	/**
-	 * Calcula la posicion centrada en una celda según la posicion de una celda.
-	 * 
-	 * @param position
-	 * 
-	 * @return Punto centrado en la celda position
-	 */
-	public static Point2D.Float PositionCoords(CellPosition position) {
-		// Espacio de la izquierda + celda * tick + mitad celda
-		int x = paddingX + position.tick * cellWidth + cellWidth / 2;
-
-		// Espacio de arriba + celda * proceso + mitad celda
-		int y = paddingY + position.process * (cellHeight + paddingY)
-				+ cellHeight / 2;
-
-		return new Point2D.Float(x, y);
-	}
-
 	/*
 	 * Funciones de dibujo
 	 */
@@ -304,22 +137,32 @@ public class SimulationView extends JPanel implements Observer {
 	@Override
 	public void paint(Graphics g) {
 
+		// Obtenemos el doble buffer
 		Graphics2D g2 = (Graphics2D) backBuffer.getGraphics();
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 
+		// Dibujamos las columnas y los procesos
 		paintColumns(g2);
 		paintProcesses(g2);
-		paintArrows(g2);
 
-		if (drawSimulation)
-			paintSimulationArrows(g2);
+		// Dibujamos las flechas
+		paintArrows(g2, simulationModel.getArrowList());
+
+		// Si estamos editando una flecha dibujamos la fecha en dibujo
+		if (this.drawingArrow != null)
+			drawingArrow.draw(g2);
+
+		// Si no mostramos la simulación realizada por los simuladores
+		else
+			for (ISimulator simul : this.simulatorList)
+				simul.drawSimulation(g2);
 
 		if (screenResized)
 			super.paint(g);
 
+		// Dibujamos sobre el doble buffer
 		g.drawImage(backBuffer, 0, 0, this);
-
 	}
 
 	/**
@@ -409,23 +252,10 @@ public class SimulationView extends JPanel implements Observer {
 	 * @param g
 	 *            el contexto grafico en el cual se pinta.
 	 */
-	private void paintArrows(Graphics2D g) {
-		for (MultipleArrow flecha : simulationModel.getArrowList()) {
-			flecha.draw(g);
-		}
-		if (this.drawingArrow != null)
-			drawingArrow.draw(g);
-	}
-
-	/**
-	 * Dibuja las flechas
-	 * 
-	 * @param g
-	 *            el contexto grafico en el cual se pinta.
-	 */
-	private void paintSimulationArrows(Graphics2D g) {
-		for (SingleArrow flecha : simulationArrows) {
-			flecha.draw(g);
+	public static void paintArrows(Graphics2D g,
+			List<? extends MessageArrow> arrowList) {
+		for (MessageArrow arrow : arrowList) {
+			arrow.draw(g);
 		}
 	}
 
@@ -434,18 +264,50 @@ public class SimulationView extends JPanel implements Observer {
 	 */
 
 	/**
-	 * Devuelve la clase modelo
+	 * Cambiamos el modo de comportamiento de la vista :
+	 * <ul>
+	 * <li>Type.Over = Moverse sin hacer nada</li>
+	 * <li>Type.Create = Crear flechas, y mover los puntos del final</li>
+	 * <li>Type.Move = Mover flechas</li>
+	 * <li>Type.Delete = Eliminar flechas</li>
+	 * </ul>
+	 * 
+	 * @param state
 	 */
-	public SimulationModel getSimulationModel() {
-		return this.simulationModel;
+	public void setState(State state) {
+		if (actualViewListener != null) {
+			this.removeMouseListener(actualViewListener);
+			this.removeMouseMotionListener(actualViewListener);
+		}
+		actualViewListener = listViewListeners[state.ordinal()];
+		this.addMouseListener(actualViewListener);
+		this.addMouseMotionListener(actualViewListener);
 	}
+
+	/**
+	 * 
+	 * @return Devuelve las propiedades de creación de flechas del
+	 *         CreateListener.
+	 */
+	public EnumMap<Type, Boolean> getCreationProperties() {
+		CreateListener listener = (CreateListener) listViewListeners[State.CREATE
+				.ordinal()];
+		return listener.getProperties();
+	}
+
+	/*
+	 * Métodos para obtener y cambiar el modelo de flechas (patrón MVC).
+	 * 
+	 * Podemos cambiar el modelo de flechas ya que soportamos la carga de
+	 * escenacios de flechas desde ficheros de datos.
+	 */
 
 	/**
 	 * Cambia el modelo (patron MVC)
 	 * 
 	 * @param simulationModel
 	 */
-	public void setSimulationModel(SimulationModel simulationModel) {
+	public void setSimulationModel(SimulationArrowModel simulationModel) {
 
 		this.simulationModel = simulationModel;
 
@@ -456,6 +318,144 @@ public class SimulationView extends JPanel implements Observer {
 			view.updateModel();
 		}
 		updateData();
+	}
+
+	/**
+	 * Devuelve la clase modelo
+	 */
+	public SimulationArrowModel getSimulationModel() {
+		return this.simulationModel;
+	}
+
+	/*
+	 * Funciones para establecer la flecha que estamos editando sobre el canvas.
+	 */
+
+	/**
+	 * @param drawingArrow
+	 *            the drawingArrow to set
+	 */
+	public void setDrawingArrow(MessageArrow drawingArrow) {
+		this.drawingArrow = drawingArrow;
+	}
+
+	/**
+	 * @return the drawingArrow
+	 */
+	public MessageArrow getDrawingArrow() {
+		return drawingArrow;
+	}
+
+	/**
+	 * Calcula la posicion centrada en una celda según la posicion de una celda.
+	 * 
+	 * @param position
+	 * 
+	 * @return Punto centrado en la celda position
+	 */
+	public static Point2D.Float PositionCoords(CellPosition position) {
+		// Espacio de la izquierda + celda * tick + mitad celda
+		int x = paddingX + position.tick * cellWidth + cellWidth / 2;
+
+		// Espacio de arriba + celda * proceso + mitad celda
+		int y = paddingY + position.process * (cellHeight + paddingY)
+				+ cellHeight / 2;
+
+		return new Point2D.Float(x, y);
+	}
+
+	/**
+	 * Establecemos la posición sobre la que esta el cursor. Sólo si cambiamos
+	 * el estado actualizamos y repintamos la pantalla.
+	 * 
+	 * @param newPosition
+	 */
+	public void setPosition(Position newPosition) {
+		/*
+		 * - Si la posicion antigua era distinta de null y ahora es null, ya no
+		 * estamos encima de la pantalla. (evitamos el null pointer)
+		 * 
+		 * - Si la posicion antigua es distinta de null, comprobamos que la
+		 * posicion nueva sea distinta de la antigua.
+		 */
+		if ((this.overPosition != null && newPosition == null)
+				|| (newPosition != null && !newPosition
+						.equals(this.overPosition))) {
+
+			this.overPosition = newPosition;
+
+			for (IPositionObserver observer : this.positionObservers)
+				observer.setPosition(overPosition);
+
+			this.repaint();
+		}
+	}
+
+	/**
+	 * Establecemos la posición sobre la que esta el cursor. Sólo si cambiamos
+	 * el estado actualizamos y repintamos la pantalla.
+	 * 
+	 * @param newPosition
+	 */
+	public void setPosition(Position newPosition, Boolean valid) {
+		setPosition(newPosition);
+		this.validOverPosition = valid;
+	}
+
+	/**
+	 * 
+	 * @return Devuelve la posición actual
+	 */
+	public Position getOverPosition() {
+		return this.overPosition;
+	}
+
+	/**
+	 * Calcular el indice de la celda en funcion de la posicion del cursor
+	 */
+	public Position getPosition(MouseEvent e) {
+
+		int x = e.getX();
+		int y = e.getY();
+
+		// Calculamos donde cae dentro de una fila (donde una fila es el espacio
+		// de un proceso y el espacio que tiene justo antes de el)
+		int fila = y % (paddingY + cellHeight);
+
+		// columna, que es la columna una vez hemos restado el espacio de la
+		// izquierda
+		int columna = (x - paddingX) / cellWidth;
+
+		// // Si está en el margen izquierdo null
+		if (x < paddingX || columna >= ticks || y > height - 1)
+			return null;
+
+		// Sino, puede ser o bien una celda o una columna.
+		if (fila >= paddingY) {
+
+			// Calculamos la fila
+			fila = y / (paddingY + cellHeight);
+
+			return new CellPosition(fila, columna);
+		} // Estamos en una columna
+		else
+			return new CutPosition(columna);
+	}
+
+	/**
+	 * @param obj
+	 *            Añade el objeto a la lista de observadores de posición.
+	 */
+	public void addPositionObserver(IPositionObserver obj) {
+		this.positionObservers.add(obj);
+	}
+
+	/**
+	 * @param obj
+	 *            Añade el simulador a la lista de simuladores.
+	 */
+	public void addSimulator(ISimulator obj) {
+		this.simulatorList.add(obj);
 	}
 
 	/*
@@ -489,8 +489,16 @@ public class SimulationView extends JPanel implements Observer {
 			this.screenResized = true;
 
 			this.setPreferredSize(new Dimension(width, height));
+
+		} else {
+			this.screenResized = false;
 		}
 
+		// Llamamos a los simuladores
+		for (ISimulator simul : this.simulatorList)
+			simul.simulate(this);
+
+		// Redibujamos la pantalla
 		this.repaint();
 	}
 }

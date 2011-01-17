@@ -4,7 +4,7 @@ import java.awt.Graphics2D;
 import java.util.EnumMap;
 
 import panchat.messages.Message.Type;
-import panchat.simulation.model.SimulationModel;
+import panchat.simulation.model.SimulationArrowModel;
 import panchat.simulation.view.CellPosition;
 
 public interface MessageArrow {
@@ -48,7 +48,7 @@ public interface MessageArrow {
 	 * @return Devuelve si la flecha es válida, ya que las flechas pueden
 	 *         imponer restricciones de movilidad o de posición.
 	 */
-	public boolean isValid(SimulationModel simulationModel);
+	public boolean isValid(SimulationArrowModel simulationModel);
 
 	/**
 	 * Dibuja la flecha sobre el contexto gráfico

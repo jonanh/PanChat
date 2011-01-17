@@ -7,7 +7,7 @@ import java.util.EnumMap;
 
 import panchat.messages.Message.Type;
 
-import panchat.simulation.model.SimulationModel;
+import panchat.simulation.model.SimulationArrowModel;
 import panchat.simulation.view.CellPosition;
 import panchat.simulation.view.SimulationView;
 
@@ -110,7 +110,7 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 	 * 
 	 * @return Si es valida la flecha
 	 */
-	public boolean isValid(SimulationModel simulationModel) {
+	public boolean isValid(SimulationArrowModel simulationModel) {
 
 		// Si estamos comprobando la validez de la flecha, es que estamos
 		// moviendo la flecha, luego recalcular la pendiente.

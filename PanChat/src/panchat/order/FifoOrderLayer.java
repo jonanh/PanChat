@@ -38,7 +38,7 @@ public class FifoOrderLayer extends OrderLayer {
 	}
 
 	@Override
-	protected boolean okayToRecv(Message msg) {
+	protected receiveStatus okayToRecv(Message msg) {
 
 		VectorClock vc = (VectorClock) msg.getClock(orderCapability());
 
@@ -47,10 +47,10 @@ public class FifoOrderLayer extends OrderLayer {
 		if (vc.getValue(this.user) == receiveClock.getValue(sendUser) + 1) {
 			receiveClock.send(sendUser);
 
-			return true;
+			return receiveStatus.Receive;
 		}
 
-		return false;
+		return receiveStatus.Nothing;
 	}
 
 	@Override

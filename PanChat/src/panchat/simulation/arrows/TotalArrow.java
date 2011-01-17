@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import panchat.simulation.model.SimulationModel;
+import panchat.simulation.model.SimulationArrowModel;
 import panchat.simulation.view.CellPosition;
 
 public class TotalArrow extends MultipleArrow implements Serializable, Observer {
@@ -43,7 +43,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 	/*
 	 * Atributos
 	 */
-	private SimulationModel simulationModel;
+	private SimulationArrowModel simulationModel;
 
 	/*
 	 * Posición central, cuando todos los procesos han respondido con sus
@@ -60,7 +60,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 
 	private List<FinalArrow> finalPositions = new LinkedList<FinalArrow>();
 
-	public TotalArrow(CellPosition initialPos, SimulationModel simulationModel) {
+	public TotalArrow(CellPosition initialPos, SimulationArrowModel simulationModel) {
 
 		super(initialPos);
 
@@ -220,7 +220,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 	 * 
 	 * @return Si es valida la flecha
 	 */
-	public boolean isValid(SimulationModel simulationModel) {
+	public boolean isValid(SimulationArrowModel simulationModel) {
 
 		if (!super.isValid(simulationModel))
 			return false;

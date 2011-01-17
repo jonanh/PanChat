@@ -8,12 +8,12 @@ import panchat.Panchat;
 import panchat.data.ChatRoom;
 import panchat.data.ChatRoomList;
 import panchat.data.User;
+import panchat.messages.ChatMessage;
+import panchat.messages.JoinRoomMessage;
 import panchat.messages.Message;
-import panchat.messages.MessageChat;
+import panchat.messages.register.RoomListMsg;
+import panchat.messages.register.RegisterUserMsg;
 import panchat.order.OrderLayer;
-import panchat.protocol.SaludoUsuario;
-import panchat.protocol.JoinChannel;
-import panchat.protocol.SaludoListaCanales;
 
 public class PanchatLinker extends OrderLayer {
 
@@ -46,32 +46,32 @@ public class PanchatLinker extends OrderLayer {
 
 		printDebug("objeto leído");
 
-		if (objeto instanceof SaludoListaCanales) {
+		if (objeto instanceof RoomListMsg) {
 
 			printDebug("SaludoListaCanales");
 
-			registrarSaludoCanales((SaludoListaCanales) objeto, cm
+			registrarSaludoCanales((RoomListMsg) objeto, cm
 					.getUsuario());
 
-		} else if (objeto instanceof JoinChannel) {
+		} else if (objeto instanceof JoinRoomMessage) {
 
 			printDebug("InscripcionCanal");
 
-			inscribirCanal((JoinChannel) objeto, cm.getUsuario());
+			inscribirCanal((JoinRoomMessage) objeto, cm.getUsuario());
 
-		} else if (objeto instanceof MessageChat) {
+		} else if (objeto instanceof ChatMessage) {
 
 			printDebug("MessageChat");
 
-			escribirMensajeCanal((MessageChat) objeto);
+			escribirMensajeCanal((ChatMessage) objeto);
 
 		} else if (objeto instanceof String) {
 
 			printDebug("Message");
 
 			escribirMensaje((String) objeto, cm.getUsuario());
-		} else if (objeto instanceof SaludoUsuario) {
-			registrarCliente((SaludoUsuario) objeto);
+		} else if (objeto instanceof RegisterUserMsg) {
+			registrarCliente((RegisterUserMsg) objeto);
 		}
 
 	}
@@ -101,7 +101,7 @@ public class PanchatLinker extends OrderLayer {
 	}
 
 	
-	private void inscribirCanal(JoinChannel inscripcion, User usuario) {
+	private void inscribirCanal(JoinRoomMessage inscripcion, User usuario) {
 
 		ChatRoomList listaCanales = panchat.getChannelList();
 
@@ -110,7 +110,7 @@ public class PanchatLinker extends OrderLayer {
 		User usuarioEnvioObtenido = panchat.getListaUsuarios().getUser(
 				usuario.uuid);
 
-		ChatRoom canalObtenido = listaCanales.getChannel(inscripcion.channel
+		ChatRoom canalObtenido = listaCanales.getChannel(inscripcion.room
 				.getName());
 
 		printDebug("usuarioInscripcionObtenido : " + usuarioInscripcionObtenido);
@@ -125,7 +125,7 @@ public class PanchatLinker extends OrderLayer {
 				printDebug("El canal no existía, creamos el canal y lo añadimos");
 
 				// Creamos el canal
-				ChatRoom canal = new ChatRoom(inscripcion.channel.getName(),
+				ChatRoom canal = new ChatRoom(inscripcion.room.getName(),
 						panchat.getListaUsuarios());
 
 				// Añadimos al usuario inscrito al canal
@@ -254,7 +254,7 @@ public class PanchatLinker extends OrderLayer {
 		panchat.getChannelList().setModified();
 	}
 
-	private void escribirMensajeCanal(MessageChat objeto) {
+	private void escribirMensajeCanal(ChatMessage objeto) {
 
 		String nombreCanal = objeto.chatroom.getName();
 
@@ -281,14 +281,14 @@ public class PanchatLinker extends OrderLayer {
 
 	}
 	
-	private void registrarSaludoCanales(SaludoListaCanales saludo,
+	private void registrarSaludoCanales(RoomListMsg saludo,
 			User usuario) {
 
 		printDebug("Saludo canal recibido");
 
 		ChatRoomList listaCanales = panchat.getChannelList();
 
-		for (ChatRoom canal : saludo.lista) {
+		for (ChatRoom canal : saludo.roomList) {
 
 			User usuarioObtenido = panchat.getListaUsuarios().getUser(
 					usuario.uuid);
@@ -313,9 +313,9 @@ public class PanchatLinker extends OrderLayer {
 		listaCanales.setModified();
 	}
 	
-	private void registrarCliente(SaludoUsuario saludoUsuario) {
+	private void registrarCliente(RegisterUserMsg saludoUsuario) {
 
-		User usuario = saludoUsuario.usuario;
+		User usuario = saludoUsuario.user;
 
 		if (DEBUG) {
 			System.out.println("MulticastListenerThread.java:"
@@ -330,7 +330,7 @@ public class PanchatLinker extends OrderLayer {
 			/*
 			 * Si es una acción de registrar lo registramos
 			 */
-			if (saludoUsuario.registrar) {
+			if (saludoUsuario.register) {
 
 				/*
 				 * Respondemos el saludo al usuario como buenos ciudadanos 0:-)
@@ -391,12 +391,33 @@ public class PanchatLinker extends OrderLayer {
 		 */
 		printDebug("Enviamos información sobre canales");
 
-		SaludoListaCanales saludo = new SaludoListaCanales(panchat
+		RoomListMsg saludo = new RoomListMsg(panchat
 				.getListaConversaciones().getListaConversacionesCanal());
 
 		panchat.getCausalLinker().sendMsg(pUsuario, saludo);
 
 	}
+
+	
+	/**
+	 * 
+	 * Enviamos un saludo Multicast
+	 * 
+	 * @param Registrar
+	 */
+	public void enviarSaludo(boolean Registrar) {
+		RegisterUserMsg msgRegistrar = new RegisterUserMsg(usuario, Registrar);
+
+		if (Registrar)
+			printDebug("Dandonos a conocer al mundo 0:-)");
+		else {
+			printDebug("Despidiendonos del mundo 0:-)");
+			printDebug("num procesos activos : "
+					+ String.valueOf(threadPool.size()));
+		}
+		this.escribirMultiCastSocket(msgRegistrar);
+	}
+	
 	
 	private void printDebug(String string) {
 		String msgClase = "CausalLinkerThread.java: ";

@@ -36,24 +36,21 @@ public class CausalVectorOrderLayer extends OrderLayer {
 	}
 
 	@Override
-	protected boolean okayToRecv(Message msg) {
+	protected receiveStatus okayToRecv(Message msg) {
 
 		VectorClock vc = (VectorClock) msg.getClock(orderCapability());
 
 		User sendUser = msg.getUsuario();
 
-		System.out.println(vc);
-		System.out.println(sendClock + " + " + receiveClock);
 		sendClock.receiveAction(vc);
 
 		if (vc.getValue(this.user) == receiveClock.getValue(sendUser) + 1) {
 			receiveClock.send(sendUser);
 			System.out.println(sendClock + " + " + receiveClock);
-			return true;
+			return receiveStatus.Receive;
 		}
 
-		System.out.println(sendClock + " + " + receiveClock);
-		return false;
+		return receiveStatus.Nothing;
 	}
 
 	@Override

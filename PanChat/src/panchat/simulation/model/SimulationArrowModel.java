@@ -20,7 +20,7 @@ import panchat.simulation.view.Position;
  * -
  */
 @SuppressWarnings("serial")
-public class SimulationModel extends Observable implements Serializable {
+public class SimulationArrowModel extends Observable implements Serializable {
 
 	/*
 	 * Constantes por defecto
@@ -36,7 +36,6 @@ public class SimulationModel extends Observable implements Serializable {
 	 */
 	private int numTicks = DEFAULT_NUM_TICKS;
 
-	// Flechas
 	// Lista de flechas
 	private ArrayList<MultipleArrow> arrowList = new ArrayList<MultipleArrow>();
 
@@ -49,7 +48,7 @@ public class SimulationModel extends Observable implements Serializable {
 	/**
 	 * Construimos el objeto de datos de simulacion
 	 */
-	public SimulationModel() {
+	public SimulationArrowModel() {
 		setNumProcesses(DEFAULT_NUM_PROCESSES);
 	}
 

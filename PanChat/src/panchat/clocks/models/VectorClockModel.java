@@ -4,20 +4,20 @@ import javax.swing.table.AbstractTableModel;
 
 import panchat.clocks.VectorClock;
 import panchat.data.User;
-import panchat.simulation.model.SimulationModel;
+import panchat.simulation.order.SimulationOrderModel;
 
 public class VectorClockModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
-	private SimulationModel simulationModel;
+	private SimulationOrderModel simulationOrderModel;
 
 	private VectorClock sendClock = null;
 
 	private VectorClock receiveClock = null;
 
-	public VectorClockModel(SimulationModel simulationModel) {
-		this.simulationModel = simulationModel;
+	public VectorClockModel(SimulationOrderModel simulationOrderModel) {
+		this.simulationOrderModel = simulationOrderModel;
 	}
 
 	public void setVectors(VectorClock sendClock, VectorClock receiveClock) {
@@ -28,7 +28,7 @@ public class VectorClockModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return simulationModel.getNumProcesses();
+		return simulationOrderModel.getNumProcesses();
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class VectorClockModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		User columnUser = simulationModel.getUser(columnIndex);
+		User columnUser = simulationOrderModel.getUser(columnIndex);
 
 		if (rowIndex == 0)
 			return sendClock.getValue(columnUser);

@@ -27,7 +27,7 @@ public class Datos extends JPanel implements MouseListener, KeyListener,
 	 */
 	JLabel label = new JLabel();
 	JTextField texto = new JTextField();
-	int tamaño = 7;
+	int tamanyo = 7;
 
 	public Datos(String defecto) {
 
@@ -39,36 +39,36 @@ public class Datos extends JPanel implements MouseListener, KeyListener,
 		 */
 		this.setLayout(new OverlayLayout(this));
 
-		añadirComponentes(defecto);
+		anyadirComponentes(defecto);
 
-		añadirEscuchas();
+		anyadirEscuchas();
 
 	}
 
 	public Datos(String defecto, int tam) {
 		this(defecto);
-		tamaño = tam;
+		tamanyo = tam;
 	}
 
-	private void añadirComponentes(String defecto) {
+	private void anyadirComponentes(String defecto) {
 		this.add(label);
 		this.add(texto);
 
-		texto.setColumns(tamaño);
+		texto.setColumns(tamanyo);
 		texto.setVisible(false);
 		texto.setText(defecto);
 
 		label.setText(defecto);
 	}
 
-	private void añadirEscuchas() {
+	private void anyadirEscuchas() {
 		label.addMouseListener(this);
 		texto.addMouseListener(this);
 		texto.addKeyListener(this);
 		texto.addFocusListener(this);
 	}
 
-	public void modificarTamaño(int tam) {
+	public void modificarTamanyo(int tam) {
 		texto.setColumns(tam);
 	}
 
@@ -80,7 +80,7 @@ public class Datos extends JPanel implements MouseListener, KeyListener,
 		label.setForeground(color);
 	}
 
-	public void cambiarTamañoLabel(int tam) {
+	public void cambiarTamanyoLabel(int tam) {
 		label.setFont(new Font("Times New Roman", Font.BOLD, tam));
 	}
 

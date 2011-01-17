@@ -90,7 +90,7 @@ public class CausalMatrixLayer extends OrderLayer {
 	}
 
 	@Override
-	protected boolean okayToRecv(Message msg) {
+	protected receiveStatus okayToRecv(Message msg) {
 
 		CausalMatrix cm = (CausalMatrix) msg.getClock(orderCapability());
 
@@ -101,10 +101,10 @@ public class CausalMatrixLayer extends OrderLayer {
 			 */
 			matrix.receiveAction(cm);
 
-			return true;
+			return receiveStatus.Delete;
 		}
 
-		return false;
+		return receiveStatus.Nothing;
 	}
 
 	@Override

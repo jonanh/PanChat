@@ -6,13 +6,13 @@ import java.awt.event.MouseMotionListener;
 import java.util.EnumMap;
 
 import panchat.messages.Message.Type;
-import panchat.simulation.model.SimulationModel;
+import panchat.simulation.model.SimulationArrowModel;
 import panchat.simulation.view.SimulationView;
 
 public class ViewListener implements MouseListener, MouseMotionListener {
 
 	protected SimulationView simulationView;
-	protected SimulationModel simulationModel;
+	protected SimulationArrowModel simulationModel;
 
 	public ViewListener(SimulationView simulationView) {
 		this.simulationView = simulationView;

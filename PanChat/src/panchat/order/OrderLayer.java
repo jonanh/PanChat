@@ -14,8 +14,18 @@ public abstract class OrderLayer extends Observable implements Observer {
 
 	protected final static boolean DEBUG = true;
 
+	public static enum receiveStatus {
+		Receive, Delete, Nothing
+	}
+
+	/*
+	 * Lista de capas inferiores.
+	 */
 	private List<OrderLayer> bottomLayer = new LinkedList<OrderLayer>();
 
+	/*
+	 * Usuario de la capa actual
+	 */
 	protected User user;
 
 	/*
@@ -29,6 +39,11 @@ public abstract class OrderLayer extends Observable implements Observer {
 	 */
 	protected LinkedList<User> userList = new LinkedList<User>();
 
+	/*
+	 * Log de la capa actual.
+	 */
+	private String debugLog = "";
+
 	/**
 	 * Crear capa de ordenacion
 	 * 
@@ -40,31 +55,17 @@ public abstract class OrderLayer extends Observable implements Observer {
 	}
 
 	/**
-	 * Devuelve la capability de ordenación que implementa la capa actual.
 	 * 
-	 * @return
+	 * @return Devuelve la capability de ordenación que implementa la capa
+	 *         actual.
 	 */
 	public abstract Message.Type orderCapability();
-
-	/**
-	 * 
-	 */
-	protected abstract boolean okayToRecv(Message msg);
-
-	/**
-	 * Añadir
-	 */
-	public void addBottomLayers(OrderLayer... bottomLayers) {
-		for (OrderLayer layer : bottomLayers) {
-			this.bottomLayer.add(layer);
-			layer.addObserver(this);
-		}
-	}
 
 	/**
 	 * Enviar mensaje a un usuario
 	 * 
 	 * @param user
+	 * 
 	 * @param msg
 	 */
 	public synchronized void sendMsg(User user, Message msg) {
@@ -80,6 +81,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 	 * Enviar mensaje a multiples usuarios
 	 * 
 	 * @param users
+	 * 
 	 * @param msg
 	 */
 	public synchronized void sendMsg(List<User> users, Message msg) {
@@ -92,8 +94,42 @@ public abstract class OrderLayer extends Observable implements Observer {
 	}
 
 	/**
-	 * Cuando se actualiza una capa de abajo, cogemos los mensajes que soporta
-	 * nuestra capa.
+	 * Añadir capas inferiores.
+	 * 
+	 * Cuando enviemos un mensaje, la capa actual buscará la primera capa
+	 * inferior que pueda enviarlo.
+	 * 
+	 * Cuando un mensaje llegue a una capa inferior, la capa actual estará
+	 * escuchando, y si dicho mensaje es del tipo de la capa actual lo recogerá
+	 * de dicha capa.
+	 * 
+	 * @param bottomLayers
+	 */
+	public void addBottomLayers(OrderLayer... bottomLayers) {
+		for (OrderLayer layer : bottomLayers) {
+			this.bottomLayer.add(layer);
+			layer.addObserver(this);
+		}
+	}
+
+	/**
+	 * @param iter
+	 * @return Devuelve si el mensaje se puede recibir o no. Este método ha de
+	 *         ser implementado por cada capa de ordenación.
+	 */
+	protected abstract receiveStatus okayToRecv(Message msg);
+
+	/**
+	 * Cuando se actualiza una capa de inferior:
+	 * 
+	 * 1º Comprobamos si los mensajes son del tipo de nuestra capa. si lo son
+	 * los pasamos a nuestra capa y los añadimos en orden a la cola de espera.
+	 * 
+	 * 2º Comprobamos la cola de espera, y si alguno de los mensajes valida el
+	 * predicado OkayToRecv, pasamos el mensaje a la cola de envio.
+	 * 
+	 * 3º Si la cola de envio no está vacía, avisamos a las capas superiores de
+	 * que tenemos mensajes recibidos.
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
@@ -137,7 +173,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 
 			debug("\t\t- comprobando mensaje " + mensaje.toString());
 
-			if (okayToRecv(mensaje)) {
+			if (okayToRecv(mensaje) == receiveStatus.Receive) {
 
 				// Hay algo que mandar
 				delivery = true;
@@ -153,6 +189,9 @@ public abstract class OrderLayer extends Observable implements Observer {
 				iter = pendingQueue.iterator();
 
 				debug("\t\t- añadido a delivery! ");
+
+			} else if (okayToRecv(mensaje) == receiveStatus.Delete) {
+				iter.remove();
 			}
 		}
 		debug("");
@@ -198,6 +237,14 @@ public abstract class OrderLayer extends Observable implements Observer {
 
 	protected void debug(String msg) {
 		if (DEBUG)
-			System.out.println(msg);
+			debugLog += msg + "\n";
 	}
+
+	/**
+	 * @return Devuelve la información de depuración de la capa actual
+	 */
+	public String getDebugLog() {
+		return debugLog;
+	}
+
 }

@@ -7,44 +7,49 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 
-import panchat.simulation.model.SimulationModel;
-import panchat.simulation.order.SimulationOrderLayer;
+import panchat.simulation.model.SimulationArrowModel;
+import panchat.simulation.order.SimulationOrderModel;
 import panchat.simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
 public class Simulation extends JPanel {
 
-	private SimulationModel model;
-	private SimulationView view;
 	private ToolbarPanel menu;
-	private SimulationOrderLayer simul;
-	private ClockPanel clockPanel;
+	private SimulationView view;
+	private SimulationArrowModel model;
+	private SimulationOrderModel simul;
+	private ClockPanel panel;
 
 	public Simulation() {
-		model = new SimulationModel();
-		clockPanel = new ClockPanel(model);
-		view = new SimulationView(model, clockPanel);
+		
+		model = new SimulationArrowModel();
+		view = new SimulationView(model);
+		
+		simul = new SimulationOrderModel(model);
+		panel = new ClockPanel(simul);
+
+		view.addSimulator(simul);
+		view.addPositionObserver(panel);
+		
 		menu = new ToolbarPanel(this);
-		simul = new SimulationOrderLayer(view);
 
 		this.setLayout(new BorderLayout());
 		this.add(menu, BorderLayout.NORTH);
 		this.add(new JScrollPane(view), BorderLayout.CENTER);
 		this.add(new JScrollPane(view), BorderLayout.CENTER);
-		this.add(clockPanel, BorderLayout.EAST);
+		this.add(panel, BorderLayout.EAST);
 	}
 
 	public SimulationView getSimulationView() {
 		return view;
 	}
 
-	public SimulationOrderLayer getSimulationOrderLayer() {
+	public SimulationOrderModel getSimulationOrderLayer() {
 		return simul;
 	}
 
-	public void setSimulationModel(SimulationModel simulationModel) {
+	public void setSimulationModel(SimulationArrowModel simulationModel) {
 		view.setSimulationModel(simulationModel);
-		simul.setSimulationModel(simulationModel);
 	}
 
 	public static void main(String[] args) {

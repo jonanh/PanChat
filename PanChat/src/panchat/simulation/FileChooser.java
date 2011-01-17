@@ -12,7 +12,7 @@ import java.io.OutputStream;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import panchat.simulation.model.SimulationModel;
+import panchat.simulation.model.SimulationArrowModel;
 
 @SuppressWarnings("serial")
 public class FileChooser extends JFileChooser {
@@ -55,7 +55,7 @@ public class FileChooser extends JFileChooser {
 	 * 
 	 * @return
 	 */
-	public static SimulationModel getFile(Component parent) {
+	public static SimulationArrowModel getFile(Component parent) {
 
 		try {
 			FileChooser chooser = new FileChooser();
@@ -72,8 +72,8 @@ public class FileChooser extends JFileChooser {
 			ois.close();
 			is.close();
 
-			if (obj instanceof SimulationModel)
-				return (SimulationModel) obj;
+			if (obj instanceof SimulationArrowModel)
+				return (SimulationArrowModel) obj;
 
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -88,7 +88,7 @@ public class FileChooser extends JFileChooser {
 	 * 
 	 * @param simulationData
 	 */
-	public static void saveFile(Component parent, SimulationModel simulationData) {
+	public static void saveFile(Component parent, SimulationArrowModel simulationData) {
 		try {
 			FileChooser chooser = new FileChooser();
 
