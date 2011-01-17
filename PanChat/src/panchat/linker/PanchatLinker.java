@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Observable;
 
+import order.Message;
 import order.layer.OrderLayer;
 
 import panchat.Panchat;
@@ -12,7 +13,6 @@ import panchat.data.ChatRoomList;
 import panchat.data.User;
 import panchat.messages.ChatMessage;
 import panchat.messages.JoinRoomMessage;
-import panchat.messages.Message;
 import panchat.messages.register.RoomListMsg;
 import panchat.messages.register.RegisterUserMsg;
 

@@ -3,11 +3,11 @@ package order.layer;
 import java.util.*;
 import java.util.Map.Entry;
 
+import order.Message;
+import order.Message.Type;
 import order.clocks.CausalMatrix;
 
 import panchat.data.User;
-import panchat.messages.Message;
-import panchat.messages.Message.Type;
 
 public class CausalMatrixLayer extends OrderLayer {
 

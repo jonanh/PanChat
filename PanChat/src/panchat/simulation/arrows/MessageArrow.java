@@ -3,7 +3,8 @@ package panchat.simulation.arrows;
 import java.awt.Graphics2D;
 import java.util.EnumMap;
 
-import panchat.messages.Message.Type;
+import order.Message.Type;
+
 import panchat.simulation.model.SimulationArrowModel;
 import panchat.simulation.view.CellPosition;
 

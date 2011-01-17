@@ -1,7 +1,7 @@
 package panchat.connector;
 
+import order.Message;
 import panchat.data.User;
-import panchat.messages.Message;
 
 public interface Connector {
 

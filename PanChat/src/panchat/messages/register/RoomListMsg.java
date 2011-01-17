@@ -3,8 +3,9 @@ package panchat.messages.register;
 import java.io.Serializable;
 import java.util.List;
 
+import order.Message;
+
 import panchat.data.ChatRoom;
-import panchat.messages.Message;
 
 public class RoomListMsg implements Serializable, Message.Unicast {
 

@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Queue;
 
+import order.Message;
+import order.Message.Type;
 import order.clocks.CausalMatrix;
 import order.clocks.SavedClocks;
 import order.clocks.VectorClock;
@@ -14,8 +16,6 @@ import order.layer.FifoOrderLayer;
 import order.layer.OrderLayer;
 
 import panchat.data.User;
-import panchat.messages.Message;
-import panchat.messages.Message.Type;
 
 public class SimulationTopLayer extends OrderLayer {
 

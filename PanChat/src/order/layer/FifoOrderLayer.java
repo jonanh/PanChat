@@ -2,11 +2,11 @@ package order.layer;
 
 import java.util.List;
 
+import order.Message;
+import order.Message.Type;
 import order.clocks.VectorClock;
 
 import panchat.data.User;
-import panchat.messages.Message;
-import panchat.messages.Message.Type;
 
 public class FifoOrderLayer extends OrderLayer {
 

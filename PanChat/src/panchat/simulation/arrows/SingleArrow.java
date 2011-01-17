@@ -5,7 +5,8 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.EnumMap;
 
-import panchat.messages.Message.Type;
+import order.Message.Type;
+
 
 import panchat.simulation.model.SimulationArrowModel;
 import panchat.simulation.view.CellPosition;

@@ -2,8 +2,9 @@ package panchat.messages.register;
 
 import java.io.Serializable;
 
+import order.Message;
+
 import panchat.data.User;
-import panchat.messages.Message;
 
 public class RegisterUserMsg implements Serializable, Message.Unicast {
 

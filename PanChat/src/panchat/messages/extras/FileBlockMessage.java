@@ -6,7 +6,8 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 
-import panchat.messages.Message;
+import order.Message;
+
 
 public class FileBlockMessage implements Serializable, Message.Unicast {
 

@@ -1,4 +1,4 @@
-package panchat.messages;
+package order;
 
 import java.io.Serializable;
 import java.util.EnumMap;

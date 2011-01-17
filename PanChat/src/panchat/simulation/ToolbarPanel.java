@@ -13,7 +13,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import panchat.messages.Message.Type;
+import order.Message.Type;
+
 
 import panchat.simulation.model.SimulationArrowModel;
 import panchat.simulation.view.SimulationView;

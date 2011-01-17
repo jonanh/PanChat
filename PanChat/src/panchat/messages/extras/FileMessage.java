@@ -10,7 +10,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-import panchat.messages.Message;
+import order.Message;
+
 
 public class FileMessage implements Serializable, Comparable<FileMessage>,
 		Message.Unicast {

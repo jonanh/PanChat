@@ -4,11 +4,11 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 
+import order.Message;
+import order.Message.Type;
 import order.layer.OrderLayer;
 
 import panchat.data.User;
-import panchat.messages.Message;
-import panchat.messages.Message.Type;
 
 /**
  * Esta gestiona los sockets con el conjunto de clientes

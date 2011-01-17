@@ -3,7 +3,8 @@ package panchat.simulation.view.listener;
 import java.awt.event.MouseEvent;
 import java.util.EnumMap;
 
-import panchat.messages.Message.Type;
+import order.Message.Type;
+
 import panchat.simulation.arrows.SimpleMultipleArrow;
 import panchat.simulation.arrows.SingleArrow;
 import panchat.simulation.arrows.TotalArrow;

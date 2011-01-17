@@ -7,8 +7,9 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Queue;
 
+import order.Message;
+
 import panchat.data.User;
-import panchat.messages.Message;
 
 public abstract class OrderLayer extends Observable implements Observer {
 

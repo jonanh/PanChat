@@ -8,7 +8,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import panchat.messages.Message.Type;
+import order.Message.Type;
+
 
 import panchat.simulation.model.SimulationArrowModel;
 import panchat.simulation.view.CellPosition;

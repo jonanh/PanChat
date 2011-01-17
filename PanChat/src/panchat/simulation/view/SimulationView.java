@@ -16,7 +16,8 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
-import panchat.messages.Message.Type;
+import order.Message.Type;
+
 import panchat.simulation.arrows.MessageArrow;
 import panchat.simulation.arrows.MultipleArrow;
 import panchat.simulation.model.SimulationArrowModel;

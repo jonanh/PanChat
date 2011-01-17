@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import order.Message;
+import order.Message.Type;
 import order.clocks.LamportClock;
 
 import panchat.data.User;
-import panchat.messages.Message;
-import panchat.messages.Message.Type;
 
 public class TotalOrderLinker extends OrderLayer {
 

@@ -14,7 +14,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import panchat.messages.Message.Type;
+import order.Message.Type;
+
 
 import simulation.model.SimulationModel;
 import simulation.view.SimulationView;

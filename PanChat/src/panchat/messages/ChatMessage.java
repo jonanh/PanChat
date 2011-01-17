@@ -2,6 +2,8 @@ package panchat.messages;
 
 import java.io.Serializable;
 
+import order.Message;
+
 import panchat.data.ChatRoom;
 
 public class ChatMessage implements Serializable, Message.Unicast,
