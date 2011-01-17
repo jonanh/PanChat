@@ -1,8 +1,9 @@
-package panchat.clocks.models;
+package order.clocks.models;
 
 import javax.swing.table.AbstractTableModel;
 
-import panchat.clocks.VectorClock;
+import order.clocks.VectorClock;
+
 import panchat.data.User;
 import panchat.simulation.order.SimulationOrderModel;
 

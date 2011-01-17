@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.List;
 
-import panchat.clocks.IClock;
+import order.clocks.IClock;
+
 import panchat.data.User;
 
 public class Message implements Serializable {

@@ -8,7 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 
-import panchat.clocks.SavedClocks;
+import order.clocks.SavedClocks;
+
 import panchat.data.User;
 import panchat.messages.Message;
 import panchat.simulation.arrows.MultipleArrow;

@@ -3,10 +3,11 @@ package panchat.simulation.order;
 import java.util.HashMap;
 import java.util.List;
 
+import order.layer.OrderLayer;
+
 import panchat.data.User;
 import panchat.messages.Message;
 import panchat.messages.Message.Type;
-import panchat.order.OrderLayer;
 
 public class SimulationBottomLayer extends OrderLayer {
 

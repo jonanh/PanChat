@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Observable;
 
+import order.layer.OrderLayer;
+
 import panchat.Panchat;
 import panchat.data.ChatRoom;
 import panchat.data.ChatRoomList;
@@ -13,7 +15,6 @@ import panchat.messages.JoinRoomMessage;
 import panchat.messages.Message;
 import panchat.messages.register.RoomListMsg;
 import panchat.messages.register.RegisterUserMsg;
-import panchat.order.OrderLayer;
 
 public class PanchatLinker extends OrderLayer {
 

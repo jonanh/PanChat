@@ -1,9 +1,10 @@
-package panchat.order;
+package order.layer;
 
 import java.util.*;
 import java.util.Map.Entry;
 
-import panchat.clocks.CausalMatrix;
+import order.clocks.CausalMatrix;
+
 import panchat.data.User;
 import panchat.messages.Message;
 import panchat.messages.Message.Type;

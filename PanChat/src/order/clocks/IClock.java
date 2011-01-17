@@ -1,4 +1,4 @@
-package panchat.clocks;
+package order.clocks;
 
 import panchat.data.User;
 

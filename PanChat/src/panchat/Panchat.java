@@ -1,5 +1,7 @@
 package panchat;
 
+import order.layer.CausalMatrixLayer;
+import order.layer.OrderLayer;
 import panchat.connector.SocketConnector;
 import panchat.data.ChatRoom;
 import panchat.data.ChatRoomList;
@@ -8,8 +10,6 @@ import panchat.data.UserList;
 import panchat.data.User;
 import panchat.messages.ChatMessage;
 import panchat.messages.JoinRoomMessage;
-import panchat.order.CausalMatrixLayer;
-import panchat.order.OrderLayer;
 import panchat.ui.main.PanchatUI;
 
 public class Panchat {

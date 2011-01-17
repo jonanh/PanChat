@@ -9,9 +9,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import panchat.clocks.SavedClocks;
-import panchat.clocks.models.CausalMatrixModel;
-import panchat.clocks.models.VectorClockModel;
+import order.clocks.SavedClocks;
+import order.clocks.models.CausalMatrixModel;
+import order.clocks.models.VectorClockModel;
+
 import panchat.simulation.order.SimulationOrderModel;
 import panchat.simulation.view.CellPosition;
 import panchat.simulation.view.IPositionObserver;

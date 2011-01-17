@@ -1,4 +1,4 @@
-package panchat.clocks;
+package order.clocks;
 
 import java.io.Serializable;
 import java.util.HashMap;

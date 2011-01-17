@@ -6,15 +6,16 @@ import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Queue;
 
-import panchat.clocks.CausalMatrix;
-import panchat.clocks.SavedClocks;
-import panchat.clocks.VectorClock;
+import order.clocks.CausalMatrix;
+import order.clocks.SavedClocks;
+import order.clocks.VectorClock;
+import order.layer.CausalMatrixLayer;
+import order.layer.FifoOrderLayer;
+import order.layer.OrderLayer;
+
 import panchat.data.User;
 import panchat.messages.Message;
 import panchat.messages.Message.Type;
-import panchat.order.CausalMatrixLayer;
-import panchat.order.FifoOrderLayer;
-import panchat.order.OrderLayer;
 
 public class SimulationTopLayer extends OrderLayer {
 

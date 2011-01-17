@@ -1,10 +1,11 @@
-package panchat.order;
+package order.layer;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import panchat.clocks.LamportClock;
+import order.clocks.LamportClock;
+
 import panchat.data.User;
 import panchat.messages.Message;
 import panchat.messages.Message.Type;

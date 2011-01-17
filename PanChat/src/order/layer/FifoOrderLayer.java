@@ -1,18 +1,21 @@
-package panchat.order;
+package order.layer;
 
 import java.util.List;
 
-import panchat.clocks.VectorClock;
+import order.clocks.VectorClock;
+
 import panchat.data.User;
 import panchat.messages.Message;
 import panchat.messages.Message.Type;
 
-public class CausalVectorOrderLayer extends OrderLayer {
+public class FifoOrderLayer extends OrderLayer {
 
 	private VectorClock sendClock;
 	private VectorClock receiveClock;
 
-	public CausalVectorOrderLayer(User user) {
+	int i = 0;
+
+	public FifoOrderLayer(User user) {
 		super(user);
 		sendClock = new VectorClock(user, true);
 		receiveClock = new VectorClock(user, false);
@@ -42,11 +45,9 @@ public class CausalVectorOrderLayer extends OrderLayer {
 
 		User sendUser = msg.getUsuario();
 
-		sendClock.receiveAction(vc);
-
 		if (vc.getValue(this.user) == receiveClock.getValue(sendUser) + 1) {
 			receiveClock.send(sendUser);
-			System.out.println(sendClock + " + " + receiveClock);
+
 			return receiveStatus.Receive;
 		}
 
@@ -55,7 +56,7 @@ public class CausalVectorOrderLayer extends OrderLayer {
 
 	@Override
 	public Type orderCapability() {
-		return Message.Type.CAUSAL;
+		return Message.Type.FIFO;
 	}
 
 	@Override
@@ -68,5 +69,13 @@ public class CausalVectorOrderLayer extends OrderLayer {
 	public void removeUser(User user) {
 		sendClock.removeUser(user);
 		receiveClock.removeUser(user);
+	}
+
+	public VectorClock getSendClock() {
+		return this.sendClock;
+	}
+
+	public VectorClock getReceiveClock() {
+		return this.receiveClock;
 	}
 }
