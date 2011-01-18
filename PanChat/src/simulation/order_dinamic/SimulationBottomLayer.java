@@ -24,14 +24,16 @@ public class SimulationBottomLayer extends OrderLayer {
 
 	@Override
 	public synchronized void sendMsg(User user, Message msg) {
-		debug("\nMensaje enviado fisicamente a :" + user + " " + msg);
+		debug("\nMensaje enviado fisicamente a (" + user + "), contenido ("
+				+ msg + ")");
 		this.message.put(user, msg);
 	}
 
 	@Override
 	public synchronized void sendMsg(List<User> users, Message msg) {
 		for (User user : users) {
-			debug("\nMensaje enviado fisicamente a :" + user + " " + msg);
+			debug("\nMensaje enviado fisicamente a (" + user + "), contenido ("
+					+ msg + ")");
 			this.message.put(user, msg);
 		}
 	}

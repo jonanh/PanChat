@@ -12,8 +12,6 @@ public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 
 	private static final long serialVersionUID = 1L;
 
-	private User usuario;
-
 	private User myId;
 
 	/*
@@ -24,8 +22,6 @@ public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 	public Hashtable<User, Hashtable<User, Integer>> HashMatrix;
 
 	public CausalMatrix(User usuario) {
-
-		this.usuario = usuario;
 
 		this.myId = usuario;
 
@@ -85,9 +81,9 @@ public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 						Integer W_i_j = W.get(w_i).get(w_i_j);
 
 						// Solo actualizamos si hay que actualizar
-						if (W_i_j > M_i_j)
-							HashMatrix.get(w_i).put(w_i_j, W_i_j);
-
+						if (W_i_j > M_i_j) {
+							M.get(w_i).put(w_i_j, W_i_j);
+						}
 					}
 					/*
 					 * Como esta fila no existe en nuestra matrix, simplemente
@@ -95,8 +91,8 @@ public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 					 */
 					else {
 
-						Integer valor2 = W.get(w_i).get(w_i_j);
-						HashMatrix.get(w_i).put(w_i_j, valor2);
+						Integer M_i_j = W.get(w_i).get(w_i_j);
+						M.get(w_i).put(w_i_j, M_i_j);
 
 					}
 				}
@@ -108,9 +104,15 @@ public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 			 */
 			else {
 
-				HashMatrix.put(w_i, W.get(w_i));
-
-				HashMatrix.get(w_i).put(usuario, 0);
+				Hashtable<User, Integer> newTable = new Hashtable<User, Integer>();
+				Iterator<Entry<User, Hashtable<User, Integer>>> j = W
+						.entrySet().iterator();
+				while (j.hasNext()) {
+					User w_i_j = j.next().getKey();
+					Integer W_i_j = W.get(w_i).get(w_i_j);
+					newTable.put(w_i_j, W_i_j);
+				}
+				M.put(w_i, newTable);
 			}
 		}
 	}
@@ -215,5 +217,20 @@ public class CausalMatrix implements Serializable, IClock<CausalMatrix> {
 		CausalMatrix clone = new CausalMatrix(myId);
 		clone.receiveAction(this);
 		return clone;
+	}
+
+	public static void main(String[] args) {
+		User u1 = new User("1");
+		User u2 = new User("2");
+		CausalMatrix m1 = new CausalMatrix(u1);
+		CausalMatrix m2 = new CausalMatrix(u2);
+		m1.addUser(u2);
+		m2.addUser(u1);
+		m1.send(u2);
+
+		System.out.println(m2.toString());
+		m2.receiveAction(m1);
+		System.out.println(m2.toString());
+		System.out.println(m2.clone().toString());
 	}
 }

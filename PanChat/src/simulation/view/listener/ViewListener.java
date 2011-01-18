@@ -23,8 +23,12 @@ public class ViewListener implements MouseListener, MouseMotionListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		simulationView.setPosition(simulationView.getPosition(e),
-				IPositionObserver.Mode.Click);
+		if (e.getClickCount() == 2)
+			simulationView.setPosition(simulationView.getPosition(e),
+					IPositionObserver.Mode.DoubleClick);
+		else
+			simulationView.setPosition(simulationView.getPosition(e),
+					IPositionObserver.Mode.Click);
 	}
 
 	@Override

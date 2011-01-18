@@ -10,7 +10,6 @@ import java.util.List;
 
 import order.Message.Type;
 
-
 import simulation.model.SimulationArrowModel;
 import simulation.view.CellPosition;
 
@@ -104,6 +103,8 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	 */
 	public void addArrow(MessageArrow arrow) {
 
+		System.out.println("kk");
+		
 		if (arrow instanceof SingleArrow) {
 			SingleArrow singleArrow = (SingleArrow) arrow;
 
@@ -134,8 +135,8 @@ public class MultipleArrow implements MessageArrow, Serializable {
 
 			MultipleArrow multipleArrow = (MultipleArrow) arrow;
 
-			for (SingleArrow singleArrow : getArrowList())
-				multipleArrow.addArrow(singleArrow);
+			for (SingleArrow singleArrow : multipleArrow.getArrowList())
+				this.addArrow(singleArrow);
 
 		}
 	}
@@ -245,7 +246,19 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	 * @param simulationModel
 	 */
 	public boolean add2Simulation(SimulationArrowModel simulationModel) {
-		simulationModel.addArrow(this);
+
+		/*
+		 * Comprobamos si añadimos la flecha a una posición vacia o a una
+		 * posición que contiene otra flecha.
+		 * 
+		 * Si tuviera una flecha, añadimos la flecha actual a la flecha
+		 * existente.
+		 */
+		if (simulationModel.getArrow(moveCell) == null)
+			simulationModel.addArrow(this);
+		else
+			simulationModel.getArrow(moveCell).addArrow(this);
+
 		moveCell = null;
 		return true;
 	}
@@ -256,6 +269,8 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	@Override
 	public MultipleArrow clone() {
 		MultipleArrow newArrow = new MultipleArrow(initialPos);
+
+		newArrow.properties = this.properties.clone();
 
 		for (SingleArrow arrow : arrowList)
 			newArrow.addArrow(arrow.clone());

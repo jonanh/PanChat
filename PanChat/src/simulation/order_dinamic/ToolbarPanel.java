@@ -15,7 +15,6 @@ import javax.swing.JTextField;
 
 import order.Message.Type;
 
-
 import simulation.FileChooser;
 import simulation.model.SimulationArrowModel;
 import simulation.view.SimulationView;
@@ -95,6 +94,10 @@ public class ToolbarPanel extends JPanel {
 
 		// Obtenemos las propiedades del CreateListener
 		properties = simulationView.getCreationProperties();
+
+		properties.put(Type.FIFO, fifoCheck.isSelected());
+		properties.put(Type.CAUSAL, causalCheck.isSelected());
+		properties.put(Type.TOTAL, totalCheck.isSelected());
 
 		subscribeEvents();
 	}

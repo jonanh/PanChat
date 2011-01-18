@@ -7,7 +7,7 @@ import order.Message.Type;
 
 import simulation.arrows.SimpleMultipleArrow;
 import simulation.arrows.SingleArrow;
-import simulation.arrows.TotalArrow;
+import simulation.order_dinamic.arrows.TotalArrow;
 import simulation.view.CellPosition;
 import simulation.view.IPositionObserver;
 import simulation.view.Position;

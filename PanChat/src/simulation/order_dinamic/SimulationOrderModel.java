@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Observable;
 
 import order.Message;
-import order.clocks.SavedClocks;
 
 import panchat.data.User;
 import simulation.arrows.MultipleArrow;
 import simulation.arrows.SingleArrow;
 import simulation.model.SimulationArrowModel;
+import simulation.order_dinamic.arrows.DeliveryArrow;
 import simulation.view.CellPosition;
 import simulation.view.ISimulator;
 import simulation.view.SimulationView;
@@ -157,11 +157,6 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 		// Vamos recorriendo las casillas
 		for (iterator.tick = 0; iterator.tick < simulationArrowModel
 				.getTimeTicks(); iterator.tick++) {
-
-			// System.out.println();
-			// System.out.println("tick : " + (iterator.tick + 1));
-			// System.out.println("----------");
-			// System.out.println();
 
 			for (iterator.process = 0; iterator.process < simulationArrowModel
 					.getNumProcesses(); iterator.process++) {

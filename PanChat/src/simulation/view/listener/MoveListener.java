@@ -149,7 +149,7 @@ public class MoveListener extends ViewListener {
 			}
 
 			// Si la posición era una posición dentro del canvas, entonces
-			// cambiamos los varlores.
+			// cambiamos los valores.
 			// Si la posicion anterior es distinta a la nueva posicion, entonces
 			// se produce un movimiento.
 			if (pos != null && !lastPosition.equals(cell)) {
@@ -159,6 +159,8 @@ public class MoveListener extends ViewListener {
 
 				if (movingCell != null)
 					movingCell.set(cell);
+
+				drawingArrow.move(cell);
 
 				// Actualizamos la posicion de la SimulationView, de manera que
 				// dibuje la iluminación cuando pasa el cursor por encima

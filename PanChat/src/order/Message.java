@@ -164,7 +164,8 @@ public class Message implements Serializable {
 	 * @return
 	 */
 	public Boolean isType(Type property) {
-		return property == null || this.properties.containsKey(property);
+		return property == null || this.properties.containsKey(property)
+				&& this.properties.get(property) == true;
 	}
 
 	/**
@@ -178,6 +179,10 @@ public class Message implements Serializable {
 	@Override
 	public String toString() {
 		return "msg content :" + content.toString();
+	}
+
+	public EnumMap<Type, Boolean> getProperties() {
+		return properties;
 	}
 
 	/**

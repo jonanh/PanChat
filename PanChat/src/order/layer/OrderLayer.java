@@ -67,12 +67,13 @@ public abstract class OrderLayer extends Observable implements Observer {
 	 * @param msg
 	 */
 	public synchronized void sendMsg(User user, Message msg) {
-		for (OrderLayer layer : bottomLayer)
+		for (OrderLayer layer : bottomLayer) {
 			if (msg.isType(layer.orderCapability())) {
 				debug("Enviando : " + layer.getClass().getName());
 				layer.sendMsg(user, msg);
 				break;
 			}
+		}
 	}
 
 	/**
@@ -155,7 +156,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 
 				debug("\t\t- añadido a pending! ");
 
-				debug("\t\t- Stado del pendingQueue : " + pendingQueue);
+				debug("\t\t- Estado del pendingQueue : " + pendingQueue);
 			}
 		}
 

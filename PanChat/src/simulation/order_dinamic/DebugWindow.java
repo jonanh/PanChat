@@ -32,7 +32,7 @@ public class DebugWindow extends JFrame implements IPositionObserver {
 
 	@Override
 	public void setPosition(Position pos, Mode mode) {
-		if (mode.equals(Mode.Click)) {
+		if (mode.equals(Mode.DoubleClick)) {
 			String log = "";
 			if (pos instanceof CellPosition) {
 
@@ -41,7 +41,7 @@ public class DebugWindow extends JFrame implements IPositionObserver {
 				String result = simul.getLog(cell);
 				log += result == null ? "" : result;
 
-			} else {
+			} else if (pos instanceof CutPosition) {
 				int tick = ((CutPosition) pos).tick;
 				CellPosition iter = new CellPosition(0, tick);
 				for (; iter.process < simul.getNumProcesses(); iter.process++) {

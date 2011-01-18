@@ -9,7 +9,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import order.clocks.SavedClocks;
 import order.clocks.models.CausalMatrixModel;
 import order.clocks.models.VectorClockModel;
 

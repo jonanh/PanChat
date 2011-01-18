@@ -9,7 +9,6 @@ import java.util.Queue;
 import order.Message;
 import order.Message.Type;
 import order.clocks.CausalMatrix;
-import order.clocks.SavedClocks;
 import order.clocks.VectorClock;
 import order.layer.CausalMatrixLayer;
 import order.layer.FifoOrderLayer;

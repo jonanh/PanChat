@@ -7,7 +7,6 @@ import java.util.EnumMap;
 
 import order.Message.Type;
 
-
 import simulation.model.SimulationArrowModel;
 import simulation.view.CellPosition;
 import simulation.view.SimulationView;
@@ -74,6 +73,10 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 		return finalPos;
 	}
 
+	public void setInitialPos(CellPosition pos) {
+		initialPos = pos;
+	}
+
 	@Override
 	public EnumMap<Type, Boolean> getProperties() {
 		return properties;
@@ -81,7 +84,7 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 
 	public void setProperties(EnumMap<Type, Boolean> properties) {
 
-		this.properties = properties;
+		this.properties.putAll(properties);
 
 		if (properties.containsKey(Type.TOTAL)) {
 			this.color = TOTAL_COLOR;
@@ -94,7 +97,6 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 		} else {
 			this.color = NORMAL_COLOR;
 		}
-
 	}
 
 	/**
@@ -136,7 +138,7 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 	 * Rutina para clonar MultipleArrows
 	 */
 	@Override
-	public MessageArrow clone() {
+	public SingleArrow clone() {
 		return new SingleArrow(initialPos.clone(), finalPos.clone());
 	}
 

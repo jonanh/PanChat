@@ -1,4 +1,4 @@
-package simulation.order_dinamic;
+package simulation.order_dinamic.arrows;
 
 import java.awt.Color;
 
