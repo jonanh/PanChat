@@ -5,7 +5,7 @@ import javax.swing.table.AbstractTableModel;
 import order.clocks.VectorClock;
 
 import panchat.data.User;
-import simulation3.dinamic_order.SimulationOrderModel;
+import simulation.order_dinamic.SimulationOrderModel;
 
 public class VectorClockModel extends AbstractTableModel {
 
