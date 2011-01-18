@@ -1,4 +1,4 @@
-package simulation;
+package simulation.order_dinamic;
 
 import java.awt.BorderLayout;
 
@@ -8,33 +8,43 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 
 import simulation.model.SimulationArrowModel;
-import simulation.order_static.SimulationModel;
-import simulation.order_static.ToolbarPanel;
 import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
-public class StaticSimulation extends JPanel {
+public class DinamicSimulation extends JPanel {
 
 	private ToolbarPanel menu;
 	private SimulationView view;
-	private SimulationModel model;
+	private SimulationArrowModel model;
+	private SimulationOrderModel simul;
+	private ClockPanel panel;
 
-	public StaticSimulation() {
-
-		model = new SimulationModel();
+	public DinamicSimulation() {
+		
+		model = new SimulationArrowModel();
 		view = new SimulationView(model);
+		
+		simul = new SimulationOrderModel(model);
+		panel = new ClockPanel(simul);
 
-		view.addSimulator(model);
+		view.addSimulator(simul);
+		view.addPositionObserver(panel);
+		
 		menu = new ToolbarPanel(this);
 
 		this.setLayout(new BorderLayout());
 		this.add(menu, BorderLayout.NORTH);
 		this.add(new JScrollPane(view), BorderLayout.CENTER);
 		this.add(new JScrollPane(view), BorderLayout.CENTER);
+		this.add(panel, BorderLayout.EAST);
 	}
 
 	public SimulationView getSimulationView() {
 		return view;
+	}
+
+	public SimulationOrderModel getSimulationOrderLayer() {
+		return simul;
 	}
 
 	public void setSimulationModel(SimulationArrowModel simulationModel) {
@@ -48,7 +58,7 @@ public class StaticSimulation extends JPanel {
 		} catch (Exception e) {
 		}
 
-		StaticSimulation simulation = new StaticSimulation();
+		DinamicSimulation simulation = new DinamicSimulation();
 		JFrame window = new JFrame("Simulación paso de mensajes");
 		window.getContentPane().add(simulation);
 		window.setSize(1200, 500);

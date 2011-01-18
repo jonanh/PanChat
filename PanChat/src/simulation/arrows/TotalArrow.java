@@ -14,7 +14,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 	private static final long serialVersionUID = 1L;
 
 	/*
-	 * Flechas para cada una de las fases del
+	 * Flechas para cada una de las fases
 	 */
 	public class SendArrow extends SingleArrow {
 		private static final long serialVersionUID = 1L;

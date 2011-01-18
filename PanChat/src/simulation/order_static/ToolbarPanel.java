@@ -16,7 +16,6 @@ import javax.swing.JTextField;
 import order.Message.Type;
 
 import simulation.FileChooser;
-import simulation.StaticSimulation;
 import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")

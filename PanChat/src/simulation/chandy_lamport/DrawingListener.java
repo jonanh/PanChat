@@ -1,10 +1,8 @@
-package simulation2;
-import java.awt.Color;
+package simulation.chandy_lamport;
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.Iterator;
-import java.util.Vector;
 
 public class DrawingListener implements MouseMotionListener, MouseListener {
 	private int PINTAR = 7;
@@ -21,7 +19,7 @@ public class DrawingListener implements MouseMotionListener, MouseListener {
 	private int tempX;
 	private int tempY;
 	private int paint;
-	
+
 	private GridPosition gridPos;
 
 	public DrawingListener(InformationCanvas canvas) {
@@ -33,7 +31,7 @@ public class DrawingListener implements MouseMotionListener, MouseListener {
 
 		// para no estar pintando todo el rato. Nos indica cu�ndo pintar
 		paint = 0;
-		
+
 		gridPos = new GridPosition(canvas);
 	}
 
@@ -45,17 +43,19 @@ public class DrawingListener implements MouseMotionListener, MouseListener {
 				// se indica que ya se ha pinchado y se crea una nueva linea
 				// con puntos de origen el lugar pinchado
 				canvas.setFirst(false);
-				//canvas.getFlechasMensajes().add(new Line(e.getX(), e.getY()));
-				gridPos.calculateMiddleGrid(e.getX(),e.getY());
-				canvas.getFlechasMensajes().add(new Line(gridPos.getReverseXGrid()
-													, gridPos.getReverseYGrid()));
-				
+				// canvas.getFlechasMensajes().add(new Line(e.getX(),
+				// e.getY()));
+				gridPos.calculateMiddleGrid(e.getX(), e.getY());
+				canvas.getFlechasMensajes().add(
+						new Line(gridPos.getReverseXGrid(), gridPos
+								.getReverseYGrid()));
+
 			} else {
 				last = canvas.getFlechasMensajes().lastElement();
-				gridPos.calculateMiddleGrid(e.getX(),e.getY());
+				gridPos.calculateMiddleGrid(e.getX(), e.getY());
 				finX = gridPos.getReverseXGrid();// e.getX();
-				finY = gridPos.getReverseYGrid();//e.getY();
-				
+				finY = gridPos.getReverseYGrid();// e.getY();
+
 				last.setFinalX(finX);
 				last.setFinalY(finY);
 
@@ -90,7 +90,7 @@ public class DrawingListener implements MouseMotionListener, MouseListener {
 				canvas.locateLine(e.getX(), e.getY());
 				canvas.setIsSelectedLine(true);
 			} else {
-				gridPos.calculateMiddleGrid(e.getX(),e.getY());
+				gridPos.calculateMiddleGrid(e.getX(), e.getY());
 				canvas.getMovingLine().setFinalX(gridPos.getReverseXGrid());
 				canvas.getMovingLine().setFinalY(gridPos.getReverseYGrid());
 				canvas.repaint();
@@ -104,25 +104,26 @@ public class DrawingListener implements MouseMotionListener, MouseListener {
 		if (canvas.getState() == InformationCanvas.State.EVENT)
 			canvas.terminarFlecha(canvas.getFlechasMensajes().lastElement());
 		else if (canvas.getState() == InformationCanvas.State.MOVE) {
-			gridPos.calculateMiddleGrid(arg0.getX(),arg0.getY());
+			gridPos.calculateMiddleGrid(arg0.getX(), arg0.getY());
 			canvas.getMovingLine().setFinalX(gridPos.getReverseXGrid());
 			canvas.getMovingLine().setFinalY(gridPos.getReverseYGrid());
 			canvas.terminarFlecha(canvas.getMovingLine());
 			canvas.setIsSelectedLine(false);
 			canvas.setForcedValue(canvas.getMoveLineOrigin(), canvas
 					.getMoveLineDestiny(), arg0.getX());
-			
+
 			canvas.recalculateSnapshot();
 			canvas.repaint();
 		}
 
 		else if (canvas.getState() == InformationCanvas.State.SNAPSHOT) {
 			canvas.setIsFixSnapshot(true);
-			//canvas.setState(InformationCanvas.State.EVENT);
+			// canvas.setState(InformationCanvas.State.EVENT);
 			gridPos.setXPos(arg0.getX());
 			gridPos.setYPos(arg0.getY());
 			gridPos.calculateGrid();
-			canvas.setSnapshot(gridPos.getReverseXGrid(), gridPos.getReverseYGrid());
+			canvas.setSnapshot(gridPos.getReverseXGrid(), gridPos
+					.getReverseYGrid());
 			canvas.startSnapshot();
 			canvas.setState(InformationCanvas.State.EVENT);
 			canvas.repaint();
@@ -137,7 +138,8 @@ public class DrawingListener implements MouseMotionListener, MouseListener {
 			gridPos.setXPos(e.getX());
 			gridPos.setYPos(e.getY());
 			gridPos.calculateGrid();
-			canvas.setSnapshot(gridPos.getReverseXGrid(), gridPos.getReverseYGrid());
+			canvas.setSnapshot(gridPos.getReverseXGrid(), gridPos
+					.getReverseYGrid());
 		} else if (canvas.getState() == InformationCanvas.State.CUT) {
 			Line elemento = canvas.getCutLine().lastElement();
 			gridPos.setXPos(e.getX());
@@ -174,7 +176,5 @@ public class DrawingListener implements MouseMotionListener, MouseListener {
 		// TODO Auto-generated method stub
 
 	}
-	
-	
 
 }

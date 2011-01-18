@@ -1,4 +1,5 @@
-package simulation2;
+package simulation.chandy_lamport;
+
 import java.awt.BasicStroke;
 import java.awt.Canvas;
 import java.awt.Color;
@@ -6,7 +7,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
@@ -16,10 +16,12 @@ import java.util.Vector;
 import javax.swing.JFrame;
 
 /* Esta clase es la encarga de responser a las acciones de usuario,
- * obteniendo la informaci�n del intercambio de mensajes y los eventos especiales
- * as� como de mostrar el resultado de la simulacion
+ * obteniendo la información del intercambio de mensajes y los eventos especiales
+ * así como de mostrar el resultado de la simulacion
  */
 public class InformationCanvas extends Canvas {
+
+	private static final long serialVersionUID = 1L;
 
 	public static enum State {
 		SNAPSHOT, CUT, EVENT, START, MOVE
@@ -50,7 +52,7 @@ public class InformationCanvas extends Canvas {
 	private int snapshotY;
 	private boolean isFixSnapshot;
 	private boolean isCut;
-	// para saber si al arrastrar hay que a�adir una nueva flecha
+	// para saber si al arrastrar hay que añadir una nueva flecha
 	private boolean first;
 
 	// linea que se esta moviendo del snapshot
@@ -208,9 +210,9 @@ public class InformationCanvas extends Canvas {
 		xLength = bounds.width;
 		yLength = bounds.height;
 
-		 BufferedImage imagen = new
-		 BufferedImage(xLength,yLength,BufferedImage.TYPE_INT_ARGB);
-		 
+		BufferedImage imagen = new BufferedImage(xLength, yLength,
+				BufferedImage.TYPE_INT_ARGB);
+		imagen.getClass();
 
 		dibujarFondo(g);
 
@@ -266,14 +268,15 @@ public class InformationCanvas extends Canvas {
 		}
 
 	}
-	
+
 	public void dibujarCorte(Vector<Line> flechasMensajes, Graphics g) {
 		iterator = flechasMensajes.iterator();
 		Line next;
 		while (iterator.hasNext()) {
 			next = iterator.next();
 			g.setColor(next.getColor());
-			g.fillRect(next.getInitX(), next.getInitY(), timeUnit,yLength-yLength/5);
+			g.fillRect(next.getInitX(), next.getInitY(), timeUnit, yLength
+					- yLength / 5);
 			g.setColor(Color.BLACK);
 		}
 	}
@@ -395,22 +398,22 @@ public class InformationCanvas extends Canvas {
 		GridPosition pos;
 		pos = new GridPosition(this);
 		pos.setXPos(iniX);
-		
+
 		Line line = new Line(iniX, 0);
-		//line.setFinalX(finalX);
+		// line.setFinalX(finalX);
 
 		iniY = yLength / 10 + origin * (gap + processWidth) + processWidth / 2;
 		finalY = iniY + (end - origin) * (gap + processWidth);
-		
-		//valores de inicio de la flecha
-		pos.calculateMiddleGrid(iniX,iniY);
+
+		// valores de inicio de la flecha
+		pos.calculateMiddleGrid(iniX, iniY);
 		line.setInitX(pos.getReverseXGrid());
 		line.setInitY(pos.getReverseYGrid());
-		//line.setInitY(iniY);
-		//line.setFinalY(finalY);
-		
-		//valores finales de la flecha
-		pos.calculateMiddleGrid(finalX,finalY);
+		// line.setInitY(iniY);
+		// line.setFinalY(finalY);
+
+		// valores finales de la flecha
+		pos.calculateMiddleGrid(finalX, finalY);
 		line.setFinalX(pos.getReverseXGrid());
 		line.setFinalY(pos.getReverseYGrid());
 
@@ -452,8 +455,6 @@ public class InformationCanvas extends Canvas {
 		int finX;
 		int finY;
 		int processId;
-		Iterator<Line> process;
-		Line element;
 		first = true;
 
 		// hay que calcular los puntos de la flecha

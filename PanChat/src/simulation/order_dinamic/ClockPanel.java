@@ -1,4 +1,4 @@
-package simulation;
+package simulation.order_dinamic;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -13,7 +13,6 @@ import order.clocks.SavedClocks;
 import order.clocks.models.CausalMatrixModel;
 import order.clocks.models.VectorClockModel;
 
-import simulation.order_dinamic.SimulationOrderModel;
 import simulation.view.CellPosition;
 import simulation.view.IPositionObserver;
 import simulation.view.Position;

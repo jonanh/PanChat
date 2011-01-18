@@ -1,4 +1,4 @@
-package simulation;
+package simulation.order_dinamic;
 
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -16,6 +16,7 @@ import javax.swing.JTextField;
 import order.Message.Type;
 
 
+import simulation.FileChooser;
 import simulation.model.SimulationArrowModel;
 import simulation.view.SimulationView;
 
@@ -30,7 +31,7 @@ public class ToolbarPanel extends JPanel {
 	private static final String open = "document-open";
 	private static final String save = "document-save";
 
-	private Simulation simulation;
+	private DinamicSimulation simulation;
 	private SimulationView simulationView;
 
 	private JLabel numProcessLabel = new JLabel("Nº process:");
@@ -49,7 +50,7 @@ public class ToolbarPanel extends JPanel {
 
 	private JButton stateButton[] = new JButton[6];
 
-	public ToolbarPanel(Simulation simulation) {
+	public ToolbarPanel(DinamicSimulation simulation) {
 
 		this.simulation = simulation;
 		this.simulationView = simulation.getSimulationView();

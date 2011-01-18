@@ -1,70 +1,47 @@
 package simulation;
 
-import java.awt.BorderLayout;
-
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
-import simulation.model.SimulationArrowModel;
-import simulation.order_dinamic.SimulationOrderModel;
-import simulation.view.SimulationView;
+import simulation.chandy_lamport.ChandyLamport;
+import simulation.order_dinamic.DinamicSimulation;
+import simulation.order_static.StaticSimulation;
 
-@SuppressWarnings("serial")
-public class Simulation extends JPanel {
+public class Simulation extends JFrame {
 
-	private ToolbarPanel menu;
-	private SimulationView view;
-	private SimulationArrowModel model;
-	private SimulationOrderModel simul;
-	private ClockPanel panel;
+	private static final long serialVersionUID = 1L;
+
+	private static final String title = "Simulador";
+
+	ChandyLamport chandyLamport = new ChandyLamport();
+	StaticSimulation staticSimulation = new StaticSimulation();
+	DinamicSimulation dinamicSimulation = new DinamicSimulation();
+
+	JTabbedPane pane = new JTabbedPane();
 
 	public Simulation() {
+		super(title);
+
+		pane.addTab("Simulación estática", staticSimulation);
+		pane.addTab("Simulación dinámica", dinamicSimulation);
+		pane.addTab("Simulación Chandy-Lamport", chandyLamport);
 		
-		model = new SimulationArrowModel();
-		view = new SimulationView(model);
-		
-		simul = new SimulationOrderModel(model);
-		panel = new ClockPanel(simul);
-
-		view.addSimulator(simul);
-		view.addPositionObserver(panel);
-		
-		menu = new ToolbarPanel(this);
-
-		this.setLayout(new BorderLayout());
-		this.add(menu, BorderLayout.NORTH);
-		this.add(new JScrollPane(view), BorderLayout.CENTER);
-		this.add(new JScrollPane(view), BorderLayout.CENTER);
-		this.add(panel, BorderLayout.EAST);
-	}
-
-	public SimulationView getSimulationView() {
-		return view;
-	}
-
-	public SimulationOrderModel getSimulationOrderLayer() {
-		return simul;
-	}
-
-	public void setSimulationModel(SimulationArrowModel simulationModel) {
-		view.setSimulationModel(simulationModel);
+		this.getContentPane().add(pane);
+		this.setSize(1200, 500);
+		this.pack();
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setVisible(true);
 	}
 
 	public static void main(String[] args) {
+
 		// Look & feel nativo en Java
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
 		}
 
-		Simulation simulation = new Simulation();
-		JFrame window = new JFrame("Simulación paso de mensajes");
-		window.getContentPane().add(simulation);
-		window.setSize(1200, 500);
-		window.pack();
-		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		window.setVisible(true);
+		new Simulation();
 	}
 }

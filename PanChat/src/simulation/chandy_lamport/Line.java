@@ -1,4 +1,4 @@
-package simulation2;
+package simulation.chandy_lamport;
 import java.awt.Color;
 
 
