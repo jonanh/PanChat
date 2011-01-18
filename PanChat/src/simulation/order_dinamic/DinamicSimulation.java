@@ -18,18 +18,21 @@ public class DinamicSimulation extends JPanel {
 	private SimulationArrowModel model;
 	private SimulationOrderModel simul;
 	private ClockPanel panel;
+	private DebugWindow window;
 
 	public DinamicSimulation() {
-		
+
 		model = new SimulationArrowModel();
 		view = new SimulationView(model);
-		
+
 		simul = new SimulationOrderModel(model);
 		panel = new ClockPanel(simul);
+		window = new DebugWindow(simul);
 
 		view.addSimulator(simul);
 		view.addPositionObserver(panel);
-		
+		view.addPositionObserver(window);
+
 		menu = new ToolbarPanel(this);
 
 		this.setLayout(new BorderLayout());

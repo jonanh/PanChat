@@ -2,6 +2,10 @@ package simulation.view;
 
 public interface IPositionObserver {
 
-	public void setPosition(Position pos);
+	enum Mode {
+		Over, Click, DoubleClick
+	}
+
+	public void setPosition(Position pos, Mode mode);
 
 }

@@ -15,6 +15,8 @@ public abstract class OrderLayer extends Observable implements Observer {
 
 	protected final static boolean DEBUG = true;
 
+	private static String debugLog = "";
+
 	public static enum receiveStatus {
 		Receive, Delete, Nothing
 	}
@@ -39,11 +41,6 @@ public abstract class OrderLayer extends Observable implements Observer {
 	 * Lista de usuarios
 	 */
 	protected LinkedList<User> userList = new LinkedList<User>();
-
-	/*
-	 * Log de la capa actual.
-	 */
-	private String debugLog = "";
 
 	/**
 	 * Crear capa de ordenacion
@@ -245,7 +242,9 @@ public abstract class OrderLayer extends Observable implements Observer {
 	 * @return Devuelve la información de depuración de la capa actual
 	 */
 	public String getDebugLog() {
-		return debugLog;
+		String result = debugLog;
+		debugLog = "";
+		return result;
 	}
 
 }

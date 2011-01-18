@@ -8,6 +8,7 @@ import java.util.EnumMap;
 import order.Message.Type;
 
 import simulation.model.SimulationArrowModel;
+import simulation.view.IPositionObserver;
 import simulation.view.SimulationView;
 
 public class ViewListener implements MouseListener, MouseMotionListener {
@@ -22,19 +23,22 @@ public class ViewListener implements MouseListener, MouseMotionListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		simulationView.setPosition(simulationView.getPosition(e),
+				IPositionObserver.Mode.Click);
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// Sirve para indicarle a la vista en que posicion está el cursor para
 		// que ilumine la celda correspondiente.
-		simulationView.setPosition(simulationView.getPosition(e));
+		simulationView.setPosition(simulationView.getPosition(e),
+				IPositionObserver.Mode.Over);
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// Hemos salido de la ventana, la posición es null.
-		simulationView.setPosition(null);
+		simulationView.setPosition(null, IPositionObserver.Mode.Over);
 	}
 
 	@Override
@@ -45,21 +49,24 @@ public class ViewListener implements MouseListener, MouseMotionListener {
 	public void mouseReleased(MouseEvent e) {
 		// Sirve para indicarle a la vista en que posicion está el cursor para
 		// que ilumine la celda correspondiente.
-		simulationView.setPosition(simulationView.getPosition(e));
+		simulationView.setPosition(simulationView.getPosition(e),
+				IPositionObserver.Mode.Over);
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// Sirve para indicarle a la vista en que posicion está el cursor para
 		// que ilumine la celda correspondiente.
-		simulationView.setPosition(simulationView.getPosition(e));
+		simulationView.setPosition(simulationView.getPosition(e),
+				IPositionObserver.Mode.Over);
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		// Sirve para indicarle a la vista en que posicion está el cursor para
 		// que ilumine la celda correspondiente.
-		simulationView.setPosition(simulationView.getPosition(e));
+		simulationView.setPosition(simulationView.getPosition(e),
+				IPositionObserver.Mode.Over);
 	}
 
 	/**
@@ -71,6 +78,5 @@ public class ViewListener implements MouseListener, MouseMotionListener {
 
 	public void setProperties(EnumMap<Type, Boolean> properties) {
 		// TODO Auto-generated method stub
-		
 	}
 }

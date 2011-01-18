@@ -33,11 +33,7 @@ public class CausalOrderView implements Serializable, OrderI {
 	// explicacion
 	// grafica de por que no se puede realizar una flecha
 	private CellPosition arrowOrigin;
-	private CellPosition noCorrectOrigin;
-	private CellPosition noCorrectFinal;
-
 	private CellPosition conflictFinal;
-	private CellPosition conflictInit;
 	private Vector<Interval> availableCell;
 	// Vector <VectorClock> posClock;
 
@@ -121,9 +117,6 @@ public class CausalOrderView implements Serializable, OrderI {
 
 		if (correctness == false) {
 			conflictFinal = lastVector.finalPos.firstElement().clone();
-			CausalVectorClock temp = (CausalVectorClock) clockTable
-					.get(conflictFinal);
-			conflictInit = temp.origin;
 		}
 		return correctness;
 	}
@@ -398,12 +391,10 @@ public class CausalOrderView implements Serializable, OrderI {
 
 	private void removeHelp() {
 		arrowOrigin = null;
-		noCorrectOrigin = null;
-		noCorrectFinal = null;
 	}
 
 	public void getHelp(CellPosition origin, CellPosition finalPos) {
-		noCorrectFinal = finalPos.clone();
+		finalPos.clone();
 		arrowOrigin = origin.clone();
 		availableCell = new Vector<Interval>();
 		if (specialDetection == false) {

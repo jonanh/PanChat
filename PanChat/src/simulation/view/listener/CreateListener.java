@@ -9,6 +9,7 @@ import simulation.arrows.SimpleMultipleArrow;
 import simulation.arrows.SingleArrow;
 import simulation.arrows.TotalArrow;
 import simulation.view.CellPosition;
+import simulation.view.IPositionObserver;
 import simulation.view.Position;
 import simulation.view.SimulationView;
 
@@ -90,7 +91,8 @@ public class CreateListener extends MoveListener {
 					// que
 					// dibuje la iluminación cuando pasa el cursor por encima
 					simulationView.setPosition(simulationView.getPosition(e),
-							drawingArrow.isValid(simulationModel));
+							IPositionObserver.Mode.Over, drawingArrow
+									.isValid(simulationModel));
 				}
 			}
 			// si hemos pinchado en el comienzo de la flecha
@@ -121,7 +123,8 @@ public class CreateListener extends MoveListener {
 					// que
 					// dibuje la iluminación cuando pasa el cursor por encima
 					simulationView.setPosition(simulationView.getPosition(e),
-							drawingArrow.isValid(simulationModel));
+							IPositionObserver.Mode.Over, drawingArrow
+									.isValid(simulationModel));
 				}
 
 			}
@@ -133,7 +136,8 @@ public class CreateListener extends MoveListener {
 		} else
 			// Actualizamos la posicion de la SimulationView, de manera que
 			// dibuje la iluminación cuando pasa el cursor por encima
-			simulationView.setPosition(simulationView.getPosition(e), true);
+			simulationView.setPosition(simulationView.getPosition(e),
+					IPositionObserver.Mode.Over, true);
 	}
 
 	/**

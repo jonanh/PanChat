@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import simulation.arrows.MultipleArrow;
 import simulation.view.CellPosition;
 import simulation.view.CutPosition;
+import simulation.view.IPositionObserver;
 import simulation.view.Position;
 import simulation.view.SimulationView;
 
@@ -114,7 +115,8 @@ public class MoveListener extends ViewListener {
 
 		// Actualizamos la posicion de la SimulationView, de manera que
 		// dibuje la iluminación cuando pasa el cursor por encima
-		simulationView.setPosition(simulationView.getPosition(e), true);
+		simulationView.setPosition(simulationView.getPosition(e),
+				IPositionObserver.Mode.Over, true);
 	}
 
 	@Override
@@ -161,12 +163,14 @@ public class MoveListener extends ViewListener {
 				// Actualizamos la posicion de la SimulationView, de manera que
 				// dibuje la iluminación cuando pasa el cursor por encima
 				simulationView.setPosition(simulationView.getPosition(e),
-						drawingArrow.isValid(simulationModel));
+						IPositionObserver.Mode.Over, drawingArrow
+								.isValid(simulationModel));
 			}
 
 		} else
 			// Actualizamos la posicion de la SimulationView, de manera que
 			// dibuje la iluminación cuando pasa el cursor por encima
-			simulationView.setPosition(simulationView.getPosition(e), true);
+			simulationView.setPosition(simulationView.getPosition(e),
+					IPositionObserver.Mode.Over, true);
 	}
 }

@@ -371,7 +371,7 @@ public class SimulationView extends JPanel implements Observer {
 	 * 
 	 * @param newPosition
 	 */
-	public void setPosition(Position newPosition) {
+	public void setPosition(Position newPosition, IPositionObserver.Mode mode) {
 		/*
 		 * - Si la posicion antigua era distinta de null y ahora es null, ya no
 		 * estamos encima de la pantalla. (evitamos el null pointer)
@@ -379,16 +379,19 @@ public class SimulationView extends JPanel implements Observer {
 		 * - Si la posicion antigua es distinta de null, comprobamos que la
 		 * posicion nueva sea distinta de la antigua.
 		 */
-		if ((this.overPosition != null && newPosition == null)
-				|| (newPosition != null && !newPosition
-						.equals(this.overPosition))) {
+		if (mode.equals(IPositionObserver.Mode.Over)
+				&& ((this.overPosition != null && newPosition == null) || (newPosition != null && !newPosition
+						.equals(this.overPosition)))) {
 
 			this.overPosition = newPosition;
 
 			for (IPositionObserver observer : this.positionObservers)
-				observer.setPosition(overPosition);
+				observer.setPosition(overPosition, mode);
 
 			this.repaint();
+		} else {
+			for (IPositionObserver observer : this.positionObservers)
+				observer.setPosition(overPosition, mode);
 		}
 	}
 
@@ -398,8 +401,9 @@ public class SimulationView extends JPanel implements Observer {
 	 * 
 	 * @param newPosition
 	 */
-	public void setPosition(Position newPosition, Boolean valid) {
-		setPosition(newPosition);
+	public void setPosition(Position newPosition, IPositionObserver.Mode mode,
+			Boolean valid) {
+		setPosition(newPosition, mode);
 		this.validOverPosition = valid;
 	}
 

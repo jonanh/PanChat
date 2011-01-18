@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Vector;
 
-import simulation.arrows.MessageArrow;
 import simulation.arrows.SingleArrow;
 import simulation.view.CellPosition;
 import simulation.view.SimulationView;

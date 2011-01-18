@@ -29,7 +29,6 @@ public class ToolbarPanel extends JPanel {
 	private static final String open = "document-open";
 	private static final String save = "document-save";
 
-	private StaticSimulation simulation;
 	private SimulationView simulationView;
 
 	private JLabel numProcessLabel = new JLabel("Nº process:");
@@ -54,7 +53,6 @@ public class ToolbarPanel extends JPanel {
 
 	public ToolbarPanel(StaticSimulation simulation) {
 
-		this.simulation = simulation;
 		this.simulationView = simulation.getSimulationView();
 
 		numProcessText.setColumns(4);

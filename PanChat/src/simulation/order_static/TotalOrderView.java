@@ -24,9 +24,6 @@ public class TotalOrderView implements OrderI, Serializable {
 	private HashMap<CellPosition, VectorI> clockTable;
 	private Vector<Vector<VectorI>> messages;
 
-	// indica que el ultimo tick en el que hay un vector
-	private int lastTick;
-
 	private SimulationModel simulationModel;
 
 	boolean numProcessChanged;
@@ -37,8 +34,6 @@ public class TotalOrderView implements OrderI, Serializable {
 	// explicacion
 	// grafica de por que no se puede realizar una flecha
 	private CellPosition arrowOrigin;
-	private CellPosition arrowEnd;
-
 	private Vector<Interval> availableCell;
 
 	public TotalOrderView(SimulationModel simulationModel) {
@@ -46,7 +41,6 @@ public class TotalOrderView implements OrderI, Serializable {
 		drawingServer = simulationModel.drawingServer;
 		drawingServer.setTotalOrder(this);
 		clockTable = new HashMap<CellPosition, VectorI>();
-		lastTick = 1;
 		size = this.simulationModel.getNumProcesses();
 		ticks = this.simulationModel.getTimeTicks();
 
@@ -65,7 +59,6 @@ public class TotalOrderView implements OrderI, Serializable {
 		 */
 		drawingServer.setLastArrow(arrow);
 		arrowOrigin = null;
-		arrowEnd = null;
 		availableCell = null;
 		drawingServer.unsetTotalMiss();
 		CellPosition finalPos = arrow.getFinalPos();
@@ -331,17 +324,6 @@ public class TotalOrderView implements OrderI, Serializable {
 			}
 		}
 
-	}
-
-	private CellPosition findFinalPos(TotalMessage next, TotalMessage newVector) {
-		CellPosition end = null;
-		for (CellPosition it : next.finalPos) {
-			if (it.process == newVector.finalPos.firstElement().process) {
-				end = it;
-				break;
-			}
-		}
-		return end;
 	}
 
 	public void setNumProcessChanged() {

@@ -54,7 +54,7 @@ public class ClockPanel extends JPanel implements Observer, IPositionObserver {
 	 * @param clock
 	 */
 	@Override
-	public void setPosition(Position pos) {
+	public void setPosition(Position pos, IPositionObserver.Mode mode) {
 		if (pos instanceof CellPosition)
 			position = (CellPosition) pos;
 		updateClocks();

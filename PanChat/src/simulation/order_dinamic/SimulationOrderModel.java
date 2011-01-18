@@ -138,6 +138,7 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 		simulationArrows.clear();
 		receive.clear();
 		receiveClocks.clear();
+		receiveLogs.clear();
 
 		// Creamos los top layers
 		for (User user : simulationArrowModel.getUserList()) {
@@ -157,10 +158,10 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 		for (iterator.tick = 0; iterator.tick < simulationArrowModel
 				.getTimeTicks(); iterator.tick++) {
 
-			System.out.println();
-			System.out.println("tick : " + (iterator.tick + 1));
-			System.out.println("----------");
-			System.out.println();
+			// System.out.println();
+			// System.out.println("tick : " + (iterator.tick + 1));
+			// System.out.println("----------");
+			// System.out.println();
 
 			for (iterator.process = 0; iterator.process < simulationArrowModel
 					.getNumProcesses(); iterator.process++) {
@@ -260,14 +261,13 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 				/*
 				 * Registramos los relojes de cada paso.
 				 */
-				receiveClocks.put(iterator.clone(), topLayer.getClocks());
+				CellPosition pos = iterator.clone();
+				receiveClocks.put(pos, topLayer.getClocks());
+				receiveLogs.put(pos, topLayer.getDebugLog());
 			}
 		}
-
-		System.out.println("\n\n");
 	}
 
-	
 	@Override
 	public void drawSimulation(Graphics2D g) {
 		SimulationView.paintArrows(g, this.simulationArrows);
