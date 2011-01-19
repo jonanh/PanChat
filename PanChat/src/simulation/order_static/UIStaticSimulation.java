@@ -11,19 +11,19 @@ import simulation.model.SimulationArrowModel;
 import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
-public class StaticSimulation extends JPanel {
+public class UIStaticSimulation extends JPanel {
 
-	private ToolbarPanel menu;
+	private UIToolbarPanel menu;
 	private SimulationView view;
 	private SimulationModel model;
 
-	public StaticSimulation() {
+	public UIStaticSimulation() {
 
 		model = new SimulationModel();
 		view = new SimulationView(model);
 
 		view.addSimulator(model);
-		menu = new ToolbarPanel(this);
+		menu = new UIToolbarPanel(this);
 
 		this.setLayout(new BorderLayout());
 		this.add(menu, BorderLayout.NORTH);
@@ -46,7 +46,7 @@ public class StaticSimulation extends JPanel {
 		} catch (Exception e) {
 		}
 
-		StaticSimulation simulation = new StaticSimulation();
+		UIStaticSimulation simulation = new UIStaticSimulation();
 		JFrame window = new JFrame("Simulación paso de mensajes");
 		window.getContentPane().add(simulation);
 		window.setSize(1200, 500);

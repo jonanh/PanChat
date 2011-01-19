@@ -5,11 +5,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 
-public class OrderListener implements ActionListener {
-	ToolbarPanel panel;
+public class UIOrderListener implements ActionListener {
+	UIToolbarPanel panel;
 	SimulationModel model;
 
-	public OrderListener(SimulationModel model, ToolbarPanel panel) {
+	public UIOrderListener(SimulationModel model, UIToolbarPanel panel) {
 		this.panel = panel;
 		this.model = model;
 	}

@@ -27,6 +27,24 @@ public class SimulationModel extends SimulationArrowModel implements
 	public OrderDrawing drawingServer = new OrderDrawing(DEFAULT_NUM_PROCESSES);
 
 	/**
+	 * Construimos el objeto de datos de simulacion
+	 */
+	public SimulationModel() {
+		super();
+	}
+
+	/**
+	 * Construimos el objeto de datos de simulacion
+	 */
+	public SimulationModel(SimulationArrowModel simul) {
+		this.setTimeTicks(simul.getTimeTicks());
+		this.setNumProcesses(simul.getNumProcesses());
+
+		for (MultipleArrow arrow : simul.getArrowList())
+			this.addArrow(arrow);
+	}
+
+	/**
 	 * 
 	 * @param pNumProcesses
 	 * 

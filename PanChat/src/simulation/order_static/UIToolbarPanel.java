@@ -16,10 +16,11 @@ import javax.swing.JTextField;
 import order.Message.Type;
 
 import simulation.FileChooser;
+import simulation.model.SimulationArrowModel;
 import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
-public class ToolbarPanel extends JPanel {
+public class UIToolbarPanel extends JPanel {
 
 	// Constantes iconos
 	private static final String path = "/simulation/icons/";
@@ -49,9 +50,9 @@ public class ToolbarPanel extends JPanel {
 
 	private JButton stateButton[] = new JButton[6];
 
-	private OrderListener orderListener;
+	private UIOrderListener orderListener;
 
-	public ToolbarPanel(StaticSimulation simulation) {
+	public UIToolbarPanel(UIStaticSimulation simulation) {
 
 		this.simulationView = simulation.getSimulationView();
 
@@ -128,8 +129,8 @@ public class ToolbarPanel extends JPanel {
 		stateButton[4].addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SimulationModel simulationModel = (SimulationModel) FileChooser
-						.getFile(parent);
+				SimulationModel simulationModel = new SimulationModel(
+						FileChooser.getFile(parent));
 				if (simulationModel != null)
 					simulationView.setSimulationModel(simulationModel);
 			}
@@ -139,13 +140,13 @@ public class ToolbarPanel extends JPanel {
 		stateButton[5].addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SimulationModel simulationModel = (SimulationModel) simulationView
+				SimulationArrowModel simulationModel = simulationView
 						.getSimulationModel();
 				FileChooser.saveFile(parent, simulationModel);
 			}
 		});
 
-		orderListener = new OrderListener((SimulationModel) simulationView
+		orderListener = new UIOrderListener((SimulationModel) simulationView
 				.getSimulationModel(), this);
 
 		fifoCheck.addActionListener(new ActionListener() {
