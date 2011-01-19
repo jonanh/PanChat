@@ -5,8 +5,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 import simulation.chandy_lamport.ChandyLamport;
-import simulation.order_dinamic.DinamicSimulation;
-import simulation.order_static.StaticSimulation;
+import simulation.order_dinamic.UIDinamicSimulation;
+import simulation.order_static.UIStaticSimulation;
 
 public class Simulation extends JFrame {
 
@@ -15,8 +15,8 @@ public class Simulation extends JFrame {
 	private static final String title = "Simulador";
 
 	ChandyLamport chandyLamport = new ChandyLamport();
-	StaticSimulation staticSimulation = new StaticSimulation();
-	DinamicSimulation dinamicSimulation = new DinamicSimulation();
+	UIStaticSimulation staticSimulation = new UIStaticSimulation();
+	UIDinamicSimulation dinamicSimulation = new UIDinamicSimulation();
 
 	JTabbedPane pane = new JTabbedPane();
 

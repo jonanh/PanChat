@@ -11,29 +11,28 @@ import simulation.model.SimulationArrowModel;
 import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
-public class DinamicSimulation extends JPanel {
+public class UIDinamicSimulation extends JPanel {
 
-	private ToolbarPanel menu;
+	private UIToolbarPanel menu;
 	private SimulationView view;
 	private SimulationArrowModel model;
 	private SimulationOrderModel simul;
-	private ClockPanel panel;
-	private DebugWindow window;
+	private UIClockPanel panel;
+	private UIDebugWindow window;
 
-	public DinamicSimulation() {
+	public UIDinamicSimulation() {
 
 		model = new SimulationArrowModel();
 		view = new SimulationView(model);
-
-		simul = new SimulationOrderModel(model);
-		panel = new ClockPanel(simul);
-		window = new DebugWindow(simul);
+		simul = new SimulationOrderModel(view);
+		panel = new UIClockPanel(simul);
+		window = new UIDebugWindow(simul);
 
 		view.addSimulator(simul);
 		view.addPositionObserver(panel);
 		view.addPositionObserver(window);
 
-		menu = new ToolbarPanel(this);
+		menu = new UIToolbarPanel(this, simul);
 
 		this.setLayout(new BorderLayout());
 		this.add(menu, BorderLayout.NORTH);
@@ -61,7 +60,7 @@ public class DinamicSimulation extends JPanel {
 		} catch (Exception e) {
 		}
 
-		DinamicSimulation simulation = new DinamicSimulation();
+		UIDinamicSimulation simulation = new UIDinamicSimulation();
 		JFrame window = new JFrame("Simulación paso de mensajes");
 		window.getContentPane().add(simulation);
 		window.setSize(1200, 500);

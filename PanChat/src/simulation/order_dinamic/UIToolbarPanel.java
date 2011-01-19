@@ -20,7 +20,7 @@ import simulation.model.SimulationArrowModel;
 import simulation.view.SimulationView;
 
 @SuppressWarnings("serial")
-public class ToolbarPanel extends JPanel {
+public class UIToolbarPanel extends JPanel {
 
 	// Constantes iconos
 	private static final String path = "/simulation/icons/";
@@ -30,8 +30,9 @@ public class ToolbarPanel extends JPanel {
 	private static final String open = "document-open";
 	private static final String save = "document-save";
 
-	private DinamicSimulation simulation;
+	private UIDinamicSimulation simulation;
 	private SimulationView simulationView;
+	private SimulationOrderModel simulationOrder;
 
 	private JLabel numProcessLabel = new JLabel("Nº process:");
 	private JLabel timeUnitLabel = new JLabel("Time unit: ");
@@ -49,10 +50,11 @@ public class ToolbarPanel extends JPanel {
 
 	private JButton stateButton[] = new JButton[6];
 
-	public ToolbarPanel(DinamicSimulation simulation) {
+	public UIToolbarPanel(UIDinamicSimulation simulation, SimulationOrderModel simul) {
 
 		this.simulation = simulation;
 		this.simulationView = simulation.getSimulationView();
+		this.simulationOrder = simul;
 
 		// Establecemos el tamaño de los cuadros de texto
 		numProcessText.setColumns(4);
@@ -223,9 +225,7 @@ public class ToolbarPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				// simulationView.setDrawSimulationArrows(deliveryCheck
-				// .isSelected());
-
+				simulationOrder.setDrawSimulation(deliveryCheck.isSelected());
 			}
 		});
 

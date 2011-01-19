@@ -59,11 +59,13 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 	/*
 	 * Listas de cada fase : envio, propuesta, confirmación.
 	 */
-	private List<SendArrow> sendPositions = new LinkedList<SendArrow>();
+	private List<SendArrow> sendArrows = new LinkedList<SendArrow>();
 
-	private List<ProposalArrow> proposalPositions = new LinkedList<ProposalArrow>();
+	private List<ProposalArrow> proposalArrows = new LinkedList<ProposalArrow>();
 
-	private List<FinalArrow> finalPositions = new LinkedList<FinalArrow>();
+	private List<FinalArrow> finalArrows = new LinkedList<FinalArrow>();
+
+	private List<CellPosition> proposalPositions = new LinkedList<CellPosition>();
 
 	private CellPosition movingCell;
 
@@ -79,7 +81,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 
 		// Las flechas totales observan el SimulationModel, ya que si la
 		// aumentamos el número de procesos debemos recalcular la flecha.
-		// simulationModel.addObserver(this);
+		simulationModel.addObserver(this);
 
 		recalculate();
 	}
@@ -90,25 +92,6 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 
 		// Añadimos la posición inicial a la lista de posiciones.
 		this.positionList.add(initialPos);
-	}
-
-	/**
-	 * @param lista
-	 * 
-	 * @param process
-	 * 
-	 * @return Obtenemos la flecha correspondiente a un proceso de una lista de
-	 *         flechas.
-	 */
-	public SingleArrow getArrow(List<? extends SingleArrow> lista, int process) {
-		for (SingleArrow arrow : lista) {
-			if (arrow instanceof SendArrow || arrow instanceof FinalArrow) {
-				if (arrow.getFinalPos().process == process)
-					return arrow;
-			} else if (arrow.getInitialPos().process == process)
-				return arrow;
-		}
-		return null;
 	}
 
 	/**
@@ -131,7 +114,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 			// Para cada proceso != del proceso de origen
 			if (i != initialPos.process) {
 
-				SingleArrow arrow = getArrow(sendPositions, i);
+				SingleArrow arrow = getArrow(sendArrows, i);
 				CellPosition finalPos;
 
 				// Comprobamos si existe una flecha de envio (1º fase)
@@ -148,29 +131,41 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 					SendArrow arrow2 = new SendArrow(initialPos, finalPos);
 					this.arrowList.add(arrow2);
 					this.positionList.add(finalPos);
-					this.sendPositions.add(arrow2);
+					this.sendArrows.add(arrow2);
 
 					// Creamos las flechas de respuesta a las de envio
 					CellPosition resp = new CellPosition(initialPos.process,
 							finalPos.tick);
 					resp = simulationModel.freeCell(resp);
 
+					while (this.positionList.contains(resp)) {
+						resp = simulationModel.freeCell(resp);
+					}
+
 					ProposalArrow arrow3 = new ProposalArrow(finalPos, resp);
 					this.arrowList.add(arrow3);
 					this.positionList.add(resp);
-					this.proposalPositions.add(arrow3);
+					this.proposalArrows.add(arrow3);
+					this.proposalPositions.add(resp);
 
 					finalPos = resp;
 
 				} else {
 
-					SingleArrow arrow2 = getArrow(proposalPositions, i);
-					if (!arrow2.isValid(simulationModel)) {
+					SingleArrow arrow2 = getArrow(proposalArrows, i);
+
+					if (!arrow2.isValid(simulationModel)
+							|| listContains(proposalPositions, arrow2
+									.getFinalPos())) {
 
 						// Creamos las flechas de respuesta a las de envio
 						CellPosition resp = new CellPosition(
-								initialPos.process, arrow2.getInitialPos().tick);
+								initialPos.process, arrow2.getFinalPos().tick);
 						resp = simulationModel.freeCell(resp);
+
+						while (listContains(proposalPositions, resp)) {
+							resp = simulationModel.freeCell(resp);
+						}
 
 						arrow2.getFinalPos().set(resp);
 					}
@@ -191,7 +186,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 			// Para cada proceso != del proceso de origen
 			if (i != initialPos.process) {
 
-				SingleArrow arrow = getArrow(finalPositions, i);
+				SingleArrow arrow = getArrow(finalArrows, i);
 
 				CellPosition finalPos;
 
@@ -205,11 +200,11 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 
 					this.arrowList.add(arrow2);
 					this.positionList.add(finalPos);
-					this.finalPositions.add(arrow2);
+					this.finalArrows.add(arrow2);
 
 				} else {
 
-					SingleArrow arrow2 = getArrow(finalPositions, i);
+					SingleArrow arrow2 = getArrow(finalArrows, i);
 
 					arrow2.setInitialPos(proposalPosition);
 
@@ -283,22 +278,23 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 		for (CellPosition pos : this.positionList)
 			clone.positionList.add(pos.clone());
 
-		for (SendArrow arrow : this.sendPositions)
-			clone.sendPositions.add(arrow);
+		for (SendArrow arrow : this.sendArrows)
+			clone.sendArrows.add(arrow);
 
-		for (ProposalArrow arrow : this.proposalPositions)
-			clone.proposalPositions.add(arrow);
+		for (ProposalArrow arrow : this.proposalArrows)
+			clone.proposalArrows.add(arrow);
 
 		clone.proposalPosition = this.proposalPosition.clone();
 
-		for (FinalArrow arrow : this.finalPositions)
-			clone.finalPositions.add(arrow);
+		for (FinalArrow arrow : this.finalArrows)
+			clone.finalArrows.add(arrow);
 
 		return clone;
 	}
 
 	@Override
 	public CellPosition move(CellPosition newPosition) {
+
 		CellPosition result = super.move(newPosition);
 
 		if (movingCell == null) {
@@ -328,7 +324,38 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 	 */
 	@Override
 	public void update(Observable o, Object arg) {
-
 		recalculate();
+	}
+
+	/*
+	 * Funciones ayudantes
+	 */
+	/**
+	 * @param lista
+	 * 
+	 * @param process
+	 * 
+	 * @return Obtenemos la flecha correspondiente a un proceso de una lista de
+	 *         flechas.
+	 */
+	private static SingleArrow getArrow(List<? extends SingleArrow> lista,
+			int process) {
+		for (SingleArrow arrow : lista) {
+			if (arrow instanceof SendArrow || arrow instanceof FinalArrow) {
+				if (arrow.getFinalPos().process == process)
+					return arrow;
+			} else if (arrow.getInitialPos().process == process)
+				return arrow;
+		}
+		return null;
+	}
+
+	private static boolean listContains(Collection<CellPosition> collection,
+			CellPosition cell) {
+		for (CellPosition pos : collection) {
+			if (pos.equals(cell) && pos != cell)
+				return true;
+		}
+		return false;
 	}
 }

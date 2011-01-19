@@ -9,7 +9,7 @@ import simulation.view.CutPosition;
 import simulation.view.IPositionObserver;
 import simulation.view.Position;
 
-public class DebugWindow extends JFrame implements IPositionObserver {
+public class UIDebugWindow extends JFrame implements IPositionObserver {
 
 	private static final long serialVersionUID = 1L;
 
@@ -17,7 +17,7 @@ public class DebugWindow extends JFrame implements IPositionObserver {
 
 	private JTextArea textArea = new JTextArea();
 
-	public DebugWindow(SimulationOrderModel simul) {
+	public UIDebugWindow(SimulationOrderModel simul) {
 		super("Simulation Layer Debug");
 
 		this.simul = simul;

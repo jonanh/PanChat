@@ -25,7 +25,7 @@ public class Arrow extends Line2D.Float implements Serializable {
 			10, 5);
 
 	/*
-	 * variable que contiene la cabeza de la flecha gen�rica con punta en el
+	 * variable que contiene la cabeza de la flecha genérica con punta en el
 	 * (0,0)
 	 */
 	private transient static Path2D.Float arrowPath;
@@ -36,6 +36,7 @@ public class Arrow extends Line2D.Float implements Serializable {
 	private AffineTransform tx = new AffineTransform();
 	private static transient BasicStroke stroke = new BasicStroke(2.0f,
 			BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
+	private transient BasicStroke stroke2;
 
 	/*
 	 * Atributos
@@ -59,6 +60,14 @@ public class Arrow extends Line2D.Float implements Serializable {
 		initialize();
 	}
 
+	public Arrow(Point2D p1, Point2D p2, Color color, float strokeWidth) {
+		super(p1, p2);
+		this.color = redColor;
+		this.stroke2 = new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT,
+				BasicStroke.JOIN_MITER);
+		initialize();
+	}
+
 	public Arrow(float X1, float Y1, float X2, float Y2) {
 		this(X1, Y1, X2, Y2, Color.black);
 	}
@@ -66,6 +75,15 @@ public class Arrow extends Line2D.Float implements Serializable {
 	public Arrow(float X1, float Y1, float X2, float Y2, Color color) {
 		super(X1, Y1, X2, Y2);
 		this.color = color;
+		reload();
+	}
+
+	public Arrow(float X1, float Y1, float X2, float Y2, Color color,
+			float strokeWidth) {
+		super(X1, Y1, X2, Y2);
+		this.color = color;
+		this.stroke2 = new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT,
+				BasicStroke.JOIN_MITER);
 		reload();
 	}
 
@@ -83,7 +101,7 @@ public class Arrow extends Line2D.Float implements Serializable {
 	 */
 	protected void reload() {
 		initialize();
-		
+
 		tx.setToIdentity();
 		// Sacamos el angulo de la linea que usamos como base para representar
 		// la flecha.
@@ -98,7 +116,10 @@ public class Arrow extends Line2D.Float implements Serializable {
 		else
 			g.setColor(redColor);
 
-		g.setStroke(stroke);
+		if (stroke2 != null)
+			g.setStroke(stroke2);
+		else
+			g.setStroke(stroke);
 
 		g.draw(this);
 

@@ -16,7 +16,7 @@ import simulation.view.CellPosition;
 import simulation.view.IPositionObserver;
 import simulation.view.Position;
 
-public class ClockPanel extends JPanel implements Observer, IPositionObserver {
+public class UIClockPanel extends JPanel implements Observer, IPositionObserver {
 
 	private static final long serialVersionUID = 1L;
 
@@ -28,7 +28,7 @@ public class ClockPanel extends JPanel implements Observer, IPositionObserver {
 	private JTable jtableVector;
 	private JTable jtableMatrix;
 
-	public ClockPanel(SimulationOrderModel simulation) {
+	public UIClockPanel(SimulationOrderModel simulation) {
 
 		simulationOrderModel = simulation;
 		simulation.addObserver(this);

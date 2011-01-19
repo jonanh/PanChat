@@ -66,9 +66,20 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 	 */
 	private SimulationArrowModel simulationArrowModel;
 
-	public SimulationOrderModel(SimulationArrowModel simulationModel) {
+	/*
+	 * Referencia a la vista.
+	 */
+	private SimulationView simulationView;
 
-		simulationArrowModel = simulationModel;
+	/*
+	 * Usamos esta variable para indicar si dibujamos la simulación real o no.
+	 */
+	private boolean drawSimulation = true;
+
+	public SimulationOrderModel(SimulationView view) {
+
+		simulationView = view;
+		simulationArrowModel = view.getSimulationModel();
 
 	}
 
@@ -265,6 +276,12 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 
 	@Override
 	public void drawSimulation(Graphics2D g) {
-		SimulationView.paintArrows(g, this.simulationArrows);
+		if (drawSimulation)
+			SimulationView.paintArrows(g, this.simulationArrows);
+	}
+
+	public void setDrawSimulation(boolean selected) {
+		drawSimulation = selected;
+		simulationView.repaint();
 	}
 }

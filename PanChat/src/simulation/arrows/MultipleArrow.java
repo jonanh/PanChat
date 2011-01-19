@@ -103,8 +103,6 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	 */
 	public void addArrow(MessageArrow arrow) {
 
-		System.out.println("kk");
-		
 		if (arrow instanceof SingleArrow) {
 			SingleArrow singleArrow = (SingleArrow) arrow;
 

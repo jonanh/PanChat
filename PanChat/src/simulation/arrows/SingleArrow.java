@@ -3,6 +3,7 @@ package simulation.arrows;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.EnumMap;
 
 import order.Message.Type;
@@ -38,6 +39,14 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
 			Color color) {
 		super(0f, 0f, 0f, 0f, color);
+		this.initialPos = initialPos;
+		this.finalPos = finalPos;
+		update();
+	}
+
+	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
+			Color color, float strokeWidth) {
+		super(0f, 0f, 0f, 0f, color, strokeWidth);
 		this.initialPos = initialPos;
 		this.finalPos = finalPos;
 		update();
@@ -128,7 +137,7 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 			return isValid = false;
 
 		// Si el destino de la fecha apunta a una celda ya ocupada
-		if (simulationModel.getArrow(finalPos) != null)
+		if (simulationModel.getArrow(finalPos) != null && listContains(simulationModel.getArrow(finalPos).getPositions(),finalPos))
 			return isValid = false;
 
 		return isValid = true;
@@ -153,6 +162,15 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 			SingleArrow arrow = (SingleArrow) obj;
 			return this.initialPos.equals(arrow.initialPos)
 					&& this.finalPos.equals(arrow.finalPos);
+		}
+		return false;
+	}
+
+	private static boolean listContains(Collection<CellPosition> collection,
+			CellPosition cell) {
+		for (CellPosition pos : collection) {
+			if (pos.equals(cell) && pos != cell)
+				return true;
 		}
 		return false;
 	}
