@@ -10,7 +10,7 @@ import order.clocks.LamportClock;
 
 import panchat.data.User;
 
-public class TotalOrderLinker extends OrderLayer {
+public class TotalOrderLayer extends OrderLayer {
 
 	private LamportClock clock = new LamportClock();
 
@@ -64,7 +64,7 @@ public class TotalOrderLinker extends OrderLayer {
 	 */
 	HashMap<Integer, Integer[]> values = new HashMap<Integer, Integer[]>();
 
-	public TotalOrderLinker(User user) {
+	public TotalOrderLayer(User user) {
 		super(user);
 	}
 
