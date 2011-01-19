@@ -10,7 +10,7 @@ import simulation.arrows.SingleArrow;
 import simulation.order_dinamic.arrows.TotalArrow;
 import simulation.view.CellPosition;
 import simulation.view.IPositionObserver;
-import simulation.view.Position;
+import simulation.view.IPosition;
 import simulation.view.SimulationView;
 
 /**
@@ -50,7 +50,7 @@ public class CreateListener extends MoveListener {
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// Obtenemos la posición y la flecha en esa posición
-		Position pos = simulationView.getPosition(e);
+		IPosition pos = simulationView.getPosition(e);
 
 		// Si la posicion es una celda
 		if (pos instanceof CellPosition) {

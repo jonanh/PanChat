@@ -10,7 +10,7 @@ import panchat.data.User;
 
 import simulation.arrows.MultipleArrow;
 import simulation.view.CellPosition;
-import simulation.view.Position;
+import simulation.view.IPosition;
 
 /**
  * Clase que representa los datos del simulador :
@@ -165,7 +165,7 @@ public class SimulationArrowModel extends Observable implements Serializable {
 		this.notifyObservers();
 	}
 
-	public synchronized MultipleArrow getArrow(Position position) {
+	public synchronized MultipleArrow getArrow(IPosition position) {
 
 		MultipleArrow arrow = arrowMatrix.get(position);
 

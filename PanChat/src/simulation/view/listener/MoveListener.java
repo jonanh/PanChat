@@ -6,7 +6,7 @@ import simulation.arrows.MultipleArrow;
 import simulation.view.CellPosition;
 import simulation.view.CutPosition;
 import simulation.view.IPositionObserver;
-import simulation.view.Position;
+import simulation.view.IPosition;
 import simulation.view.SimulationView;
 
 /**
@@ -61,7 +61,7 @@ public class MoveListener extends ViewListener {
 		if (drawingArrow == null) {
 
 			// Obtenemos la posición y la flecha en esa posición
-			Position pos = simulationView.getPosition(e);
+			IPosition pos = simulationView.getPosition(e);
 
 			// Si la posicion es una celda
 			if (pos instanceof CellPosition) {
@@ -126,7 +126,7 @@ public class MoveListener extends ViewListener {
 		if (drawingArrow != null) {
 
 			// Obtenemos la posición
-			Position pos = simulationView.getPosition(e);
+			IPosition pos = simulationView.getPosition(e);
 
 			CellPosition cell = null;
 

@@ -7,7 +7,7 @@ import javax.swing.JTextArea;
 import simulation.view.CellPosition;
 import simulation.view.CutPosition;
 import simulation.view.IPositionObserver;
-import simulation.view.Position;
+import simulation.view.IPosition;
 
 public class UIDebugWindow extends JFrame implements IPositionObserver {
 
@@ -31,7 +31,7 @@ public class UIDebugWindow extends JFrame implements IPositionObserver {
 	}
 
 	@Override
-	public void setPosition(Position pos, Mode mode) {
+	public void setPosition(IPosition pos, Mode mode) {
 		if (mode.equals(Mode.DoubleClick)) {
 			String log = "";
 			if (pos instanceof CellPosition) {

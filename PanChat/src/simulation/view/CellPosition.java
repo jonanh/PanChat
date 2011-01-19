@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Clase que representa las posiciones en el tablero de la simulación.
  */
-public class CellPosition implements Serializable, Position {
+public class CellPosition implements Serializable, IPosition {
 
 	private static final long serialVersionUID = 1L;
 

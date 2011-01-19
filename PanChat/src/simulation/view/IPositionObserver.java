@@ -6,6 +6,6 @@ public interface IPositionObserver {
 		Over, Click, DoubleClick
 	}
 
-	public void setPosition(Position pos, Mode mode);
+	public void setPosition(IPosition pos, Mode mode);
 
 }

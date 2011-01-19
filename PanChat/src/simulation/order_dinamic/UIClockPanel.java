@@ -14,7 +14,7 @@ import order.clocks.models.VectorClockModel;
 
 import simulation.view.CellPosition;
 import simulation.view.IPositionObserver;
-import simulation.view.Position;
+import simulation.view.IPosition;
 
 public class UIClockPanel extends JPanel implements Observer, IPositionObserver {
 
@@ -53,7 +53,7 @@ public class UIClockPanel extends JPanel implements Observer, IPositionObserver 
 	 * @param clock
 	 */
 	@Override
-	public void setPosition(Position pos, IPositionObserver.Mode mode) {
+	public void setPosition(IPosition pos, IPositionObserver.Mode mode) {
 		if (pos instanceof CellPosition)
 			position = (CellPosition) pos;
 		updateClocks();

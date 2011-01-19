@@ -3,7 +3,7 @@ package simulation.view;
 import java.io.Serializable;
 
 @SuppressWarnings("serial")
-public class CutPosition implements Serializable, Position {
+public class CutPosition implements Serializable, IPosition {
 
 	public int tick;
 

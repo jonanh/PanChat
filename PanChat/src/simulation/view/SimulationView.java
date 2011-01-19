@@ -69,7 +69,7 @@ public class SimulationView extends JPanel implements Observer {
 
 	// Atributo que usamos para guardar sobre que estamos (celda, corte o fuera
 	// de la pantalla)
-	private Position overPosition;
+	private IPosition overPosition;
 	private Boolean validOverPosition = true;
 
 	// Flecha que estamos modificando sobre la vista. Como no es una flecha
@@ -371,7 +371,7 @@ public class SimulationView extends JPanel implements Observer {
 	 * 
 	 * @param newPosition
 	 */
-	public void setPosition(Position newPosition, IPositionObserver.Mode mode) {
+	public void setPosition(IPosition newPosition, IPositionObserver.Mode mode) {
 		/*
 		 * - Si la posicion antigua era distinta de null y ahora es null, ya no
 		 * estamos encima de la pantalla. (evitamos el null pointer)
@@ -401,7 +401,7 @@ public class SimulationView extends JPanel implements Observer {
 	 * 
 	 * @param newPosition
 	 */
-	public void setPosition(Position newPosition, IPositionObserver.Mode mode,
+	public void setPosition(IPosition newPosition, IPositionObserver.Mode mode,
 			Boolean valid) {
 		setPosition(newPosition, mode);
 		this.validOverPosition = valid;
@@ -411,14 +411,14 @@ public class SimulationView extends JPanel implements Observer {
 	 * 
 	 * @return Devuelve la posición actual
 	 */
-	public Position getOverPosition() {
+	public IPosition getOverPosition() {
 		return this.overPosition;
 	}
 
 	/**
 	 * Calcular el indice de la celda en funcion de la posicion del cursor
 	 */
-	public Position getPosition(MouseEvent e) {
+	public IPosition getPosition(MouseEvent e) {
 
 		int x = e.getX();
 		int y = e.getY();
