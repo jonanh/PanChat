@@ -67,8 +67,12 @@ public class CreateListener extends MoveListener {
 				if (properties.get(Type.TOTAL) != null
 						&& properties.get(Type.TOTAL)) {
 
-					simulationModel.addArrow(new TotalArrow(cell,
-							simulationModel));
+					TotalArrow arrow = new TotalArrow(cell, simulationModel);
+
+					// Copiamos las propiedades en el mensaje creado.
+					arrow.getProperties().putAll(properties);
+
+					simulationModel.addArrow(arrow);
 
 				} else {
 

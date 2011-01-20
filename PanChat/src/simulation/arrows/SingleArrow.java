@@ -32,24 +32,36 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 	// Propiedades de la flecha
 	private EnumMap<Type, Boolean> properties;
 
-	public SingleArrow(CellPosition initialPos, CellPosition finalPos) {
+	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
+			Type... properties) {
+
 		this(initialPos, finalPos, new EnumMap<Type, Boolean>(Type.class));
+
+		for (Type type : properties) {
+			this.properties.put(type, true);
+		}
 	}
 
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
-			Color color) {
+			Color color, Type... properties) {
 		super(0f, 0f, 0f, 0f, color);
 		this.initialPos = initialPos;
 		this.finalPos = finalPos;
 		update();
+		for (Type type : properties) {
+			this.properties.put(type, true);
+		}
 	}
 
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
-			Color color, float strokeWidth) {
+			Color color, float strokeWidth, Type... properties) {
 		super(0f, 0f, 0f, 0f, color, strokeWidth);
 		this.initialPos = initialPos;
 		this.finalPos = finalPos;
 		update();
+		for (Type type : properties) {
+			this.properties.put(type, true);
+		}
 	}
 
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
@@ -137,7 +149,9 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 			return isValid = false;
 
 		// Si el destino de la fecha apunta a una celda ya ocupada
-		if (simulationModel.getArrow(finalPos) != null && listContains(simulationModel.getArrow(finalPos).getPositions(),finalPos))
+		if (simulationModel.getArrow(finalPos) != null
+				&& listContains(simulationModel.getArrow(finalPos)
+						.getPositions(), finalPos))
 			return isValid = false;
 
 		return isValid = true;

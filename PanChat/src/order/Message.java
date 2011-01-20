@@ -97,17 +97,16 @@ public class Message implements Serializable {
 		/*
 		 * Comprobamos si el mensaje ha sido marcado mediante las interfaces.
 		 */
-		if (pMessage instanceof Total) {
+		if (pMessage instanceof Total)
 			this.properties.put(Type.TOTAL, true);
-		} else if (pMessage instanceof Causal) {
+		if (pMessage instanceof Causal)
 			this.properties.put(Type.CAUSAL, true);
-		} else if (pMessage instanceof Fifo) {
+		if (pMessage instanceof Fifo)
 			this.properties.put(Type.FIFO, true);
-		} else if (pMessage instanceof Multicast) {
+		if (pMessage instanceof Multicast)
 			this.properties.put(Type.MULTICAST, true);
-		} else if (pMessage instanceof Unicast) {
+		if (pMessage instanceof Unicast)
 			this.properties.put(Type.UNICAST, true);
-		}
 	}
 
 	/**

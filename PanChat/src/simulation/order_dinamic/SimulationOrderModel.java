@@ -179,53 +179,6 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 				User user = simulationArrowModel.getUser(iterator.process);
 				SimulationTopLayer topLayer = topLayers.get(user);
 
-				// Las MultipleArrow son el conjunto de flechas que conforman
-				// una operación.
-				MultipleArrow multipleArrow;
-
-				// Listado de flechas que salen del punto que estamos evaluando.
-				List<SingleArrow> sendArrows;
-
-				// Obtenemos la flecha correspondiente a este paso en el
-				// simulador, comprobando si esta existe.
-				multipleArrow = simulationArrowModel.getArrow(iterator);
-				if (multipleArrow != null) {
-
-					// Obtenemos las flechas que salen de este punto
-					sendArrows = multipleArrow.getInitialArrow(iterator);
-
-					for (SingleArrow destArrow : sendArrows) {
-
-						// Necesitamos hacer el mapeo proceso - usuario
-						int process = destArrow.getFinalPos().process;
-						User user2 = simulationArrowModel.getUser(process);
-
-						// Creamos el mensaje, y guardamos en el la posición
-						// donde estamos (el tick y el proceso), de modo que
-						// cuando lo recibamos creamos una flecha desde que se
-						// envio, a ese momento en el que se reciba.
-						Message msg = new Message(iterator.clone(), user,
-								multipleArrow.getProperties().clone());
-
-						topLayer.sendMsg(user2, msg);
-
-						// Al ser simulado, no se envia realmente el paquete, y
-						// lo que hacemos es recogerlo de la capa más baja de
-						// las capas de ordenación. Tras su paso por las capas
-						// de ordenación ellas habrán introducido en el mensaje
-						// los relojes necesarios.
-						Collection<Message> messages;
-						messages = topLayer.getSendedMsg().values();
-
-						// Guardamos el mensaje (simulando el retardo de la
-						// red), y lo añadiremos al destinatario en el momento
-						// que representa el final de la flecha.
-						receive.put(destArrow.getFinalPos(), messages
-								.iterator().next());
-
-					}
-				}
-
 				/*
 				 * Recepción de mensajes
 				 */
@@ -251,16 +204,78 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 
 						Message rMsg = receivedMessages.next();
 
-						// En el interior del mensaje habíamos guardado la
-						// posición de destino
-						CellPosition pos = (CellPosition) rMsg.getContent();
+						if (rMsg.getContent() instanceof CellPosition) {
+							// En el interior del mensaje habíamos guardado la
+							// posición de destino
+							CellPosition pos = (CellPosition) rMsg.getContent();
 
-						// Creamos la flecha que representa la entrega
-						SingleArrow arrow = new DeliveryArrow(pos, iterator
-								.clone());
+							// Creamos la flecha que representa la entrega
+							SingleArrow arrow = new DeliveryArrow(pos, iterator
+									.clone());
 
-						// La añadimos al listado de flechas de entrega.
-						simulationArrows.add(arrow);
+							// La añadimos al listado de flechas de entrega.
+							simulationArrows.add(arrow);
+						}
+					}
+				}
+
+				// Comprobamos si la recepción de mensajes ha generado envio de
+				// mensajes.
+				Collection<Message> messages = topLayer.getSendedMsg().values();
+
+				/*
+				 * Envio de mensajes
+				 */
+
+				// Las MultipleArrow son el conjunto de flechas que conforman
+				// una operación.
+				MultipleArrow multipleArrow;
+
+				// Listado de flechas que salen del punto que estamos evaluando.
+				List<SingleArrow> sendArrows;
+
+				// Obtenemos la flecha correspondiente a este paso en el
+				// simulador, comprobando si esta existe.
+				multipleArrow = simulationArrowModel.getArrow(iterator);
+				if (multipleArrow != null) {
+
+					// Obtenemos las flechas que salen de este punto
+					sendArrows = multipleArrow.getInitialArrow(iterator);
+					LinkedList<User> listDest = new LinkedList<User>();
+
+					for (SingleArrow destArrow : sendArrows) {
+
+						// Necesitamos hacer el mapeo proceso - usuario
+						int process = destArrow.getFinalPos().process;
+						User user2 = simulationArrowModel.getUser(process);
+
+						listDest.add(user2);
+					}
+
+					if (messages.size() == 0 && listDest.size() > 0) {
+						// Creamos el mensaje, y guardamos en el la posición
+						// donde estamos (el tick y el proceso), de modo que
+						// cuando lo recibamos creamos una flecha desde que se
+						// envio, a ese momento en el que se reciba.
+						msg = new Message(iterator.clone(), user, multipleArrow
+								.getProperties().clone());
+						topLayer.sendMsg(listDest, msg);
+
+						// Al ser simulado, no se envia realmente el paquete, y
+						// lo que hacemos es recogerlo de la capa más baja de
+						// las capas de ordenación. Tras su paso por las capas
+						// de ordenación ellas habrán introducido en el mensaje
+						// los relojes necesarios.
+						messages = topLayer.getSendedMsg().values();
+					}
+
+					Iterator<Message> iter = messages.iterator();
+					for (SingleArrow destArrow : sendArrows) {
+						// Guardamos el mensaje (simulando el retardo de la
+						// red), y lo añadiremos al destinatario en el momento
+						// que representa el final de la flecha.
+						if (iter.hasNext())
+							receive.put(destArrow.getFinalPos(), iter.next());
 					}
 				}
 

@@ -69,17 +69,9 @@ public class CausalMatrixLayer extends OrderLayer {
 		//
 		// return true;
 
-		debug("W:" + W.toString() + "\n");
-		debug("srcId:" + matrix.toString() + "\n");
-
-		debug(W.getValue(srcId, user) + " > " + matrix.getValue(srcId, user));
-
 		if (W.getValue(srcId, user) > (matrix.getValue(srcId, user) + 1)) {
-			debug("false");
 			return false;
 		}
-
-		debug("true");
 
 		// Primero añadimos unas columnas que falten en las filas ya existentes.
 		Iterator<Entry<User, Hashtable<User, Integer>>> iter = matrix.HashMatrix
@@ -91,12 +83,9 @@ public class CausalMatrixLayer extends OrderLayer {
 					&& (W.getValue(kIduuid, user) > matrix.getValue(kIduuid,
 							user))) {
 
-				debug("false");
 				return false;
 			}
 		}
-
-		debug("true\n");
 
 		return true;
 	}

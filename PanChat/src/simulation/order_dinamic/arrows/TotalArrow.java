@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
+import order.Message.Type;
+
 import simulation.arrows.MessageArrow;
 import simulation.arrows.MultipleArrow;
 import simulation.arrows.SingleArrow;
@@ -25,7 +27,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 		private static final long serialVersionUID = 1L;
 
 		public SendArrow(CellPosition initialPos, CellPosition finalPos) {
-			super(initialPos, finalPos);
+			super(initialPos, finalPos, Type.FIFO, Type.TOTAL);
 		}
 	}
 
@@ -33,7 +35,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 		private static final long serialVersionUID = 1L;
 
 		public ProposalArrow(CellPosition initialPos, CellPosition finalPos) {
-			super(initialPos, finalPos);
+			super(initialPos, finalPos, Type.FIFO, Type.TOTAL);
 		}
 	}
 
@@ -41,7 +43,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 		private static final long serialVersionUID = 1L;
 
 		public FinalArrow(CellPosition initialPos, CellPosition finalPos) {
-			super(initialPos, finalPos);
+			super(initialPos, finalPos, Type.FIFO, Type.TOTAL);
 		}
 	}
 

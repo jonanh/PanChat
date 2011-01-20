@@ -18,7 +18,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 	private static String debugLog = "";
 
 	public static enum receiveStatus {
-		Receive, Delete, Nothing
+		Receive, Delete, Nothing, Delivery
 	}
 
 	/*
@@ -40,7 +40,7 @@ public abstract class OrderLayer extends Observable implements Observer {
 	/*
 	 * Lista de usuarios
 	 */
-	protected LinkedList<User> userList = new LinkedList<User>();
+	protected List<User> userList = new LinkedList<User>();
 
 	/**
 	 * Crear capa de ordenacion
@@ -172,7 +172,9 @@ public abstract class OrderLayer extends Observable implements Observer {
 
 			debug("\t\t- comprobando mensaje " + mensaje.toString());
 
-			if (okayToRecv(mensaje) == receiveStatus.Receive) {
+			receiveStatus status = okayToRecv(mensaje);
+
+			if (status == receiveStatus.Receive) {
 
 				// Hay algo que mandar
 				delivery = true;
@@ -189,8 +191,11 @@ public abstract class OrderLayer extends Observable implements Observer {
 
 				debug("\t\t- añadido a delivery! ");
 
-			} else if (okayToRecv(mensaje) == receiveStatus.Delete) {
+			} else if (status == receiveStatus.Delete) {
 				iter.remove();
+			} else if (status == receiveStatus.Delivery) {
+				iter.remove();
+				delivery = true;
 			}
 		}
 		debug("");

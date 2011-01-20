@@ -13,6 +13,7 @@ import order.clocks.VectorClock;
 import order.layer.CausalMatrixLayer;
 import order.layer.FifoOrderLayer;
 import order.layer.OrderLayer;
+import order.layer.TotalOrderLayer;
 
 import panchat.data.User;
 
@@ -24,6 +25,9 @@ public class SimulationTopLayer extends OrderLayer {
 	SimulationBottomLayer bottomLayer;
 	FifoOrderLayer fifo;
 	CausalMatrixLayer causal;
+	TotalOrderLayer total;
+
+	Queue<Message> receivedQueue = new LinkedList<Message>();
 
 	public SimulationTopLayer(User user, Collection<User> users) {
 		this(user);
@@ -43,13 +47,15 @@ public class SimulationTopLayer extends OrderLayer {
 		bottomLayer = new SimulationBottomLayer(user);
 		fifo = new FifoOrderLayer(user);
 		causal = new CausalMatrixLayer(user);
+		total = new TotalOrderLayer(user, true);
 
 		/*
 		 * Vinculamos las capas en el orden inverso, ya que notifyObservers
 		 * llama a los observadores en orden inverso al orden en el que son
 		 * registrados.
 		 */
-		this.addBottomLayers(causal, fifo, bottomLayer);
+		this.addBottomLayers(total, causal, fifo, bottomLayer);
+		total.addBottomLayers(causal, fifo, bottomLayer);
 		causal.addBottomLayers(fifo, bottomLayer);
 		fifo.addBottomLayers(bottomLayer);
 	}
@@ -88,8 +94,8 @@ public class SimulationTopLayer extends OrderLayer {
 	 *         tras todo el procesamiento de las capas de ordenación.
 	 */
 	public Collection<Message> getReceivedMsgs() {
-		Queue<Message> returnQueue = deliveryQueue;
-		deliveryQueue = new LinkedList<Message>();
+		Queue<Message> returnQueue = receivedQueue;
+		receivedQueue = new LinkedList<Message>();
 		return returnQueue;
 	}
 
@@ -111,6 +117,9 @@ public class SimulationTopLayer extends OrderLayer {
 		if (this.deliveryQueue.size() > 0) {
 			debug("\nMensajes recibidos en el cliente :");
 			debug("\t" + this.deliveryQueue.toString() + "\n\n");
+
+			this.receivedQueue.addAll(deliveryQueue);
+			this.deliveryQueue.clear();
 		}
 	}
 }

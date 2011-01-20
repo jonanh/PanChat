@@ -1,8 +1,10 @@
 package order.layer;
 
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.UUID;
 
 import order.Message;
 import order.Message.Type;
@@ -12,128 +14,204 @@ import panchat.data.User;
 
 public class TotalOrderLayer extends OrderLayer {
 
-	private LamportClock clock = new LamportClock();
-
 	/*
-	 * Estructura de datos que almacenamos por cada mensaje total enviado
+	 * Cuando hacemos una simulación queremos que el escenarios sea
+	 * determinista, como existe la posibilidad que se dé una situación de
+	 * empate con 2 mensajes de igual prioridad (2 procesos inician a la vez y
+	 * realizan los mismos pasos, resultado 2 mensajes totales con misma
+	 * prioridad), en un escenario real desenpataríamos de mediante el
+	 * identificador aleatorio del mensaje.
+	 * 
+	 * Para hacerlo determinista en nuestra simulación, númeraremos de manera
+	 * total mediante un contador estático.
 	 */
-	private class SendMessagePending {
+	private final boolean simulating;
 
-		private List<User> userList;
-		private List<User> responseUserList;
-		LamportClock clock;
-
-		SendMessagePending(LamportClock clock, List<User> userList) {
-			this.clock = clock;
-			for (User user : this.userList) {
-				this.userList.add(user);
-				this.responseUserList.add(user);
-			}
-		}
-
-		/**
-		 * @return Si hemos recibido una respuesta de todos
-		 */
-		boolean okayToRecv() {
-			return responseUserList.size() == 0;
-		}
-
-	}
+	private static int msgCount = 0;
 
 	/*
 	 * Tramas para cada una de las fases de la ordenación total.
 	 */
 	public class TotalSendMsg implements Message.Fifo, Message.Total {
-		int msgReference;
 		LamportClock clock;
-		Object content;
+		TotalUndeliverable content;
 	}
 
 	public class TotalProposalMsg implements Message.Fifo, Message.Total {
 		int msgReference;
-		LamportClock clock;
+		int clock;
 	}
 
 	public class TotalFinalMsg implements Message.Fifo, Message.Total {
-		LamportClock clock;
+		int msgReference;
+		int clock;
 	}
 
 	/*
-	 * Usamos esta tabla hash para ir almacenando los diferentes relojes que nos
-	 * van respondiendo.
+	 * Atributos
 	 */
-	HashMap<Integer, Integer[]> values = new HashMap<Integer, Integer[]>();
+
+	// Reloj de lamport
+	private LamportClock clock = new LamportClock();
+
+	// Cola de prioridad que almacena los mensajes "undeliverable"s
+	private PriorityQueue<TotalUndeliverable> priorityQueue = new PriorityQueue<TotalUndeliverable>();
+
+	// Tabla hash para acceder de manera constante a los mensajes por su
+	// identificador
+	private HashMap<Integer, TotalUndeliverable> hash = new HashMap<Integer, TotalUndeliverable>();
 
 	public TotalOrderLayer(User user) {
 		super(user);
+		this.simulating = false;
 	}
 
-	/**
-	 * Enviar mensaje a multiples usuarios
-	 * 
-	 * @param users
-	 * 
-	 * @param msg
+	public TotalOrderLayer(User user, boolean simulating) {
+		super(user);
+		this.simulating = simulating;
+	}
+
+	/*
+	 * 1º Etapa, envio del mensaje Total
 	 */
-	@Override
-	public synchronized void sendMsg(List<User> users, Message msg) {
+	private void sendMsg(Message msg) {
 		// Incrementamos el reloj, y añadimos el reloj al mensaje
 		clock.tick();
-		msg.setClock(orderCapability(), clock);
 
-		// Añadimos el mensaje a la cola de pendientes
-		this.pendingQueue.add(msg.clone());
+		// Parametros que necesitamos guardar en el mensaje "undeliverable"
+		// - El identificador
+		// - La prioridad inicial
+		// - La lista de usuarios (para saber cuando hemos recibido todas las
+		// respuestas
+		// - El mensaje
 
-		// Enviamos el mensaje
-		super.sendMsg(users, msg);
+		// La referencia será aleatoria o determinista dependiendo de si estamos
+		// realizando una simulación o no.
+		int msgRef = simulating ? msgCount++ : UUID.randomUUID().hashCode();
+		int priority = clock.getValue();
+		List<User> list = new LinkedList<User>(this.userList);
+
+		TotalUndeliverable undeliverable = new TotalUndeliverable(msgRef,
+				priority, msg, list);
+
+		// Añadimos el mensaje a la cola
+		this.priorityQueue.add(undeliverable);
+		this.hash.put(msgRef, undeliverable);
+
+		// Enviamos una trama al resto de clientes
+		TotalSendMsg send = new TotalSendMsg();
+		send.content = undeliverable.clone();
+		send.clock = clock.clone();
+
+		super.sendMsg(this.userList, new Message(send, this.user));
 	}
 
-	/**
-	 * - To send a multicast message, a process sends a timestamped message to
-	 * all the destination processes.
-	 */
+	@Override
+	public synchronized void sendMsg(List<User> users, Message msg) {
+		sendMsg(msg);
+	}
+
 	@Override
 	public synchronized void sendMsg(User user, Message msg) {
-		clock.tick();
-		msg.setClock(orderCapability(), clock);
-		super.sendMsg(user, msg);
+		sendMsg(msg);
 	}
 
+	/*
+	 * 2º y 3º Etapa
+	 */
 	@Override
 	protected receiveStatus okayToRecv(Message msg) {
-		
+
+		// Cada vez que recibimos un mensaje, aumentamos el reloj de lamport.
 		this.clock.tick();
-		
+
 		/*
 		 * - On receiving a message, a process marks it as undeliverable and
 		 * sends the value of the logical clock as the proposed timestamp to the
 		 * initiator.
 		 */
 		if (msg.getContent() instanceof TotalSendMsg) {
-//			this.undeliverable.add(msg);
-			
+
+			TotalSendMsg totalMsg = (TotalSendMsg) msg.getContent();
+			TotalUndeliverable undeliverable = totalMsg.content;
+
+			undeliverable.priority = Math.max(this.clock.getValue(),
+					undeliverable.priority);
+
+			this.priorityQueue.add(undeliverable);
+			this.hash.put(undeliverable.msgReference, undeliverable);
+
 			TotalProposalMsg proposal = new TotalProposalMsg();
-			proposal.clock = this.clock.clone();
-			
-//			super.sendMsg(msg.getUsuario());
-			
-			return receiveStatus.Delete;
+			proposal.clock = this.clock.getValue();
+			proposal.msgReference = undeliverable.msgReference;
+
+			super.sendMsg(msg.getUsuario(), new Message(proposal, this.user));
 		}
 		/*
 		 * - When the initiator has received all the proposed timestamps, it
 		 * takes the maximum of all proposals and assigns that timestamp as the
 		 * final timestamp to that message. This value is sent to all the
 		 * destinations.
-		 * 
+		 */
+		else if (msg.getContent() instanceof TotalProposalMsg) {
+
+			TotalProposalMsg totalMsg = (TotalProposalMsg) msg.getContent();
+			TotalUndeliverable undeliverable = this.hash
+					.get(totalMsg.msgReference);
+
+			if (undeliverable != null) {
+
+				// Actualizamos la prioridad del mensaje
+				undeliverable.addPriority(msg.getUsuario(), totalMsg.clock);
+
+				if (undeliverable.deliverable) {
+
+					TotalFinalMsg proposal = new TotalFinalMsg();
+					proposal.clock = undeliverable.priority;
+					proposal.msgReference = undeliverable.msgReference;
+
+					super.sendMsg(undeliverable.userList, new Message(proposal,
+							this.user));
+				}
+
+			} else {
+				System.out.println("Propuesta de mensaje total incorrecta");
+			}
+		}
+		/*
 		 * - On receiving the final timestamp of a message, it is marked as
 		 * deliverable.
-		 * 
+		 */
+		else if (msg.getContent() instanceof TotalFinalMsg) {
+
+			TotalFinalMsg totalMsg = (TotalFinalMsg) msg.getContent();
+			TotalUndeliverable undeliverable = this.hash
+					.get(totalMsg.msgReference);
+
+			if (undeliverable != null) {
+
+				// Actualizamos la prioridad del mensaje
+				undeliverable.setDeliverable(totalMsg.clock);
+
+			} else {
+				System.out.println("Mensaje total incorrecto");
+			}
+
+		} else {
+			System.out.println("error");
+		}
+
+		/*
 		 * - A deliverable message is delivered to the site if it has the
 		 * smallest timestamp in the message queue.
 		 */
-//		if (msg instanceof )
-		
-		return receiveStatus.Nothing;
+		while (priorityQueue.peek() != null && priorityQueue.peek().deliverable)
+			this.deliveryQueue.add(priorityQueue.poll().content);
+
+		if (this.deliveryQueue.size() > 0)
+			return receiveStatus.Delivery;
+
+		return receiveStatus.Delete;
 	}
 
 	@Override
