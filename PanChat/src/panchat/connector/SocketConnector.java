@@ -73,8 +73,8 @@ public class SocketConnector extends OrderLayer implements Connector {
 	}
 
 	@Override
-	protected boolean okayToRecv(Message msg) {
-		return true;
+	protected receiveStatus okayToRecv(Message msg) {
+		return receiveStatus.Receive;
 	}
 
 	@Override
