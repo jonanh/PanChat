@@ -72,10 +72,10 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 	public TotalArrow(CellPosition initialPos,
 			SimulationArrowModel simulationModel) {
 
-		super(initialPos);
+		super(initialPos.clone());
 
 		// Añadimos la posición inicial a la lista de posiciones.
-		this.positionList.add(initialPos);
+		this.positionList.add(this.initialPos);
 
 		this.simulationModel = simulationModel;
 
@@ -316,7 +316,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 			if (list.indexOf(pos) == -1)
 				list.add(pos);
 
-		return list;
+		return this.positionList;
 	}
 
 	/**
