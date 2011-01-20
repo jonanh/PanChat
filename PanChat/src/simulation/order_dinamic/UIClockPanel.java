@@ -8,6 +8,7 @@ import java.util.Observer;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 
 import order.clocks.models.CausalMatrixModel;
 import order.clocks.models.VectorClockModel;
@@ -27,6 +28,7 @@ public class UIClockPanel extends JPanel implements Observer, IPositionObserver 
 
 	private JTable jtableVector;
 	private JTable jtableMatrix;
+	private JTextArea textArea;
 
 	public UIClockPanel(SimulationOrderModel simulation) {
 
@@ -39,9 +41,13 @@ public class UIClockPanel extends JPanel implements Observer, IPositionObserver 
 		jtableVector = new JTable(vectorClock);
 		jtableMatrix = new JTable(matrixClock);
 
-		this.setLayout(new GridLayout(2, 1));
+		textArea = new JTextArea();
+		textArea.setEditable(false);
+
+		this.setLayout(new GridLayout(3, 1));
 		this.add(new JScrollPane(jtableVector));
 		this.add(new JScrollPane(jtableMatrix));
+		this.add(new JScrollPane(textArea));
 
 		setPreferredSize(new Dimension(120, 0));
 
@@ -69,6 +75,7 @@ public class UIClockPanel extends JPanel implements Observer, IPositionObserver 
 		if (clock != null) {
 			vectorClock.setVectors(clock.sendClock, clock.receiveClock);
 			matrixClock.setCausalMatrix(clock.causal);
+			textArea.setText(clock.total);
 		}
 	}
 }

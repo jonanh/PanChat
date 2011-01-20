@@ -107,8 +107,10 @@ public class SimulationTopLayer extends OrderLayer {
 		VectorClock sendClock = fifo.getSendClock().clone();
 		VectorClock receiveClock = fifo.getReceiveClock().clone();
 		CausalMatrix causalMatrix = causal.getCausalMatrix().clone();
+		String simulationDelivery = new String(total.getSimulationDelivery());
 
-		return new SavedClocks(sendClock, receiveClock, causalMatrix);
+		return new SavedClocks(sendClock, receiveClock, causalMatrix,
+				simulationDelivery);
 	}
 
 	@Override

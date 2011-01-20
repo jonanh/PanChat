@@ -1,14 +1,13 @@
 package order.layer;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.UUID;
 
 import order.Message;
 import order.Message.Type;
-import order.clocks.LamportClock;
 
 import panchat.data.User;
 
@@ -29,11 +28,13 @@ public class TotalOrderLayer extends OrderLayer {
 
 	private static int msgCount = 0;
 
+	private String simulationDelivery = "";
+
 	/*
 	 * Tramas para cada una de las fases de la ordenación total.
 	 */
 	public class TotalSendMsg implements Message.Fifo, Message.Total {
-		LamportClock clock;
+		int clock;
 		TotalUndeliverable content;
 	}
 
@@ -52,10 +53,10 @@ public class TotalOrderLayer extends OrderLayer {
 	 */
 
 	// Reloj de lamport
-	private LamportClock clock = new LamportClock();
+	private int clock = 0;
 
 	// Cola de prioridad que almacena los mensajes "undeliverable"s
-	private PriorityQueue<TotalUndeliverable> priorityQueue = new PriorityQueue<TotalUndeliverable>();
+	private List<TotalUndeliverable> priorityQueue = new LinkedList<TotalUndeliverable>();
 
 	// Tabla hash para acceder de manera constante a los mensajes por su
 	// identificador
@@ -68,6 +69,7 @@ public class TotalOrderLayer extends OrderLayer {
 
 	public TotalOrderLayer(User user, boolean simulating) {
 		super(user);
+		msgCount = 0;
 		this.simulating = simulating;
 	}
 
@@ -76,7 +78,7 @@ public class TotalOrderLayer extends OrderLayer {
 	 */
 	private void sendMsg(Message msg) {
 		// Incrementamos el reloj, y añadimos el reloj al mensaje
-		clock.tick();
+		this.clock++;
 
 		// Parametros que necesitamos guardar en el mensaje "undeliverable"
 		// - El identificador
@@ -88,7 +90,7 @@ public class TotalOrderLayer extends OrderLayer {
 		// La referencia será aleatoria o determinista dependiendo de si estamos
 		// realizando una simulación o no.
 		int msgRef = simulating ? msgCount++ : UUID.randomUUID().hashCode();
-		int priority = clock.getValue();
+		int priority = clock;
 		List<User> list = new LinkedList<User>(this.userList);
 
 		TotalUndeliverable undeliverable = new TotalUndeliverable(msgRef,
@@ -101,7 +103,7 @@ public class TotalOrderLayer extends OrderLayer {
 		// Enviamos una trama al resto de clientes
 		TotalSendMsg send = new TotalSendMsg();
 		send.content = undeliverable.clone();
-		send.clock = clock.clone();
+		send.clock = clock;
 
 		super.sendMsg(this.userList, new Message(send, this.user));
 	}
@@ -123,7 +125,7 @@ public class TotalOrderLayer extends OrderLayer {
 	protected receiveStatus okayToRecv(Message msg) {
 
 		// Cada vez que recibimos un mensaje, aumentamos el reloj de lamport.
-		this.clock.tick();
+		this.clock++;
 
 		/*
 		 * - On receiving a message, a process marks it as undeliverable and
@@ -133,16 +135,16 @@ public class TotalOrderLayer extends OrderLayer {
 		if (msg.getContent() instanceof TotalSendMsg) {
 
 			TotalSendMsg totalMsg = (TotalSendMsg) msg.getContent();
-			TotalUndeliverable undeliverable = totalMsg.content;
+			TotalUndeliverable undeliverable = totalMsg.content.clone();
 
-			undeliverable.priority = Math.max(this.clock.getValue(),
-					undeliverable.priority);
+			this.clock = Math.max(this.clock, undeliverable.priority);
+			undeliverable.priority = this.clock;
 
 			this.priorityQueue.add(undeliverable);
 			this.hash.put(undeliverable.msgReference, undeliverable);
 
 			TotalProposalMsg proposal = new TotalProposalMsg();
-			proposal.clock = this.clock.getValue();
+			proposal.clock = this.clock;
 			proposal.msgReference = undeliverable.msgReference;
 
 			super.sendMsg(msg.getUsuario(), new Message(proposal, this.user));
@@ -159,6 +161,9 @@ public class TotalOrderLayer extends OrderLayer {
 			TotalUndeliverable undeliverable = this.hash
 					.get(totalMsg.msgReference);
 
+			this.clock = Math.max(this.clock, undeliverable.priority);
+			undeliverable.priority = this.clock;
+
 			if (undeliverable != null) {
 
 				// Actualizamos la prioridad del mensaje
@@ -167,7 +172,7 @@ public class TotalOrderLayer extends OrderLayer {
 				if (undeliverable.deliverable) {
 
 					TotalFinalMsg proposal = new TotalFinalMsg();
-					proposal.clock = undeliverable.priority;
+					proposal.clock = this.clock; // undeliverable.priority;
 					proposal.msgReference = undeliverable.msgReference;
 
 					super.sendMsg(undeliverable.userList, new Message(proposal,
@@ -201,13 +206,20 @@ public class TotalOrderLayer extends OrderLayer {
 			System.out.println("error");
 		}
 
+		Collections.sort(priorityQueue);
+
 		/*
 		 * - A deliverable message is delivered to the site if it has the
 		 * smallest timestamp in the message queue.
 		 */
-		while (priorityQueue.peek() != null && priorityQueue.peek().deliverable)
-			this.deliveryQueue.add(priorityQueue.poll().content);
+		while (priorityQueue.size() > 0 && priorityQueue.get(0).deliverable) {
+			TotalUndeliverable under = priorityQueue.remove(0);
 
+			if (simulating)
+				simulationDelivery += " " + under.msgReference;
+
+			this.deliveryQueue.add(under.content);
+		}
 		if (this.deliveryQueue.size() > 0)
 			return receiveStatus.Delivery;
 
@@ -217,5 +229,9 @@ public class TotalOrderLayer extends OrderLayer {
 	@Override
 	public Type orderCapability() {
 		return Message.Type.TOTAL;
+	}
+
+	public String getSimulationDelivery() {
+		return this.simulationDelivery;
 	}
 }

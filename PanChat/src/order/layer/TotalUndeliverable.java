@@ -61,7 +61,7 @@ public class TotalUndeliverable implements Comparable<TotalUndeliverable> {
 
 	@Override
 	public String toString() {
-		return "(" + priority + "," + msgReference + ")";
+		return "(" + priority + "," + msgReference + "," + deliverable + ")";
 	}
 
 	public TotalUndeliverable clone() {
