@@ -3,9 +3,6 @@ package simulation.view.listener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.EnumMap;
-
-import order.Message.Type;
 
 import simulation.model.SimulationArrowModel;
 import simulation.view.IPositionObserver;
@@ -78,9 +75,5 @@ public class ViewListener implements MouseListener, MouseMotionListener {
 	 */
 	public void updateModel() {
 		this.simulationModel = simulationView.getSimulationModel();
-	}
-
-	public void setProperties(EnumMap<Type, Boolean> properties) {
-		// TODO Auto-generated method stub
 	}
 }

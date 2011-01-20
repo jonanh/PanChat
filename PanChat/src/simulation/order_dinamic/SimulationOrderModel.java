@@ -84,17 +84,6 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 	}
 
 	/**
-	 * Cargamos un nuevo SimulationModel
-	 * 
-	 * @param simulationModel
-	 */
-	public void setSimulationModel(SimulationArrowModel simulationModel) {
-
-		// Observamos la nueva simulacion;
-		this.simulationArrowModel = simulationModel;
-	}
-
-	/**
 	 * @return Obtenemos el número de procesos
 	 */
 	public int getNumProcesses() {

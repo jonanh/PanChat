@@ -310,7 +310,9 @@ public class SimulationView extends JPanel implements Observer {
 	 */
 	public void setSimulationModel(SimulationArrowModel simulationModel) {
 
+		this.simulationModel.deleteObserver(this);
 		this.simulationModel = simulationModel;
+		this.simulationModel.addObserver(this);
 
 		for (MultipleArrow arrow : this.simulationModel.getArrowList())
 			arrow.initialize();
