@@ -288,4 +288,10 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 		drawSimulation = selected;
 		simulationView.repaint();
 	}
+
+	public void setSimulationModel(SimulationArrowModel simul) {
+		this.simulationArrowModel = simul;
+		this.setChanged();
+		this.notifyObservers();
+	}
 }

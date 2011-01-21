@@ -24,6 +24,7 @@ public class VectorClockModel extends AbstractTableModel {
 	public void setVectors(VectorClock sendClock, VectorClock receiveClock) {
 		this.sendClock = sendClock;
 		this.receiveClock = receiveClock;
+		this.fireTableStructureChanged();
 		this.fireTableDataChanged();
 	}
 

@@ -20,6 +20,7 @@ public class CausalMatrixModel extends AbstractTableModel {
 
 	public void setCausalMatrix(CausalMatrix cm) {
 		this.cm = cm;
+		this.fireTableStructureChanged();
 		this.fireTableDataChanged();
 	}
 

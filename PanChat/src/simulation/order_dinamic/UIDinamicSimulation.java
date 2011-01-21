@@ -51,6 +51,7 @@ public class UIDinamicSimulation extends JPanel {
 
 	public void setSimulationModel(SimulationArrowModel simulationModel) {
 		view.setSimulationModel(simulationModel);
+		simul.setSimulationModel(simulationModel);
 	}
 
 	public static void main(String[] args) {
