@@ -70,6 +70,7 @@ public class CreateListener extends MoveListener {
 					TotalArrow arrow = new TotalArrow(cell, simulationModel);
 
 					// Copiamos las propiedades en el mensaje creado.
+					// FIXME
 					arrow.getProperties().putAll(properties);
 
 					simulationModel.addArrow(arrow);
@@ -80,68 +81,64 @@ public class CreateListener extends MoveListener {
 					drawingArrow = new SimpleMultipleArrow(cell);
 
 					// Copiamos las propiedades en el mensaje creado.
+					// FIXME
 					drawingArrow.getProperties().putAll(properties);
 
 					// Creamos una nueva posicion final
-					movingCell = new CellPosition(-1, -1);
+					CellPosition finalCell = new CellPosition(-1, -1);
 
 					// Añadimos a la flecha multiple una flecha simple
-					drawingArrow.addArrow(new SingleArrow(cell, movingCell));
+					drawingArrow.addArrow(new SingleArrow(cell, finalCell));
+
+					drawingArrow.setMovingCell(finalCell);
+					drawingArrow.move(lastPosition);
+
 					simulationView.setDrawingArrow(drawingArrow);
 
-					movingCell.set(cell);
-
 					// Actualizamos la posicion de la SimulationView, de manera
-					// que
-					// dibuje la iluminación cuando pasa el cursor por encima
+					// que dibuje la iluminación cuando pasa el cursor por
+					// encima
 					simulationView.setPosition(simulationView.getPosition(e),
-							IPositionObserver.Mode.Over, drawingArrow
-									.isValid(simulationModel));
+							IPositionObserver.Mode.Over,
+							drawingArrow.isValid(simulationModel));
 				}
 			}
-			// si hemos pinchado en el comienzo de la flecha
-			else if (drawingArrow.getInitialPos().equals(cell)) {
+			// si hemos pinchado en el comienzo de la flecha y la flecha es de
+			// tipo SimpleMultipleArrow añadimos una nueva flecha
+			else if ((drawingArrow.getInitialPos().equals(cell))
+					&& (drawingArrow instanceof SimpleMultipleArrow)) {
 
-				// Si la flecha es de tipo SimpleMultipleArrow añadimos una
-				// nueva flecha
-				if (drawingArrow instanceof SimpleMultipleArrow) {
+				// Guardamos copia
+				moveArrow = drawingArrow.clone();
 
-					// Creamos una nueva posicion final
-					movingCell = new CellPosition(-1, -1);
+				// Creamos una nueva posicion final
+				CellPosition finalCell = new CellPosition(-1, -1);
 
-					// Guardamos copia
-					moveArrow = drawingArrow.clone();
+				// Añadimos a la flecha multiple una flecha simple
+				drawingArrow.addArrow(new SingleArrow(cell, finalCell));
 
-					// Añadimos a la flecha multiple una flecha simple
-					drawingArrow.addArrow(new SingleArrow(cell, movingCell));
-					simulationView.setDrawingArrow(drawingArrow);
+				drawingArrow.setMovingCell(finalCell);
+				drawingArrow.move(lastPosition);
 
-					// Notificamos a la flecha que estamos moviendo la casilla
-					// movingCell
-					drawingArrow.move(movingCell);
+				simulationView.setDrawingArrow(drawingArrow);
 
-					// Guardamos las posiciones de movimiento.
-					movingCell.set(cell);
-
-					// Actualizamos la posicion de la SimulationView, de manera
-					// que
-					// dibuje la iluminación cuando pasa el cursor por encima
-					simulationView.setPosition(simulationView.getPosition(e),
-							IPositionObserver.Mode.Over, drawingArrow
-									.isValid(simulationModel));
-				}
+				// Actualizamos la posicion de la SimulationView, de
+				// manera
+				// que dibuje la iluminación cuando pasa el cursor por
+				// encima
+				simulationView.setPosition(simulationView.getPosition(e),
+						IPositionObserver.Mode.Over,
+						drawingArrow.isValid(simulationModel));
 
 			}
 			// Si hemos pinchado en otra posicion, movemos la flecha.
 			else {
 				super.mousePressed(e);
 			}
-
 		} else
 			// Actualizamos la posicion de la SimulationView, de manera que
 			// dibuje la iluminación cuando pasa el cursor por encima
-			simulationView.setPosition(simulationView.getPosition(e),
-					IPositionObserver.Mode.Over, true);
+			simulationView.setPosition(pos, IPositionObserver.Mode.Over, true);
 	}
 
 	/**
