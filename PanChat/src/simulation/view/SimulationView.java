@@ -5,8 +5,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -54,7 +52,7 @@ public class SimulationView extends JPanel implements Observer {
 	private static final Color overColColor = new Color(0f, 0f, 0f, .04f);
 	private static final Color invalidOverColor = new Color(1f, .6f, .6f);
 
-	private static Boolean DEBUG = true;
+	private static final Boolean DEBUG = false;
 
 	/*
 	 * Atributos
@@ -117,28 +115,6 @@ public class SimulationView extends JPanel implements Observer {
 		this.setState(State.CREATE);
 
 		updateData();
-
-		final JPanel panel = this;
-
-		this.addKeyListener(new KeyListener() {
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_D)
-					SimulationView.DEBUG = !SimulationView.DEBUG;
-
-				// Redibujamos la pantalla
-				panel.repaint();
-			}
-		});
 	}
 
 	/**
