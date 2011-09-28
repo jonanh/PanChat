@@ -2,8 +2,9 @@ package simulation.arrows;
 
 import java.awt.Color;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.EnumMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import order.Message.Type;
 
@@ -15,25 +16,24 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private static final Color NORMAL_COLOR = Color.getHSBColor(2 * .4f % 1,
-			.70f, 1f);
+			.50f, .8f);
 	private static final Color FIFO_COLOR = Color.getHSBColor(4 * .4f % 1,
-			.70f, 1f);
+			.50f, .8f);
 	private static final Color CAUSAL_COLOR = Color.getHSBColor(6 * .4f % 1,
-			.70f, 1f);
+			.50f, .8f);
 	private static final Color TOTAL_COLOR = Color.getHSBColor(8 * .4f % 1,
-			.70f, 1f);
+			.50f, .8f);
 
 	// Propiedades de la flecha
-	private EnumMap<Type, Boolean> properties;
+	private EnumMap<Type, Boolean> properties = new EnumMap<Type, Boolean>(
+			Type.class);
 
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
 			Type... properties) {
 
-		this(initialPos, finalPos, new EnumMap<Type, Boolean>(Type.class));
+		super(initialPos, finalPos, NORMAL_COLOR);
 
-		for (Type type : properties) {
-			this.properties.put(type, true);
-		}
+		setProperties(properties);
 	}
 
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
@@ -41,9 +41,7 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 
 		super(initialPos, finalPos, color);
 
-		for (Type type : properties) {
-			this.properties.put(type, true);
-		}
+		setProperties(properties);
 	}
 
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
@@ -51,17 +49,15 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 
 		super(initialPos, finalPos, color, strokeWidth);
 
-		for (Type type : properties) {
-			this.properties.put(type, true);
-		}
+		setProperties(properties);
 	}
 
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
-			EnumMap<Type, Boolean> properties) {
+			Color color, EnumMap<Type, Boolean> properties) {
 
 		super(initialPos, finalPos);
 
-		this.properties = properties;
+		setProperties(properties);
 	}
 
 	@Override
@@ -69,25 +65,47 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 		return properties;
 	}
 
-	public void setProperties(EnumMap<Type, Boolean> properties) {
-	}
-
 	public void setProperties(Type[] properties) {
 		this.properties.clear();
+
+		for (Type type : properties)
+			setProperty(type, true);
+	}
+
+	public void setProperties(EnumMap<Type, Boolean> properties2) {
+		Iterator<Entry<Type, Boolean>> iter = properties2.entrySet().iterator();
+
+		while (iter.hasNext()) {
+			Entry<Type, Boolean> entry = iter.next();
+			setProperty(entry.getKey(), entry.getValue());
+		}
+	}
+
+	/**
+	 * Devuelve si el mensaje es del tipo property
+	 * 
+	 * @param property
+	 * @return
+	 */
+	public Boolean isType(Type property) {
+		return this.properties.containsKey(property)
+				&& this.properties.get(property) == true;
 	}
 
 	public void setProperty(Type property, Boolean bool) {
 		this.properties.put(property, bool);
 
-		if (properties.containsKey(Type.TOTAL)) {
+		if (isType(Type.TOTAL))
 			this.color = TOTAL_COLOR;
-		} else if (properties.containsKey(Type.CAUSAL)) {
+
+		else if (isType(Type.CAUSAL))
 			this.color = CAUSAL_COLOR;
-		} else if (properties.containsKey(Type.FIFO)) {
+
+		else if (isType(Type.FIFO))
 			this.color = FIFO_COLOR;
-		} else {
+
+		else
 			this.color = NORMAL_COLOR;
-		}
 	}
 
 	/**
@@ -113,9 +131,7 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 			isValid = false;
 
 		// Si el destino de la fecha apunta a una celda ya ocupada
-		else if (simulationModel.getArrow(finalPos) != null
-				&& listContains(simulationModel.getArrow(finalPos)
-						.getPositions(), finalPos))
+		if (simulationModel.getArrow(finalPos) != null)
 			isValid = false;
 
 		// Si estamos comprobando la validez de la flecha, es que estamos
@@ -130,22 +146,7 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 	 */
 	@Override
 	public SingleArrow clone() {
-		return new SingleArrow(initialPos.clone(), finalPos.clone());
-	}
-
-	/**
-	 * 
-	 * @param collection
-	 * @param cell
-	 * @return Devuelve si en "collection" existe una instancia de celda
-	 *         diferente pero equivalente a "cell".
-	 */
-	private static boolean listContains(Collection<CellPosition> collection,
-			CellPosition cell) {
-		for (CellPosition pos : collection) {
-			if (pos.equals(cell) && pos != cell)
-				return true;
-		}
-		return false;
+		return new SingleArrow(initialPos.clone(), finalPos.clone(), color,
+				properties.clone());
 	}
 }
