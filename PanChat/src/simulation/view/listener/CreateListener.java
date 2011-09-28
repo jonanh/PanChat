@@ -70,8 +70,7 @@ public class CreateListener extends MoveListener {
 					TotalArrow arrow = new TotalArrow(cell, simulationModel);
 
 					// Copiamos las propiedades en el mensaje creado.
-					// FIXME
-					arrow.getProperties().putAll(properties);
+					arrow.setProperties(properties);
 
 					simulationModel.addArrow(arrow);
 
@@ -81,8 +80,7 @@ public class CreateListener extends MoveListener {
 					drawingArrow = new SimpleMultipleArrow(cell);
 
 					// Copiamos las propiedades en el mensaje creado.
-					// FIXME
-					drawingArrow.getProperties().putAll(properties);
+					drawingArrow.setProperties(properties);
 
 					// Creamos una nueva posicion final
 					CellPosition finalCell = new CellPosition(-1, -1);
