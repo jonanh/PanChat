@@ -160,11 +160,10 @@ public class TotalOrderLayer extends OrderLayer {
 			TotalProposalMsg totalMsg = (TotalProposalMsg) msg.getContent();
 			TotalUndeliverable undeliverable = this.hash
 					.get(totalMsg.msgReference);
-
-			this.clock = Math.max(this.clock, undeliverable.priority);
-			undeliverable.priority = this.clock;
-
+			
 			if (undeliverable != null) {
+				this.clock = Math.max(this.clock, undeliverable.priority);
+				undeliverable.priority = this.clock;
 
 				// Actualizamos la prioridad del mensaje
 				undeliverable.addPriority(msg.getUsuario(), totalMsg.clock);
