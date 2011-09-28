@@ -8,6 +8,7 @@ import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import order.Message.Type;
 
@@ -190,6 +191,32 @@ public class MultipleArrow implements MessageArrow, Serializable {
 		return arrowList.size() <= 0;
 	}
 
+	private void setProperty(Type property, Boolean bool) {
+		this.properties.put(property, bool);
+	}
+
+	public void setProperties(Type[] properties) {
+		this.properties.clear();
+
+		for (Type type : properties)
+			setProperty(type, true);
+
+		for (SingleArrow arrow : this.getArrowList())
+			arrow.setProperties(this.properties);
+	}
+
+	public void setProperties(EnumMap<Type, Boolean> properties2) {
+		Iterator<Entry<Type, Boolean>> iter = properties2.entrySet().iterator();
+
+		while (iter.hasNext()) {
+			Entry<Type, Boolean> entry = iter.next();
+			setProperty(entry.getKey(), entry.getValue());
+		}
+
+		for (SingleArrow arrow : this.getArrowList())
+			arrow.setProperties(this.properties);
+	}
+
 	/**
 	 * Dibuja las flechas que contiene el MultipleArrow.
 	 * 
@@ -233,6 +260,10 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	public boolean isValid(SimulationArrowModel simulationModel) {
 
 		boolean isValid = true;
+
+		// Si el destino de la fecha apunta a una celda ya ocupada
+		if (simulationModel.getArrow(moveCell) != null)
+			isValid = false;
 
 		// Activamos el isValid para cada una de las flechas
 		for (SingleArrow arrow : arrowList)
