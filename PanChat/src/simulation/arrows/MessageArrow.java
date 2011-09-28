@@ -1,5 +1,6 @@
 package simulation.arrows;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.EnumMap;
 
@@ -14,29 +15,6 @@ public interface MessageArrow {
 	 * @return the initialPos
 	 */
 	public CellPosition getInitialPos();
-
-	/**
-	 * Método que accionamos cuando hemos movido la flecha.
-	 * 
-	 * La flecha usará este método para recalcularse cuando sea una flecha
-	 * compleja.
-	 */
-	// public CellPosition move(CellPosition newPosition);
-
-	/**
-	 * Método que accionamos cuando hemos movido la flecha.
-	 * 
-	 * La flecha usará este método para recalcularse cuando sea una flecha
-	 * compleja.
-	 */
-	// public void move(CellPosition oldPosition, CellPosition newPosition);
-
-	/**
-	 * Método que accionamos cuando hemos movido la flecha.
-	 * 
-	 * @param simulationModel
-	 */
-	// public boolean add2Simulation(SimulationModel simulationModel);
 
 	/**
 	 * @return Devuelve las propiedades de la flecha.
@@ -57,6 +35,14 @@ public interface MessageArrow {
 	 * @param g
 	 */
 	public void draw(Graphics2D g);
+
+	/**
+	 * Dibuja la flecha sobre el contexto gráfico
+	 * 
+	 * @param g
+	 * @param color
+	 */
+	public void draw(Graphics2D g, Color color);
 
 	/**
 	 * @return Devuelve un clon de la flecha
