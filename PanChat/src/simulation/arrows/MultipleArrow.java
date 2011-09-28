@@ -1,5 +1,6 @@
 package simulation.arrows;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.Serializable;
 import java.util.Collection;
@@ -62,7 +63,7 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	}
 
 	/**
-	 * Devuelve la flecha en la posicion position
+	 * Devuelve la lista de flechas que tienen como posición inicial position
 	 * 
 	 * @param position
 	 * 
@@ -80,7 +81,7 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	}
 
 	/**
-	 * Devuelve la flecha en la posicion position
+	 * Devuelve la lista de flechas que tiene como posición final position
 	 * 
 	 * @param position
 	 * 
@@ -109,6 +110,10 @@ public class MultipleArrow implements MessageArrow, Serializable {
 			CellPosition initialPos = singleArrow.getInitialPos();
 			CellPosition finalPos = singleArrow.getFinalPos();
 
+			// Como intentamos tener una única instancia de cada posición,
+			// buscamos en nuestra lista de posiciones e intentamos usar la
+			// misma instancia de la posición si esta ya existía.
+
 			int index = positionList.indexOf(initialPos);
 			if (index != -1) {
 				initialPos = positionList.get(index);
@@ -125,25 +130,35 @@ public class MultipleArrow implements MessageArrow, Serializable {
 				positionList.add(finalPos);
 			}
 
+			// La single arrow heredará las propiedades de esta flecha
+			// Nota: Usamos la misma referencia de propiedades, con lo cual si
+			// cambiamos las propiedades de la flecha multiple, cambiaremos las
+			// propiedades de las flechas que la componen.
 			singleArrow.setProperties(this.properties);
 
+			// La añadimos a la lista de flechas
 			arrowList.add(singleArrow);
 
-		} else if (arrow instanceof MultipleArrow) {
+		}
+		// Si es una flecha multiple añadimos cada SingleArrows que la componen
+		else if (arrow instanceof MultipleArrow) {
 
 			MultipleArrow multipleArrow = (MultipleArrow) arrow;
 
 			for (SingleArrow singleArrow : multipleArrow.getArrowList())
 				this.addArrow(singleArrow);
-
 		}
 	}
 
 	/**
-	 * Elimina una flecha
+	 * Elimina las flechas de la posición position. Si position es la posición
+	 * inicial de un grupo de flechas dentro de la flecha multiple entonces
+	 * realizamos un borrado recursivo de dichas flechas.
 	 * 
-	 * @param finalPos
-	 * @return
+	 * @param position
+	 * 
+	 * @return Devuelve si la flecha multiple resultante tras la eliminación
+	 *         contiene más de una subflecha
 	 */
 	public boolean deleteArrow(CellPosition position) {
 
@@ -169,7 +184,8 @@ public class MultipleArrow implements MessageArrow, Serializable {
 
 		// Borramos la posicion
 		int index = positionList.indexOf(position);
-		positionList.remove(index);
+		if (index != -1)
+			positionList.remove(index);
 
 		return arrowList.size() <= 0;
 	}
@@ -183,6 +199,18 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	public void draw(Graphics2D g) {
 		for (MessageArrow arrow : arrowList)
 			arrow.draw(g);
+	}
+
+	/**
+	 * Dibuja las flechas que contiene el MultipleArrow.
+	 * 
+	 * @param g
+	 * @param color
+	 */
+	@Override
+	public void draw(Graphics2D g, Color color) {
+		for (MessageArrow arrow : arrowList)
+			arrow.draw(g, color);
 	}
 
 	@Override
@@ -220,22 +248,30 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	}
 
 	/**
+	 * Método para indicar al multiple arrow que estamos moviendo uno de sus
+	 * vertices.
 	 * 
 	 * @param newPosition
-	 * @return
 	 */
-	public CellPosition move(CellPosition newPosition) {
+	public void setMovingCell(CellPosition newPosition) {
 		int index = positionList.indexOf(newPosition);
-		this.moveCell = positionList.get(index);
-		return moveCell;
+		if (index != -1)
+			this.moveCell = positionList.get(index);
+		else
+			throw new RuntimeException("Flecha no encontrada:"
+					+ newPosition.toString());
 	}
 
 	/**
-	 * Inicializar las flechas después de
+	 * Método que sirve para indicar al multiple arrow que el vertice en
+	 * movimiento ahora está en newPosition.
+	 * 
+	 * @param newPosition
+	 * 
+	 * @return
 	 */
-	public void initialize() {
-		for (SingleArrow arrow : arrowList)
-			arrow.initialize();
+	public void move(CellPosition newPosition) {
+		moveCell.set(newPosition);
 	}
 
 	/**
@@ -244,6 +280,8 @@ public class MultipleArrow implements MessageArrow, Serializable {
 	 * @param simulationModel
 	 */
 	public boolean add2Simulation(SimulationArrowModel simulationModel) {
+
+		moveCell = null;
 
 		/*
 		 * Comprobamos si añadimos la flecha a una posición vacia o a una
@@ -257,7 +295,6 @@ public class MultipleArrow implements MessageArrow, Serializable {
 		else
 			simulationModel.getArrow(moveCell).addArrow(this);
 
-		moveCell = null;
 		return true;
 	}
 
