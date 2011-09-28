@@ -69,8 +69,6 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 
 	private List<CellPosition> proposalPositions = new LinkedList<CellPosition>();
 
-	private CellPosition movingCell;
-
 	public TotalArrow(CellPosition initialPos,
 			SimulationArrowModel simulationModel) {
 
@@ -101,11 +99,14 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 	 */
 	public void recalculate() {
 
-		// Creamos las flechas de envio, buscando flechas libres desde la
-		// posición actual en cada proceso.
+		// Crearemos las flechas de envio, buscando flechas libres desde la
+		// posición inicial en cada proceso.
+
+		// Creamos una posición como iterador a partir de la posición inicial.
 		CellPosition iter = initialPos.clone();
 
-		// Guardaremos el tick máximo de la última flecha de envio.
+		// Guardaremos en proposalPosition la posición (el tick) máximo de entre
+		// las posiciones finales de las flechas iniciales.
 		proposalPosition = initialPos.clone();
 
 		int size = simulationModel.getNumProcesses();
@@ -116,10 +117,13 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 			// Para cada proceso != del proceso de origen
 			if (i != initialPos.process) {
 
-				SingleArrow arrow = getArrow(sendArrows, i);
 				CellPosition finalPos;
 
-				// Comprobamos si existe una flecha de envio (1º fase)
+				// Obtenemos la flecha del conjunto de flechas de la primera
+				// etapa (sendArrows) que va al proceso i.
+				SingleArrow arrow = getArrow(sendArrows, i);
+
+				// Comprobamos si existía una flecha de envío
 				if (arrow == null) {
 
 					// Obtenemos una posición libre en el proceso i
@@ -135,9 +139,11 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 					this.positionList.add(finalPos);
 					this.sendArrows.add(arrow2);
 
-					// Creamos las flechas de respuesta a las de envio
+					// Creamos la flecha de respuesta a la de envio
 					CellPosition resp = new CellPosition(initialPos.process,
 							finalPos.tick);
+
+					// Obtenemos una posición libre para la respuesta
 					resp = simulationModel.freeCell(resp);
 
 					while (this.positionList.contains(resp)) {
@@ -157,8 +163,8 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 					SingleArrow arrow2 = getArrow(proposalArrows, i);
 
 					if (!arrow2.isValid(simulationModel)
-							|| listContains(proposalPositions, arrow2
-									.getFinalPos())) {
+							|| listContains(proposalPositions,
+									arrow2.getFinalPos())) {
 
 						// Creamos las flechas de respuesta a las de envio
 						CellPosition resp = new CellPosition(
@@ -261,7 +267,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 	@Override
 	public boolean add2Simulation(SimulationArrowModel simulationModel) {
 
-		this.movingCell = null;
+		this.moveCell = null;
 
 		simulationModel.addArrow(this);
 
@@ -295,17 +301,13 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 	}
 
 	@Override
-	public CellPosition move(CellPosition newPosition) {
+	public void move(CellPosition newPosition) {
 
-		CellPosition result = super.move(newPosition);
+		newPosition.process = moveCell.process;
 
-		if (movingCell == null) {
-			movingCell = result.clone();
-		} else {
-			result.process = movingCell.process;
-			recalculate();
-		}
-		return result;
+		super.move(newPosition);
+
+		recalculate();
 	}
 
 	@Override
@@ -332,6 +334,7 @@ public class TotalArrow extends MultipleArrow implements Serializable, Observer 
 	/*
 	 * Funciones ayudantes
 	 */
+
 	/**
 	 * @param lista
 	 * 
