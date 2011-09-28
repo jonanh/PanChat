@@ -19,27 +19,8 @@ public class SimpleMultipleArrow extends MultipleArrow {
 	}
 
 	/**
-	 * Verificamos si se encuentra en un lugar válido y/o libre :
-	 * 
-	 * <ul>
-	 * <li>Una flecha no puede tener flechas que vayan hacia atrás.</li>
-	 * <li>Una flecha no puede apuntar a una celda ya ocupada.</li>
-	 * </ul>
-	 * 
-	 * @param messageArrow
-	 * 
-	 * @return Si es valida la flecha
+	 * Comprobamos que sólo una flecha va a un proceso.
 	 */
-	public boolean isValid(SimulationArrowModel simulationModel) {
-
-		// Si sólo tenemos una flecha, entonces comprobar si esa flecha es
-		// valida
-		if (arrowList.size() == 1)
-			return arrowList.get(0).isValid(simulationModel);
-
-		return super.isValid(simulationModel);
-	}
-
 	@Override
 	public boolean add2Simulation(SimulationArrowModel simulationModel) {
 
@@ -50,14 +31,16 @@ public class SimpleMultipleArrow extends MultipleArrow {
 
 			// Buscamos si existe una flecha que va al mismo proceso
 			CellPosition found = null;
-			for (CellPosition pos : getPositions()) {
-				if (arrow.getFinalPos().process == pos.process
-						&& !arrow.getFinalPos().equals(pos)) {
-					found = pos;
+			for (SingleArrow arrow2 : this.getArrowList()) {
+				boolean differentArrows = !arrow.equals(arrow2);
+				boolean sameProcess = arrow2.getFinalPos().process == arrow
+						.getFinalPos().process;
+				if (differentArrows && sameProcess) {
+					found = arrow2.getFinalPos();
 					break;
 				}
 			}
-			// Si no existía una flecha que vaya a ese proceso, la añadimos
+			// Si existía una flecha que vaya a ese proceso, la borramos
 			if (found != null)
 				super.deleteArrow(found);
 
@@ -66,5 +49,20 @@ public class SimpleMultipleArrow extends MultipleArrow {
 		super.add2Simulation(simulationModel);
 
 		return true;
+	}
+
+	/**
+	 * Rutina para clonar MultipleArrows
+	 */
+	@Override
+	public MultipleArrow clone() {
+		MultipleArrow newArrow = new SimpleMultipleArrow(initialPos);
+
+		newArrow.properties = this.properties.clone();
+
+		for (SingleArrow arrow : arrowList)
+			newArrow.addArrow(arrow.clone());
+
+		return newArrow;
 	}
 }
