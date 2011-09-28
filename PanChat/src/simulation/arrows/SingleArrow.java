@@ -1,7 +1,6 @@
 package simulation.arrows;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -10,7 +9,6 @@ import order.Message.Type;
 
 import simulation.model.SimulationArrowModel;
 import simulation.view.CellPosition;
-import simulation.view.SimulationView;
 
 public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 
@@ -24,10 +22,6 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 			.70f, 1f);
 	private static final Color TOTAL_COLOR = Color.getHSBColor(8 * .4f % 1,
 			.70f, 1f);
-
-	// Posiciones inicial y final de la flecha
-	protected CellPosition initialPos;
-	protected CellPosition finalPos;
 
 	// Propiedades de la flecha
 	private EnumMap<Type, Boolean> properties;
@@ -44,10 +38,9 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
 			Color color, Type... properties) {
-		super(0f, 0f, 0f, 0f, color);
-		this.initialPos = initialPos;
-		this.finalPos = finalPos;
-		update();
+
+		super(initialPos, finalPos, color);
+
 		for (Type type : properties) {
 			this.properties.put(type, true);
 		}
@@ -55,10 +48,9 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
 			Color color, float strokeWidth, Type... properties) {
-		super(0f, 0f, 0f, 0f, color, strokeWidth);
-		this.initialPos = initialPos;
-		this.finalPos = finalPos;
-		update();
+
+		super(initialPos, finalPos, color, strokeWidth);
+
 		for (Type type : properties) {
 			this.properties.put(type, true);
 		}
@@ -66,36 +58,10 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 
 	public SingleArrow(CellPosition initialPos, CellPosition finalPos,
 			EnumMap<Type, Boolean> properties) {
-		super(0f, 0f, 0f, 0f);
+
+		super(initialPos, finalPos);
+
 		this.properties = properties;
-		this.initialPos = initialPos;
-		this.finalPos = finalPos;
-		update();
-	}
-
-	private void update() {
-		Point2D.Float pos1 = SimulationView.PositionCoords(initialPos);
-		Point2D.Float pos2 = SimulationView.PositionCoords(finalPos);
-
-		super.setLine(pos1, pos2);
-	}
-
-	/**
-	 * @return the initialPos
-	 */
-	public CellPosition getInitialPos() {
-		return initialPos;
-	}
-
-	/**
-	 * @return the finalPos
-	 */
-	public CellPosition getFinalPos() {
-		return finalPos;
-	}
-
-	public void setInitialPos(CellPosition pos) {
-		initialPos = pos;
 	}
 
 	@Override
@@ -104,16 +70,20 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 	}
 
 	public void setProperties(EnumMap<Type, Boolean> properties) {
+	}
 
-		this.properties.putAll(properties);
+	public void setProperties(Type[] properties) {
+		this.properties.clear();
+	}
+
+	public void setProperty(Type property, Boolean bool) {
+		this.properties.put(property, bool);
 
 		if (properties.containsKey(Type.TOTAL)) {
 			this.color = TOTAL_COLOR;
-		}
-		if (properties.containsKey(Type.CAUSAL)) {
+		} else if (properties.containsKey(Type.CAUSAL)) {
 			this.color = CAUSAL_COLOR;
-		}
-		if (properties.containsKey(Type.FIFO)) {
+		} else if (properties.containsKey(Type.FIFO)) {
 			this.color = FIFO_COLOR;
 		} else {
 			this.color = NORMAL_COLOR;
@@ -136,25 +106,23 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 	 */
 	public boolean isValid(SimulationArrowModel simulationModel) {
 
+		isValid = true;
+
+		// Una flecha no puede ir hacia atrás
+		if (initialPos.tick >= finalPos.tick)
+			isValid = false;
+
+		// Si el destino de la fecha apunta a una celda ya ocupada
+		else if (simulationModel.getArrow(finalPos) != null
+				&& listContains(simulationModel.getArrow(finalPos)
+						.getPositions(), finalPos))
+			isValid = false;
+
 		// Si estamos comprobando la validez de la flecha, es que estamos
 		// moviendo la flecha, luego recalcular la pendiente.
 		update();
 
-		// Una flecha no puede ir de a el mismo proceso
-		if (initialPos.process == finalPos.process)
-			return isValid = false;
-
-		// Una flecha no puede ir hacia atrás
-		if (initialPos.tick >= finalPos.tick)
-			return isValid = false;
-
-		// Si el destino de la fecha apunta a una celda ya ocupada
-		if (simulationModel.getArrow(finalPos) != null
-				&& listContains(simulationModel.getArrow(finalPos)
-						.getPositions(), finalPos))
-			return isValid = false;
-
-		return isValid = true;
+		return isValid;
 	}
 
 	/**
@@ -165,21 +133,13 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 		return new SingleArrow(initialPos.clone(), finalPos.clone());
 	}
 
-	@Override
-	public String toString() {
-		return "Flecha[ " + initialPos + finalPos + " ]";
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof SingleArrow) {
-			SingleArrow arrow = (SingleArrow) obj;
-			return this.initialPos.equals(arrow.initialPos)
-					&& this.finalPos.equals(arrow.finalPos);
-		}
-		return false;
-	}
-
+	/**
+	 * 
+	 * @param collection
+	 * @param cell
+	 * @return Devuelve si en "collection" existe una instancia de celda
+	 *         diferente pero equivalente a "cell".
+	 */
 	private static boolean listContains(Collection<CellPosition> collection,
 			CellPosition cell) {
 		for (CellPosition pos : collection) {
