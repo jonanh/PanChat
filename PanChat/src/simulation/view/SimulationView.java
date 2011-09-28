@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -52,6 +54,8 @@ public class SimulationView extends JPanel implements Observer {
 	private static final Color overColColor = new Color(0f, 0f, 0f, .04f);
 	private static final Color invalidOverColor = new Color(1f, .6f, .6f);
 
+	private static Boolean DEBUG = true;
+
 	/*
 	 * Atributos
 	 */
@@ -76,12 +80,13 @@ public class SimulationView extends JPanel implements Observer {
 	// definitiva, trabajamos directamente sobre la vista en vez del modelo.
 	private MessageArrow drawingArrow;
 
-	// Implementamos un doble buffer, realizando las operaciones de dibujo sobre
-	// el buffer, y después volcando la imagen sobre el contexto del panel.
+	// Implementamos un doble buffer. Realizando las operaciones de dibujo sobre
+	// el buffer, y después volcaremos la imagen sobre el contexto del panel.
 	BufferedImage backBuffer;
+	Graphics2D graph2DBuffer;
 
-	// Cuando redimensionamos nuestra vista necesitamos ejecutar super.paint()
-	// para limpiar la ventana.
+	// Cuando redimensionamos nuestra vista/componente necesitamos ejecutar
+	// super.paint() para limpiar el contenido del componente.
 	private boolean screenResized;
 
 	// Guardamos en una lista, los listeners que controlan el comportamiento de
@@ -112,6 +117,28 @@ public class SimulationView extends JPanel implements Observer {
 		this.setState(State.CREATE);
 
 		updateData();
+
+		final JPanel panel = this;
+
+		this.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_D)
+					SimulationView.DEBUG = !SimulationView.DEBUG;
+
+				// Redibujamos la pantalla
+				panel.repaint();
+			}
+		});
 	}
 
 	/**
@@ -138,32 +165,102 @@ public class SimulationView extends JPanel implements Observer {
 	@Override
 	public void paint(Graphics g) {
 
-		// Obtenemos el doble buffer
-		Graphics2D g2 = (Graphics2D) backBuffer.getGraphics();
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
-
 		// Dibujamos las columnas y los procesos
-		paintColumns(g2);
-		paintProcesses(g2);
+		paintColumns(graph2DBuffer);
+		paintProcesses(graph2DBuffer);
 
-		// Dibujamos las flechas
-		paintArrows(g2, simulationModel.getArrowList());
+		// Dibujamos el efecto de iluminación sobre una columna o una celda
+		if (overPosition instanceof CutPosition) {
+
+			paintOverColumn(graph2DBuffer);
+
+		} else if (overPosition instanceof CellPosition) {
+
+			// Si la posicion over es invalida, la pintamos de rojo
+			if (!validOverPosition)
+				graph2DBuffer.setColor(invalidOverColor);
+			else
+				graph2DBuffer.setColor(overCellColor);
+
+			paintCell(graph2DBuffer, (CellPosition) this.overPosition);
+
+		}
+
+		if (SimulationView.DEBUG) {
+			paintDebugArrows(graph2DBuffer, simulationModel.getArrowList());
+
+		} else
+			// Dibujamos las flechas
+			paintArrows(graph2DBuffer, simulationModel.getArrowList());
 
 		// Si estamos editando una flecha dibujamos la fecha en dibujo
 		if (this.drawingArrow != null)
-			drawingArrow.draw(g2);
+			drawingArrow.draw(graph2DBuffer);
 
 		// Si no mostramos la simulación realizada por los simuladores
 		else
 			for (ISimulator simul : this.simulatorList)
-				simul.drawSimulation(g2);
+				simul.drawSimulation(graph2DBuffer);
 
 		if (screenResized)
 			super.paint(g);
 
 		// Dibujamos sobre el doble buffer
-		g.drawImage(backBuffer, 0, 0, this);
+		g.drawImage(this.backBuffer, 0, 0, this);
+	}
+
+	/**
+	 * Dibujamos el efecto over de iluminación sobre una columna.
+	 * 
+	 * @param g
+	 *            el contexto grafico en el cual se pinta.
+	 */
+	private void paintOverColumn(Graphics2D g) {
+
+		int x0;
+		int y0 = 0;
+		int y1 = height;
+		int x1 = cellWidth;
+
+		// Dibujamos el efecto over de iluminación. Osea iluminamos toda la
+		// columna.
+
+		CutPosition pos = (CutPosition) overPosition;
+		x0 = pos.tick * cellWidth + paddingX;
+		g.setColor(overColColor);
+		g.fillRect(x0, y0, x1, y1);
+	}
+
+	/**
+	 * Dibujamos el efecto over de iluminación sobre una celda.
+	 * 
+	 * @param g
+	 *            el contexto grafico en el cual se pinta.
+	 */
+	private void paintCell(Graphics2D g, CellPosition pos) {
+
+		int x1 = cellWidth;
+		int y1 = cellHeight;
+		int x0 = pos.tick * cellWidth + paddingX;
+		int y0 = pos.process * (cellHeight + paddingY) + paddingY;
+
+		g.fillRect(x0 + 1, y0 + 1, x1 - 1, y1 - 1);
+	}
+
+	/**
+	 * Dibujamos el efecto over de iluminación sobre una celda.
+	 * 
+	 * @param g
+	 *            el contexto grafico en el cual se pinta.
+	 */
+	private void paintCell2(Graphics2D g, CellPosition pos) {
+
+		int x1 = cellWidth / 2;
+		int y1 = cellHeight;
+		int x0 = pos.tick * cellWidth + paddingX;
+		int y0 = pos.process * (cellHeight + paddingY) + paddingY;
+
+		g.fillRect(x0 + 1 + x1, y0 + 1, x1 - 1, y1 - 1);
 	}
 
 	/**
@@ -174,10 +271,10 @@ public class SimulationView extends JPanel implements Observer {
 	 */
 	private void paintColumns(Graphics2D g) {
 
-		int x0, x1;
+		int x0;
 		int y0 = 0;
 		int y1 = height;
-		x1 = cellWidth;
+		int x1 = cellWidth;
 
 		boolean even = true;
 
@@ -190,17 +287,6 @@ public class SimulationView extends JPanel implements Observer {
 			g.fillRect(x0, y0, x1, y1);
 			g.setPaint(tickLineCol);
 			g.drawRect(x0, y0, x1, y1);
-		}
-
-		// Dibujamos el efecto over de iluminación. Osea iluminamos toda la
-		// columna.
-		if (overPosition instanceof CutPosition) {
-
-			CutPosition pos = (CutPosition) overPosition;
-			x0 = pos.tick * cellWidth + paddingX;
-			g.setColor(overColColor);
-			g.fillRect(x0, y0, x1, y1);
-
 		}
 	}
 
@@ -216,9 +302,11 @@ public class SimulationView extends JPanel implements Observer {
 		int y1 = cellHeight;
 
 		for (int i = 0; i <= processes; i++) {
+
 			int y0 = i * (cellHeight + paddingY) + paddingY;
 
 			for (int j = 0; j < ticks; j++) {
+
 				int x0 = paddingX + cellWidth * j;
 
 				g.setColor(Color.getHSBColor(i * .10f % 1, .20f, 1f));
@@ -227,23 +315,51 @@ public class SimulationView extends JPanel implements Observer {
 				g.drawRect(x0, y0, x1, y1);
 			}
 		}
+	}
 
-		// Dibujamos el efecto over de iluminación. Iluminamos la celda cuando
-		// pasamos por encima.
-		if (overPosition instanceof CellPosition) {
+	/**
+	 * Dibujamos las flechas en modo debug. Cada flecha tendrá un color
+	 * diferente.
+	 * 
+	 * Además resaltaremos las celdas que contengan alguna flecha con el fin de
+	 * detectar alguna celda en la cuadricula que realmente no tenga una flecha
+	 * aunque figure como ocupada.
+	 * 
+	 * También resaltaremos los vertices de cada flecha.
+	 * 
+	 * @param g
+	 *            el contexto grafico en el cual se pinta.
+	 */
+	public void paintDebugArrows(Graphics2D g,
+			List<? extends MessageArrow> arrowList) {
 
-			CellPosition pos = (CellPosition) overPosition;
-			int x0 = pos.tick * cellWidth + paddingX;
-			int y0 = pos.process * (cellHeight + paddingY) + paddingY;
+		// Resaltamos aquellas posiciones que contengan una flecha.
+		CellPosition pos = new CellPosition(0, 0);
+		g.setColor(SimulationView.overCellColor);
 
-			// Si la posicion over es invalida, la pintamos de rojo
-			if (!validOverPosition)
-				g.setColor(invalidOverColor);
-			else
-				g.setColor(overCellColor);
+		for (int i = 0; i <= this.processes; i++) {
+			for (int j = 0; j < ticks; j++) {
+				pos.process = i;
+				pos.tick = j;
 
-			g.fillRect(x0 + 1, y0 + 1, x1 - 1, y1 - 1);
+				if (this.simulationModel.getArrow(pos) != null)
+					paintCell(g, pos);
+			}
+		}
 
+		// Pintamos cada flecha con un color diferente.
+		int i = 0;
+		for (MessageArrow arrow : arrowList) {
+			Color color = (Color.getHSBColor(i * .15f % 1, .8f, .7f));
+			;
+			arrow.draw(g, color);
+
+			// Resaltamos los vertices de cada flecha.
+			for (CellPosition posi : ((MultipleArrow) arrow).getPositions()) {
+				g.setColor(SimulationView.invalidOverColor);
+				paintCell2(g, posi);
+			}
+			i++;
 		}
 	}
 
@@ -314,9 +430,10 @@ public class SimulationView extends JPanel implements Observer {
 		this.simulationModel = simulationModel;
 		this.simulationModel.addObserver(this);
 
-		for (MultipleArrow arrow : this.simulationModel.getArrowList())
-			arrow.initialize();
-
+		/*
+		 * for (MultipleArrow arrow : this.simulationModel.getArrowList())
+		 * arrow.initialize();
+		 */
 		for (ViewListener view : listViewListeners) {
 			view.updateModel();
 		}
@@ -368,40 +485,79 @@ public class SimulationView extends JPanel implements Observer {
 	}
 
 	/**
-	 * Establecemos la posición sobre la que esta el cursor. Sólo si cambiamos
-	 * el estado actualizamos y repintamos la pantalla.
+	 * Tras la generación de un evento, el controlador (un ViewListener) invoca
+	 * este método para indicar al SimulationView que se ha generado un evento y
+	 * en la posición en la que se ha generado el evento.
+	 * 
+	 * El Simulation view redibujará la pantalla y notificará el evento a los
+	 * observadores de posición.
+	 * 
+	 * Tan sólo actualizaremos la posición si realmente ha cambiado durante un
+	 * evento over, para evitar redibujar inecesariamente la vista.
 	 * 
 	 * @param newPosition
+	 *            La nueva posición
+	 * 
+	 * @param mode
+	 *            El modo del evento: Over, Click, DoubleClick
 	 */
 	public void setPosition(IPosition newPosition, IPositionObserver.Mode mode) {
 		/*
 		 * - Si la posicion antigua era distinta de null y ahora es null, ya no
 		 * estamos encima de la pantalla. (evitamos el null pointer)
-		 * 
+		 */
+		Boolean movedOutOfScreen = this.overPosition != null
+				&& newPosition == null;
+
+		/*
 		 * - Si la posicion antigua es distinta de null, comprobamos que la
 		 * posicion nueva sea distinta de la antigua.
 		 */
+		Boolean isNewPosition = newPosition != null
+				&& !newPosition.equals(this.overPosition);
+
+		// Si es un evento over tan sólo actualizamos la posición si ha cambiado
+		// la posición
 		if (mode.equals(IPositionObserver.Mode.Over)
-				&& ((this.overPosition != null && newPosition == null) || (newPosition != null && !newPosition
-						.equals(this.overPosition)))) {
+				&& (movedOutOfScreen || isNewPosition)) {
 
+			// Actualizamos la posición over y volvemos a pintar la cuadricula
 			this.overPosition = newPosition;
+			this.repaint();
 
+			// Notificamos el evento a los observadores
 			for (IPositionObserver observer : this.positionObservers)
 				observer.setPosition(overPosition, mode);
 
-			this.repaint();
-		} else {
+		}
+		// Si no es un evento over se habrá pulsado algún botón algo
+		else if (!mode.equals(IPositionObserver.Mode.Over)) {
+			// Notificamos el evento a los observadores
 			for (IPositionObserver observer : this.positionObservers)
 				observer.setPosition(overPosition, mode);
 		}
 	}
 
 	/**
-	 * Establecemos la posición sobre la que esta el cursor. Sólo si cambiamos
-	 * el estado actualizamos y repintamos la pantalla.
+	 * Tras la generación de un evento, el controlador (un ViewListener) invoca
+	 * este método para indicar al SimulationView que se ha generado un evento y
+	 * en la posición en la que se ha generado el evento.
+	 * 
+	 * El Simulation view redibujará la pantalla y notificará el evento a los
+	 * observadores de posición.
+	 * 
+	 * Tan sólo actualizaremos la posición si realmente ha cambiado durante un
+	 * evento over, para evitar redibujar inecesariamente la vista.
 	 * 
 	 * @param newPosition
+	 *            La nueva posición
+	 * 
+	 * @param mode
+	 *            El modo del evento: Over, Click, DoubleClick
+	 * 
+	 * @param valid
+	 *            Si la nueva posición es válida
+	 * 
 	 */
 	public void setPosition(IPosition newPosition, IPositionObserver.Mode mode,
 			Boolean valid) {
@@ -419,6 +575,9 @@ public class SimulationView extends JPanel implements Observer {
 
 	/**
 	 * Calcular el indice de la celda en funcion de la posicion del cursor
+	 * 
+	 * @param e
+	 *            El evento AWT
 	 */
 	public IPosition getPosition(MouseEvent e) {
 
@@ -450,19 +609,19 @@ public class SimulationView extends JPanel implements Observer {
 	}
 
 	/**
-	 * @param obj
+	 * @param observer
 	 *            Añade el objeto a la lista de observadores de posición.
 	 */
-	public void addPositionObserver(IPositionObserver obj) {
-		this.positionObservers.add(obj);
+	public void addPositionObserver(IPositionObserver observer) {
+		this.positionObservers.add(observer);
 	}
 
 	/**
-	 * @param obj
+	 * @param simulator
 	 *            Añade el simulador a la lista de simuladores.
 	 */
-	public void addSimulator(ISimulator obj) {
-		this.simulatorList.add(obj);
+	public void addSimulator(ISimulator simulator) {
+		this.simulatorList.add(simulator);
 	}
 
 	/*
@@ -481,20 +640,31 @@ public class SimulationView extends JPanel implements Observer {
 		int ticks = simulationModel.getTimeTicks();
 		int processes = simulationModel.getNumProcesses();
 
-		// Solo cambiar el tamaño de la ventana si han cambiado el número de
+		// Sólo cambiar el tamaño del componente si han cambiado el número de
 		// ticks y el número de procesos.
 		if (this.ticks != ticks || this.processes != processes) {
+
 			this.ticks = ticks;
 			this.processes = processes;
 
 			width = ticks * cellWidth + 2 * paddingX;
 			height = processes * (cellHeight + paddingY) + paddingY;
 
+			// Creamos un nuevo buffer del nuevo tamaño del componente que
+			// usaremos para hacer un doblebuffer.
 			this.backBuffer = new BufferedImage(width, height,
 					BufferedImage.TYPE_INT_ARGB);
 
+			this.graph2DBuffer = (Graphics2D) backBuffer.getGraphics();
+			this.graph2DBuffer.setRenderingHint(
+					RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
+
+			// Cuando redimensionamos nuestra vista/componente necesitamos
+			// ejecutar super.paint() para limpiar el contenido del componente.
 			this.screenResized = true;
 
+			// Actualizamos el tamaño del componente
 			this.setPreferredSize(new Dimension(width, height));
 
 		} else {
