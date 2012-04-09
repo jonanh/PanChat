@@ -17,6 +17,9 @@ import order.layer.TotalOrderLayer;
 
 import panchat.data.User;
 
+/**
+ * Esta clase simula la recepción de los mensajes por el programa.
+ */
 public class SimulationTopLayer extends OrderLayer {
 
 	/*
@@ -123,5 +126,10 @@ public class SimulationTopLayer extends OrderLayer {
 			this.receivedQueue.addAll(deliveryQueue);
 			this.deliveryQueue.clear();
 		}
+	}
+
+	@Override
+	public String layerName() {
+		return "TopLayer";
 	}
 }

@@ -11,10 +11,10 @@ import java.util.Observable;
 import order.Message;
 
 import panchat.data.User;
+import simulation.arrows.DeliveryArrow;
 import simulation.arrows.MultipleArrow;
 import simulation.arrows.SingleArrow;
 import simulation.model.SimulationArrowModel;
-import simulation.order_dinamic.arrows.DeliveryArrow;
 import simulation.view.CellPosition;
 import simulation.view.ISimulator;
 import simulation.view.SimulationView;
@@ -169,14 +169,17 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 				SimulationTopLayer topLayer = topLayers.get(user);
 
 				/*
-				 * Recepción de mensajes
+				 * Simulamos la recepción de mensajes a nivel de red. Además
+				 * debemos tener en cuenta que la recepción de un mensaje puede
+				 * generar el envio de otros mensajes como en el caso de un
+				 * mensaje total.
 				 */
 
 				// Obtenemos el mensaje que previamente habíamos guardado en el
 				// paso anterior, y que debemos entregar según la posición.
 				Message msg = receive.get(iterator);
 
-				// Si existe un nensaje por recibir
+				// Si existe un mensaje por recibir
 				if (msg != null) {
 
 					// Hacemos que al capa simule la recepción del mensaje a
@@ -189,6 +192,7 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 					// mensajes.
 					Iterator<Message> receivedMessages;
 					receivedMessages = topLayer.getReceivedMsgs().iterator();
+
 					while (receivedMessages.hasNext()) {
 
 						Message rMsg = receivedMessages.next();
@@ -199,8 +203,8 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 							CellPosition pos = (CellPosition) rMsg.getContent();
 
 							// Creamos la flecha que representa la entrega
-							SingleArrow arrow = new DeliveryArrow(pos, iterator
-									.clone());
+							SingleArrow arrow = new DeliveryArrow(pos,
+									iterator.clone());
 
 							// La añadimos al listado de flechas de entrega.
 							simulationArrows.add(arrow);
@@ -213,7 +217,10 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 				Collection<Message> messages = topLayer.getSendedMsg().values();
 
 				/*
-				 * Envio de mensajes
+				 * Simulamos el envío de mensajes. Los mensajes quedarán
+				 * almacenados temporalmente en la tabla hash receive hasta que
+				 * sea realizada la simulación de la recepción del mensaje en el
+				 * otro proceso.
 				 */
 
 				// Las MultipleArrow son el conjunto de flechas que conforman
@@ -241,14 +248,17 @@ public class SimulationOrderModel extends Observable implements ISimulator {
 						listDest.add(user2);
 					}
 
+					// Comprobamos si ya existían mensajes de la etapa de
+					// recepción (producidos como respuesta de un mensaje).
 					if (messages.size() == 0 && listDest.size() > 0) {
+
 						// Creamos el mensaje, y guardamos en el la posición
 						// donde estamos (el tick y el proceso), de modo que
 						// cuando lo recibamos creamos una flecha desde que se
 						// envio, a ese momento en el que se reciba.
 						msg = new Message(iterator.clone(), user, multipleArrow
 								.getProperties().clone());
-						topLayer.sendMsg(listDest, msg);
+						topLayer.sendMsg(listDest, msg, false);
 
 						// Al ser simulado, no se envia realmente el paquete, y
 						// lo que hacemos es recogerlo de la capa más baja de

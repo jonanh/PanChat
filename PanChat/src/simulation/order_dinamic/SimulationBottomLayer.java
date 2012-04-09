@@ -9,8 +9,15 @@ import order.layer.OrderLayer;
 
 import panchat.data.User;
 
+/**
+ * Esta clase simula la capa de red.
+ * 
+ */
 public class SimulationBottomLayer extends OrderLayer {
 
+	// Almacenamos el mensaje enviado. Nota: Tan sólo se puede mandar un sólo
+	// mensaje en cada unidad de tiempo, aunque un mensaje si puede tener
+	// multiples destinatarios.
 	private HashMap<User, Message> message = new HashMap<User, Message>();
 
 	public SimulationBottomLayer(User user) {
@@ -23,17 +30,14 @@ public class SimulationBottomLayer extends OrderLayer {
 	}
 
 	@Override
-	public synchronized void sendMsg(User user, Message msg) {
-		debug("\nMensaje enviado fisicamente a (" + user + "), contenido ("
-				+ msg + ")");
+	public synchronized void sendMsg(User user, Message msg, boolean answer) {
 		this.message.put(user, msg);
 	}
 
 	@Override
-	public synchronized void sendMsg(List<User> users, Message msg) {
+	public synchronized void sendMsg(List<User> users, Message msg,
+			boolean answer) {
 		for (User user : users) {
-			debug("\nMensaje enviado fisicamente a (" + user + "), contenido ("
-					+ msg + ")");
 			this.message.put(user, msg);
 		}
 	}
@@ -67,5 +71,10 @@ public class SimulationBottomLayer extends OrderLayer {
 		this.deliveryQueue.add(msg.clone());
 		this.setChanged();
 		this.notifyObservers(this);
+	}
+
+	@Override
+	public String layerName() {
+		return "PhysicalLayer";
 	}
 }
