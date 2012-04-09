@@ -6,7 +6,6 @@ import java.util.EnumMap;
 
 import order.Message.Type;
 
-import simulation.model.SimulationArrowModel;
 import simulation.view.CellPosition;
 
 public interface MessageArrow {
@@ -20,14 +19,6 @@ public interface MessageArrow {
 	 * @return Devuelve las propiedades de la flecha.
 	 */
 	public EnumMap<Type, Boolean> getProperties();
-
-	/**
-	 * @param simulationModel
-	 * 
-	 * @return Devuelve si la flecha es válida, ya que las flechas pueden
-	 *         imponer restricciones de movilidad o de posición.
-	 */
-	public boolean isValid(SimulationArrowModel simulationModel);
 
 	/**
 	 * Dibuja la flecha sobre el contexto gráfico

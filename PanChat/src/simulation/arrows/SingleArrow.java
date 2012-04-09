@@ -122,7 +122,8 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 	 * 
 	 * @return Si es valida la flecha
 	 */
-	public boolean isValid(SimulationArrowModel simulationModel) {
+	public boolean isValid(SimulationArrowModel simulationModel,
+			MultipleArrow arrow) {
 
 		isValid = true;
 
@@ -130,9 +131,20 @@ public class SingleArrow extends Arrow implements MessageArrow, Serializable {
 		if (initialPos.tick >= finalPos.tick)
 			isValid = false;
 
-		// Si el destino de la fecha apunta a una celda ya ocupada
-		if (simulationModel.getArrow(finalPos) != null)
+		// Si el destino de la fecha apunta a una celda ya ocupada.
+		// Debemos comprobar que la flecha que apunta no apunta sobre un nodo de
+		// la propia flecha multiple, como por ejemplo en el caso de una flecha
+		// total. Además una flecha total puede comprobar la validez de sus
+		// flechas estando incluida dentro del model, razón por la que arrow2 y
+		// arrow pueden ser iguales.
+		MultipleArrow arrow2 = simulationModel.getArrow(finalPos);
+		if (arrow2 != null && arrow2 != arrow)
 			isValid = false;
+
+		// else
+		// for (CellPosition pos : arrow.getPositions())
+		// if (pos.equals(finalPos) && finalPos != pos)
+		// isValid = false;
 
 		// Si estamos comprobando la validez de la flecha, es que estamos
 		// moviendo la flecha, luego recalcular la pendiente.

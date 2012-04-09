@@ -267,7 +267,7 @@ public class MultipleArrow implements MessageArrow, Serializable {
 
 		// Activamos el isValid para cada una de las flechas
 		for (SingleArrow arrow : arrowList)
-			if (!arrow.isValid(simulationModel))
+			if (!arrow.isValid(simulationModel, this))
 				isValid = false;
 
 		return isValid;
