@@ -1,8 +1,7 @@
-package simulation.order_dinamic.arrows;
+package simulation.arrows;
 
 import java.awt.Color;
 
-import simulation.arrows.SingleArrow;
 import simulation.view.CellPosition;
 
 public class DeliveryArrow extends SingleArrow {
