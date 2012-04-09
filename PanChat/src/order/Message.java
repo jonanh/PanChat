@@ -177,7 +177,18 @@ public class Message implements Serializable {
 
 	@Override
 	public String toString() {
-		return "msg content :" + content.toString();
+
+		String type = "";
+		if (isType(Type.FIFO))
+			type += "FIFO";
+		if (isType(Type.CAUSAL))
+			type += "Causal";
+		if (isType(Type.TOTAL))
+			type += "Total";
+		if (type == "")
+			type = "Simple";
+
+		return type + ":" + content.toString();
 	}
 
 	public EnumMap<Type, Boolean> getProperties() {
