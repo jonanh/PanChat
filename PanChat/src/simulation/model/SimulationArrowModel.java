@@ -155,14 +155,25 @@ public class SimulationArrowModel extends Observable implements Serializable {
 	 *            Añadimos esta fecla
 	 */
 	public synchronized void addArrow(MultipleArrow messageArrow) {
+		addArrow(messageArrow, true);
+	}
+
+	/**
+	 * 
+	 * @param messageArrow
+	 *            Añadimos esta fecla
+	 */
+	public synchronized void addArrow(MultipleArrow messageArrow, boolean update) {
 
 		for (CellPosition pos : messageArrow.getPositions())
 			arrowMatrix.put(pos, messageArrow);
 
 		arrowList.add(messageArrow);
 
-		super.setChanged();
-		this.notifyObservers();
+		if (update) {
+			super.setChanged();
+			this.notifyObservers();
+		}
 	}
 
 	public synchronized MultipleArrow getArrow(IPosition position) {
@@ -181,7 +192,12 @@ public class SimulationArrowModel extends Observable implements Serializable {
 	 * 
 	 * @param position
 	 */
-	public synchronized MultipleArrow deleteArrow(CellPosition position) {
+	public MultipleArrow deleteArrow(CellPosition position) {
+		return deleteArrow(position, true);
+	}
+
+	public synchronized MultipleArrow deleteArrow(CellPosition position,
+			boolean update) {
 
 		MultipleArrow arrow = arrowMatrix.remove(position);
 
@@ -192,8 +208,10 @@ public class SimulationArrowModel extends Observable implements Serializable {
 			arrowList.remove(arrow);
 		}
 
-		super.setChanged();
-		this.notifyObservers();
+		if (update) {
+			super.setChanged();
+			this.notifyObservers();
+		}
 		return arrow;
 	}
 
