@@ -1,4 +1,4 @@
-package order.clocks.models;
+package simulation.model;
 
 import javax.swing.table.AbstractTableModel;
 

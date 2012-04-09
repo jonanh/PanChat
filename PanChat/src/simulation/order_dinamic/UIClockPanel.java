@@ -10,9 +10,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 
-import order.clocks.models.CausalMatrixModel;
-import order.clocks.models.VectorClockModel;
 
+import simulation.model.CausalMatrixModel;
+import simulation.model.VectorClockModel;
 import simulation.view.CellPosition;
 import simulation.view.IPositionObserver;
 import simulation.view.IPosition;
