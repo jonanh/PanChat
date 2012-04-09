@@ -22,20 +22,21 @@ public class FifoOrderLayer extends OrderLayer {
 	}
 
 	@Override
-	public synchronized void sendMsg(List<User> users, Message msg) {
+	public synchronized void sendMsg(List<User> users, Message msg,
+			boolean answer) {
 		// Añadir un tick en cada usuario
 		for (User user : users)
 			sendClock.send(user);
 
 		msg.setClock(orderCapability(), sendClock.clone());
-		super.sendMsg(users, msg);
+		super.sendMsg(users, msg, answer);
 	}
 
 	@Override
-	public synchronized void sendMsg(User user, Message msg) {
+	public synchronized void sendMsg(User user, Message msg, boolean answer) {
 		sendClock.send(user);
 		msg.setClock(orderCapability(), sendClock.clone());
-		super.sendMsg(user, msg);
+		super.sendMsg(user, msg, answer);
 	}
 
 	@Override
@@ -57,6 +58,11 @@ public class FifoOrderLayer extends OrderLayer {
 	@Override
 	public Type orderCapability() {
 		return Message.Type.FIFO;
+	}
+
+	@Override
+	public String layerName() {
+		return "FIFOLayer";
 	}
 
 	@Override

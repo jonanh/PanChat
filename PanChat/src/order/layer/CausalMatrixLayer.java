@@ -25,13 +25,13 @@ public class CausalMatrixLayer extends OrderLayer {
 	 * @param msg
 	 */
 	@Override
-	public synchronized void sendMsg(User user, Message msg) {
+	public synchronized void sendMsg(User user, Message msg, boolean answer) {
 
 		matrix.send(user);
 
 		msg.setClock(orderCapability(), matrix.clone());
 
-		super.sendMsg(user, msg);
+		super.sendMsg(user, msg, answer);
 	}
 
 	/**
@@ -41,13 +41,14 @@ public class CausalMatrixLayer extends OrderLayer {
 	 * @param msg
 	 */
 	@Override
-	public synchronized void sendMsg(List<User> users, Message msg) {
+	public synchronized void sendMsg(List<User> users, Message msg,
+			boolean answer) {
 
 		matrix.send(users);
 
 		msg.setClock(orderCapability(), matrix.clone());
 
-		super.sendMsg(users, msg);
+		super.sendMsg(users, msg, answer);
 	}
 
 	/**
@@ -111,6 +112,11 @@ public class CausalMatrixLayer extends OrderLayer {
 	@Override
 	public Type orderCapability() {
 		return Message.Type.CAUSAL;
+	}
+
+	@Override
+	public String layerName() {
+		return "CausalLayer";
 	}
 
 	/**
