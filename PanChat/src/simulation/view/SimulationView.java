@@ -20,6 +20,7 @@ import order.Message.Type;
 
 import simulation.arrows.MessageArrow;
 import simulation.arrows.MultipleArrow;
+import simulation.arrows.TotalArrow;
 import simulation.model.SimulationArrowModel;
 import simulation.view.listener.CreateListener;
 import simulation.view.listener.DeleteListener;
@@ -163,7 +164,7 @@ public class SimulationView extends JPanel implements Observer {
 		}
 
 		if (SimulationView.DEBUG) {
-			paintDebugArrows(graph2DBuffer, simulationModel.getArrowList());
+			paintDebug(graph2DBuffer, simulationModel.getArrowList());
 
 		} else
 			// Dibujamos las flechas
@@ -294,6 +295,33 @@ public class SimulationView extends JPanel implements Observer {
 	}
 
 	/**
+	 * Dibuja las flechas
+	 * 
+	 * @param g
+	 *            el contexto grafico en el cual se pinta.
+	 */
+	public static void paintArrows(Graphics2D g,
+			List<? extends MessageArrow> arrowList) {
+
+		// Pintamos cada flecha con un color diferente.
+		int i = 0;
+
+		for (MessageArrow arrow : arrowList) {
+
+			if (arrow instanceof TotalArrow) {
+				Color color = (Color.getHSBColor(i * .15f % 1, .8f, .7f));
+				arrow.draw(g, color);
+				i++;
+			} else
+				arrow.draw(g);
+		}
+	}
+
+	/*
+	 * Funciones de dibujado para la depuración
+	 */
+
+	/**
 	 * Dibujamos las flechas en modo debug. Cada flecha tendrá un color
 	 * diferente.
 	 * 
@@ -306,8 +334,7 @@ public class SimulationView extends JPanel implements Observer {
 	 * @param g
 	 *            el contexto grafico en el cual se pinta.
 	 */
-	public void paintDebugArrows(Graphics2D g,
-			List<? extends MessageArrow> arrowList) {
+	public void paintDebug(Graphics2D g, List<? extends MessageArrow> arrowList) {
 
 		// Resaltamos aquellas posiciones que contengan una flecha.
 		CellPosition pos = new CellPosition(0, 0);
@@ -327,7 +354,7 @@ public class SimulationView extends JPanel implements Observer {
 		int i = 0;
 		for (MessageArrow arrow : arrowList) {
 			Color color = (Color.getHSBColor(i * .15f % 1, .8f, .7f));
-			;
+
 			arrow.draw(g, color);
 
 			// Resaltamos los vertices de cada flecha.
@@ -336,19 +363,6 @@ public class SimulationView extends JPanel implements Observer {
 				paintCell2(g, posi);
 			}
 			i++;
-		}
-	}
-
-	/**
-	 * Dibuja las flechas
-	 * 
-	 * @param g
-	 *            el contexto grafico en el cual se pinta.
-	 */
-	public static void paintArrows(Graphics2D g,
-			List<? extends MessageArrow> arrowList) {
-		for (MessageArrow arrow : arrowList) {
-			arrow.draw(g);
 		}
 	}
 
