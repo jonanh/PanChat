@@ -7,7 +7,7 @@ import order.Message.Type;
 
 import simulation.arrows.SimpleMultipleArrow;
 import simulation.arrows.SingleArrow;
-import simulation.order_dinamic.arrows.TotalArrow;
+import simulation.arrows.TotalArrow;
 import simulation.view.CellPosition;
 import simulation.view.IPositionObserver;
 import simulation.view.IPosition;
@@ -72,7 +72,7 @@ public class CreateListener extends MoveListener {
 					// Copiamos las propiedades en el mensaje creado.
 					arrow.setProperties(properties);
 
-					simulationModel.addArrow(arrow);
+					arrow.add2Simulation(simulationModel);
 
 				} else {
 
