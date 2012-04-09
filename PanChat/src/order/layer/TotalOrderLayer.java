@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import order.Message;
 import order.Message.Type;
+import order.layer.TotalMessage;
+import order.layer.TotalMessage.*;
 
 import panchat.data.User;
 
@@ -29,24 +31,6 @@ public class TotalOrderLayer extends OrderLayer {
 	private static int msgCount = 0;
 
 	private String simulationDelivery = "";
-
-	/*
-	 * Tramas para cada una de las fases de la ordenación total.
-	 */
-	public class TotalSendMsg implements Message.Fifo, Message.Total {
-		int clock;
-		TotalUndeliverable content;
-	}
-
-	public class TotalProposalMsg implements Message.Fifo, Message.Total {
-		int msgReference;
-		int clock;
-	}
-
-	public class TotalFinalMsg implements Message.Fifo, Message.Total {
-		int msgReference;
-		int clock;
-	}
 
 	/*
 	 * Atributos
@@ -101,20 +85,21 @@ public class TotalOrderLayer extends OrderLayer {
 		this.hash.put(msgRef, undeliverable);
 
 		// Enviamos una trama al resto de clientes
-		TotalSendMsg send = new TotalSendMsg();
+		TotalMessage.TotalSendMsg send = new TotalMessage.TotalSendMsg();
 		send.content = undeliverable.clone();
 		send.clock = clock;
 
-		super.sendMsg(this.userList, new Message(send, this.user));
+		super.sendMsg(this.userList, new Message(send, this.user), false);
 	}
 
 	@Override
-	public synchronized void sendMsg(List<User> users, Message msg) {
+	public synchronized void sendMsg(List<User> users, Message msg,
+			boolean answer) {
 		sendMsg(msg);
 	}
 
 	@Override
-	public synchronized void sendMsg(User user, Message msg) {
+	public synchronized void sendMsg(User user, Message msg, boolean answer) {
 		sendMsg(msg);
 	}
 
@@ -124,30 +109,33 @@ public class TotalOrderLayer extends OrderLayer {
 	@Override
 	protected receiveStatus okayToRecv(Message msg) {
 
-		// Cada vez que recibimos un mensaje, aumentamos el reloj de lamport.
-		this.clock++;
-
 		/*
 		 * - On receiving a message, a process marks it as undeliverable and
 		 * sends the value of the logical clock as the proposed timestamp to the
 		 * initiator.
 		 */
 		if (msg.getContent() instanceof TotalSendMsg) {
-
+			
 			TotalSendMsg totalMsg = (TotalSendMsg) msg.getContent();
 			TotalUndeliverable undeliverable = totalMsg.content.clone();
 
-			this.clock = Math.max(this.clock, undeliverable.priority);
+			this.clock = Math.max(this.clock, undeliverable.priority + 1);
 			undeliverable.priority = this.clock;
 
 			this.priorityQueue.add(undeliverable);
 			this.hash.put(undeliverable.msgReference, undeliverable);
 
+			debug("\t\t\tMessage is a Total Send message, adding to undeliverable queue");
+			debug("\t\t\tNew status of undeliverable Queue: " + priorityQueue);
+			debug("\t\t\tAnswering with a Total Proposal message, proposed clock "
+					+ clock);
+
 			TotalProposalMsg proposal = new TotalProposalMsg();
 			proposal.clock = this.clock;
 			proposal.msgReference = undeliverable.msgReference;
 
-			super.sendMsg(msg.getUsuario(), new Message(proposal, this.user));
+			super.sendMsg(msg.getUsuario(), new Message(proposal, this.user),
+					true);
 		}
 		/*
 		 * - When the initiator has received all the proposed timestamps, it
@@ -160,26 +148,30 @@ public class TotalOrderLayer extends OrderLayer {
 			TotalProposalMsg totalMsg = (TotalProposalMsg) msg.getContent();
 			TotalUndeliverable undeliverable = this.hash
 					.get(totalMsg.msgReference);
-			
+
 			if (undeliverable != null) {
-				this.clock = Math.max(this.clock, undeliverable.priority);
-				undeliverable.priority = this.clock;
+				this.clock = Math.max(this.clock, totalMsg.clock + 1);
 
 				// Actualizamos la prioridad del mensaje
 				undeliverable.addPriority(msg.getUsuario(), totalMsg.clock);
 
+				debug("\t\t\tMessage is a Total Proposal message new proposed clock: "
+						+ totalMsg.clock);
+
 				if (undeliverable.deliverable) {
 
+					debug("\t\t\tAnswering with a Total Final message");
+
 					TotalFinalMsg proposal = new TotalFinalMsg();
-					proposal.clock = this.clock; // undeliverable.priority;
+					proposal.clock = undeliverable.priority;
 					proposal.msgReference = undeliverable.msgReference;
 
 					super.sendMsg(undeliverable.userList, new Message(proposal,
-							this.user));
+							this.user), true);
 				}
 
 			} else {
-				System.out.println("Propuesta de mensaje total incorrecta");
+				System.out.println("ERROR! Invalid Total Proposal Message!");
 			}
 		}
 		/*
@@ -194,15 +186,17 @@ public class TotalOrderLayer extends OrderLayer {
 
 			if (undeliverable != null) {
 
+				debug("\t\t\tMessage is a Total Final message ");
+
 				// Actualizamos la prioridad del mensaje
 				undeliverable.setDeliverable(totalMsg.clock);
 
 			} else {
-				System.out.println("Mensaje total incorrecto");
+				System.out.println("ERROR! Invalid Total Final Message!");
 			}
 
 		} else {
-			System.out.println("error");
+			System.out.println("ERROR! Invalid Total Message!");
 		}
 
 		Collections.sort(priorityQueue);
@@ -214,11 +208,14 @@ public class TotalOrderLayer extends OrderLayer {
 		while (priorityQueue.size() > 0 && priorityQueue.get(0).deliverable) {
 			TotalUndeliverable under = priorityQueue.remove(0);
 
+			debug("\t\t\tDelivering total message");
+
 			if (simulating)
 				simulationDelivery += " " + under.msgReference;
 
 			this.deliveryQueue.add(under.content);
 		}
+
 		if (this.deliveryQueue.size() > 0)
 			return receiveStatus.Delivery;
 
@@ -228,6 +225,11 @@ public class TotalOrderLayer extends OrderLayer {
 	@Override
 	public Type orderCapability() {
 		return Message.Type.TOTAL;
+	}
+
+	@Override
+	public String layerName() {
+		return "TotalLayer";
 	}
 
 	public String getSimulationDelivery() {
