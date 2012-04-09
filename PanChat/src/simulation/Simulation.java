@@ -23,9 +23,9 @@ public class Simulation extends JFrame {
 	public Simulation() {
 		super(title);
 
-		pane.addTab("Simulación estática", staticSimulation);
-		pane.addTab("Simulación dinámica", dinamicSimulation);
-		pane.addTab("Simulación Chandy-Lamport", chandyLamport);
+		pane.addTab("Dynamic Simulation", dinamicSimulation);
+		pane.addTab("Static Simulation", staticSimulation);
+		//pane.addTab("Simulación Chandy-Lamport", chandyLamport);
 		
 		this.getContentPane().add(pane);
 		this.setSize(1200, 500);
