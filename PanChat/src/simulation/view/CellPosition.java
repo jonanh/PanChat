@@ -55,6 +55,7 @@ public class CellPosition implements Serializable, IPosition {
 		return "(" + process + "," + tick + ")";
 	}
 
+	@Override
 	public CellPosition clone() {
 		return new CellPosition(process, tick);
 	}
